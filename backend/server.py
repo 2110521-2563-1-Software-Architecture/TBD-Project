@@ -4,7 +4,7 @@ from aiohttp_tokenauth import token_auth_middleware
 from asyncio import get_event_loop
 from dotenv import load_dotenv
 from os import getenv
-from jwt import decode
+from jwt import decode, encode
 from datetime import datetime
 from re import search, compile
 
@@ -36,8 +36,33 @@ async def init(loop):
 
     @routes.post('/login')
     async def handle_login(request):
-        # TODO
-        return web.Response(text='OK')
+        try:
+            js = await request.json()
+            if is_email(js['account_id']):
+                email = js['account_id']
+                phone_number = ''
+            elif js['account_id']:
+                email = ''
+                phone_number = js['account_id']
+            hashed_pwd = js['pwd']
+            timestamp = str(datetime.now().timestamp())
+            payload = {'id':email+phone_number, 'timestamp':timestamp}
+            token = encode(payload, SECRET, algorithm=['HS256'])
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
+                value = (email, phone_number, hashed_pwd)
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close() 
+            if result:
+                async with conn.cursor() as cursor:
+                    stmt = 'INSERT INTO Token (token, timestamp) VALUES (%s, %s)'
+                    value = (token, timestamp)
+                    await cursor.execute(stmt, value)
+                    await cursor.close()
+                web.json_response({'result':'success.', 'token':token})
+        except:
+            return web.HTTPBadRequest()
 
     @routes.post('/register')
     async def handle_register(request):
