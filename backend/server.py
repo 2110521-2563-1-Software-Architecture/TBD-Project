@@ -5,6 +5,16 @@ from asyncio import get_event_loop
 from dotenv import load_dotenv
 from os import getenv
 from jwt import decode
+from datetime import datetime
+from re import search, compile
+
+EMAIL_REGEX = compile('[^@]+@[^@]+\.[^@]+')
+
+def is_email(email):
+    global EMAIL_REGEX
+    if search(EMAIL_REGEX, email):
+        return True
+    return False
 
 load_dotenv()
 
@@ -31,8 +41,49 @@ async def init(loop):
 
     @routes.post('/register')
     async def handle_register(request):
-        # TODO
-        return web.Response(text='OK')
+        try:
+            js = await request.json()
+            if is_email(js['account_id']):
+                email = js['account_id']
+                phone_number = ''
+            elif js['account_id']:
+                email = ''
+                phone_number = js['account_id']
+            first_name = js['first_name']
+            last_name = js['last_name']
+            hashed_pwd = js['pwd']
+            birth_date = js['birth_date']
+            gender = js['gender']
+            timestamp = str(datetime.now().timestamp())
+
+            #check if empty
+            if (not email and not phone_number) or not hashed_pwd or\
+                not birth_date or not gender or not first_name:
+                return web.HTTPBadRequest()
+
+            if False: # TODO check token
+                return web.HTTPForbidden(text='Invalid Token')
+
+            async with conn.cursor() as cursor: # TODO can update phone/email?
+                stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s'
+                value = (email, phone_number)
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close() 
+            if result:
+                return web.json_response({'result':'already registered.'})
+            async with conn.cursor() as cursor:
+                stmt = 'INSERT INTO Accounts (email, phone_number, first_name, last_name\
+                    hashed_pwd, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
+                     %s, %s, %s)'
+                value = (email, phone_number, first_name, last_name, 
+                hashed_pwd, birth_date, gender, timestamp)
+                await cursor.execute(stmt, value)                   
+                await conn.commit()  
+                await cursor.close()
+            return web.json_response({'status': 'success.'})
+        except Exception as err:
+            return web.HTTPBadRequest()
 
     async def user_loader(token: str):
         try:
