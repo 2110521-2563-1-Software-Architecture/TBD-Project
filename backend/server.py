@@ -9,6 +9,7 @@ from datetime import datetime
 from re import search, compile
 
 EMAIL_REGEX = compile('[^@]+@[^@]+\.[^@]+')
+ALGORITHM = ['HS256']
 
 def is_email(email):
     global EMAIL_REGEX
@@ -46,8 +47,14 @@ async def init(loop):
                 phone_number = js['account_id']
             hashed_pwd = js['pwd']
             timestamp = str(datetime.now().timestamp())
+
+            # generate access token
             payload = {'id':email+phone_number, 'timestamp':timestamp}
-            token = encode(payload, SECRET, algorithm=['HS256'])
+            token = encode(payload, SECRET, algorithm=ALGORITHM)
+
+            if False: # TODO check token
+                return web.HTTPForbidden(text='Invalid Token')
+
             async with conn.cursor() as cursor:
                 stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
                 value = (email, phone_number, hashed_pwd)
@@ -112,7 +119,7 @@ async def init(loop):
 
     async def user_loader(token: str):
         try:
-            user = decode(token, SECRET, algorithms=['HS256']) # TODO 
+            user = decode(token, SECRET, algorithms=ALGORITHM) # TODO 
         except:
             user = None
         finally:
