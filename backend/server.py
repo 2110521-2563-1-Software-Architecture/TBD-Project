@@ -67,7 +67,8 @@ async def init(loop):
                     value = (token, timestamp)
                     await cursor.execute(stmt, value)
                     await cursor.close()
-                web.json_response({'result':'success.', 'token':token})
+                return web.json_response({'result':'success.', 'token':token})
+            return web.json_response({'result':'incorrect id or password.'})
         except:
             return web.HTTPBadRequest()
 
