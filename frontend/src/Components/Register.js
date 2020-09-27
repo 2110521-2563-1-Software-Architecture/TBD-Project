@@ -47,11 +47,15 @@ function Register() {
     }
     return (
         <div style={page}>
-            <Row className="head" style={{ marginBottom:'10'}}>
-                <h2>Sign Up</h2>
-                <h>It's quick and easy.</h>
+            <Row className="head">
+                <Col span={24} style={topic}>
+                    Sign Up
+                </Col>
+                <Col style={title}>
+                    It's quick and easy.
+                </Col>
             </Row>
-            <Row style={{bordertop: '1px solid #E5E5E5'}}>
+            <Row style={{borderTop: '1px solid #E5E5E5', marginTop:"15px", paddingTop:"15px"}} gutter={10}>
                 <Col span={12}>
                     <Input 
                         style={input}
@@ -67,24 +71,25 @@ function Register() {
                     />
                 </Col>
             </Row>
-            <Row>
+            <Row style={{marginTop:"10px"}}>
                 <Input 
                     style={input}
                     onChange={onChangeEmail}
                     placeholder="Mobile number or email address"                       
                 />
             </Row>
-            <Row>
+            <Row style={{marginTop:"10px"}}>
                 <Input 
                     style={input}
                     onChange={onChangePassword}
                     placeholder="New password"                       
                 />
             </Row>
-            <Row>
-                <h>Date of birth</h>
+            <Row style={{marginTop:"10px"}} gutter={10}>
+                <Col span={24}>Date of birth</Col>
                 <Col span={8}>
-                    <Select 
+                    <Select
+                        style={select} 
                         defaultValue="1"
                         onChange={e => {
                             onChangeDate(e);
@@ -124,6 +129,7 @@ function Register() {
                 </Col>
                 <Col span={8}> 
                     <Select 
+                        style={select}
                         defaultValue="1"
                         onChange={e => {
                             onChangeMonth(e);
@@ -144,6 +150,7 @@ function Register() {
                 </Col>
                 <Col span={8}>
                     <Select 
+                        style={select}
                         defaultValue="1"
                         onChange={e => {
                             onChangeYear(e);
@@ -182,8 +189,8 @@ function Register() {
                     </Select>
                 </Col>
             </Row>
-            <Row>
-                <h>Gender</h>
+            <Row style={{marginTop:"10px"}}>
+                <Col span={24}>Gender</Col>
                 <Col span={8}>Female</Col>
                 <Col span={8}>Male</Col>
                 <Col span={8}>Custom</Col>
@@ -191,7 +198,7 @@ function Register() {
             <Row style={down}>
 By clicking Sign Up, you agree to our Terms, Data Policy and Cookie Policy. You may receive SMS notifications from us and can opt out at any time.
             </Row>
-            <Row style={{textAlign: "center"}}>
+            <Row justify="center">
                 <Button 
                     onClick={()=>onSubmit()}
                     style={button_sign_up}
@@ -205,31 +212,48 @@ By clicking Sign Up, you agree to our Terms, Data Policy and Cookie Policy. You 
 }
 const page = {
     margin: 'auto',
-    width: "30%",
+    width: "25%",
     border: 'gray solid 2px',
-    padding: '20px',
+    padding: '15px',
 }
 const down = {
     color: "#777",
-    fontSize: "11px"
+    fontSize: "11px",
+    marginTop: "10px",
+    marginBottom: "10px"
 }
 const input = {
-    width: "170px",
+    width: "100%",
     borderColor: "#ccd0d5",
     background: "#F4F4F4",
     border:"none",
     borderRadius:"5px",
-    padding:"4px"
+    padding:"11px"
 }
 const button_sign_up = {
     height: "36px",
     backgroundColor: "#00a400",
     border: "none",
     borderRadius: "6px",
-    paddingLeft: "32px",
-    paddingRight: "32px",
+    paddingLeft: "50px",
+    paddingRight: "50px",
     color: "#fff",
     fontSize: "18px",
+}
+const topic = {
+    color: "#1c1e21",
+    fontSize: "32px",
+    lineHeight: "38px",
+    marginBottom: "0"
+
+}
+const title = {
+    color: "#606770",
+    fontSize: "15px",
+    lineHeight: "24px"
+}
+const select = {
+    width:"100%"
 }
 
 export default Register
