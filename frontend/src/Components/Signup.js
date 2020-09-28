@@ -8,7 +8,7 @@ const { Option } = Select;
 function Signup() {
     const [firstName, setFirstName] = useState('');
     const [surName, setSurName] = useState('');
-    const [email, setEmail] = useState('');
+    const [accountId, setAccountId] = useState('');
     const [password, setPassword] = useState('');
     const [date, setDate] = useState('');
     const [month, setMonth] = useState('');
@@ -25,8 +25,8 @@ function Signup() {
     const onChangeSurname = (e) =>{
         setSurName(e.target.value)
     }
-    const onChangeEmail = (e) =>{
-        setEmail(e.target.value)
+    const onChangeAccountId = (e) =>{
+        setAccountId(e.target.value)
     }
     const onChangePassword = (e) =>{
         setPassword(e.target.value)
@@ -50,8 +50,23 @@ function Signup() {
         setVisPronoun(e.target.value)
     }
 
-    const onSubmit = () =>{
-        
+    const onSubmit = (e) =>{
+        e.preventDefault();
+        if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
+            const sendToBackend = {
+                account_id: account_id,
+                password: password,
+                first_name: firstName,
+                last_name: surName,
+                gender: gender,
+                birth_date: date+'/'+month+'/'+year
+            }
+            // setShowMessage(false)
+            axios.post('http://localhost:4000/signup', sendToBackend).then(res => console.log(res.data));
+        }
+        else{
+            // setShowMessage(true)
+        }
     }
     return (
         <div>
@@ -86,8 +101,8 @@ function Signup() {
                 <Row style={{marginTop:"10px"}}>
                     <Input 
                         style={input}
-                        onChange={onChangeEmail}
-                        placeholder="Mobile number or email address"                       
+                        onChange={onChangeAccountId}
+                        placeholder="Mobile number or account_id address"                       
                     />
                 </Row>
                 <Row style={{marginTop:"10px"}}>
@@ -325,7 +340,7 @@ function Signup() {
                 </Row>
                 <Row justify="center">
                     <Button 
-                        onClick={()=>onSubmit()}
+                        onClick={onSubmit}
                         style={button_sign_up}
                     >
                         Sign Up
