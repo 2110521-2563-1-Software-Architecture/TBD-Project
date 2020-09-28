@@ -18,9 +18,10 @@ function Login() {
     const onSubmit = (e) =>{
         e.preventDefault();
         // console.log(`login successfully`);
-        // if(username.includes("@")){
-        const token = jwt.sign({a:'a'}, 'secret', { algorithm: 'HS256'});
-        if(username != ''){
+        const SECRET = 'secret'; // ให้เหมือนของ backend
+        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
+        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
+        if(username.includes("@")){
             const sendToBackend = {
                 account_id: username,
                 pwd: password // อย่าลืม hash ก่อนส่ง
@@ -30,7 +31,7 @@ function Login() {
             sendToBackend,
             {
                 headers:{
-                    Authorization:'Bearer '+ token
+                    Authorization: token
                 }
             }).then(res => console.log(res.data));
         }
