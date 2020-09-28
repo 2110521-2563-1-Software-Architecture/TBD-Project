@@ -12,7 +12,7 @@ python server.py
 ในไลน์
 
 # jwt token
-header = {'Authorization':'Bearer '+token}
+header = {'Authorization':'token}
 
 # payload register
 json({
