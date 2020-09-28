@@ -1,4 +1,4 @@
-from aiohttp import web, ClientSession
+from aiohttp import web
 from aiomysql import connect
 from aiohttp_tokenauth import token_auth_middleware
 from asyncio import get_event_loop
@@ -49,8 +49,8 @@ async def init(loop):
             timestamp = str(datetime.now().timestamp())
 
             # generate access token
-            payload = {'id':email+phone_number, 'timestamp':timestamp}
-            token = encode(payload, SECRET, algorithm=ALGORITHM)
+            payload = {'email':email, 'phone_number':phone_number, 'timestamp':timestamp}
+            token = encode(payload, SECRET, algorithm=ALGORITHM[0]).decode('utf-8')
 
             if False: # TODO check token
                 return web.HTTPForbidden(text='Invalid Token')
@@ -106,7 +106,7 @@ async def init(loop):
             if result:
                 return web.json_response({'result':'already registered.'})
             async with conn.cursor() as cursor:
-                stmt = 'INSERT INTO accounts (email, phone_number, first_name, last_name\
+                stmt = 'INSERT INTO accounts (email, phone_number, first_name, last_name,\
                     hashed_pwd, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
                      %s, %s, %s)'
                 value = (email, phone_number, first_name, last_name, 
@@ -115,7 +115,7 @@ async def init(loop):
                 await conn.commit()  
                 await cursor.close()
             return web.json_response({'status': 'success.'})
-        except Exception as err:
+        except:
             return web.HTTPBadRequest()
 
     async def user_loader(token: str):
