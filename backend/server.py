@@ -19,11 +19,11 @@ def is_email(email):
 
 load_dotenv()
 
-DATABASE_NAME = getenv('DATABASE_NAME')
-HOST = getenv('HOST')
-USER = getenv('USER')
-PASSWORD = getenv('PASSWORD')
-PORT = int(getenv('PORT'))
+DATABASE_NAME = getenv('DB_DATABASE')
+HOST = getenv('DB_HOST')
+USER = getenv('DB_USERNAME')
+PASSWORD = getenv('DB_PASSWORD')
+PORT = int(getenv('DB_PORT'))
 SECRET = getenv('SECRET')
 
 async def init(loop):
@@ -56,14 +56,14 @@ async def init(loop):
                 return web.HTTPForbidden(text='Invalid Token')
 
             async with conn.cursor() as cursor:
-                stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
+                stmt = 'SELECT * FROM accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
                 value = (email, phone_number, hashed_pwd)
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
             if result:
                 async with conn.cursor() as cursor:
-                    stmt = 'INSERT INTO Token (token, timestamp) VALUES (%s, %s)'
+                    stmt = 'INSERT INTO tokens (token, timestamp) VALUES (%s, %s)'
                     value = (token, timestamp)
                     await cursor.execute(stmt, value)
                     await cursor.close()
@@ -98,7 +98,7 @@ async def init(loop):
                 return web.HTTPForbidden(text='Invalid Token')
 
             async with conn.cursor() as cursor: # TODO can update phone/email?
-                stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s'
+                stmt = 'SELECT * FROM accounts WHERE email = %s AND phone_number = %s'
                 value = (email, phone_number)
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
@@ -106,7 +106,7 @@ async def init(loop):
             if result:
                 return web.json_response({'result':'already registered.'})
             async with conn.cursor() as cursor:
-                stmt = 'INSERT INTO Accounts (email, phone_number, first_name, last_name\
+                stmt = 'INSERT INTO accounts (email, phone_number, first_name, last_name\
                     hashed_pwd, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
                      %s, %s, %s)'
                 value = (email, phone_number, first_name, last_name, 
