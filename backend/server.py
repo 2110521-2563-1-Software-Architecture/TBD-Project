@@ -19,11 +19,11 @@ def is_email(email):
 
 load_dotenv()
 
-DATABASE_NAME = getenv('DATABASE_NAME')
-HOST = getenv('HOST')
-USER = getenv('USER')
-PASSWORD = getenv('PASSWORD')
-PORT = int(getenv('PORT'))
+DATABASE_NAME = getenv('DB_DATABASE')
+HOST = getenv('DB_HOST')
+USER = getenv('DB_USERNAME')
+PASSWORD = getenv('DB_PASSWORD')
+PORT = int(getenv('DB_PORT'))
 SECRET = getenv('SECRET')
 
 async def init(loop):
