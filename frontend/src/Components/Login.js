@@ -1,6 +1,7 @@
 import React, {useState} from 'react'
 import axios from 'axios'
 import {Link, BrowserRouter as Router} from 'react-router-dom'
+import jwt from 'jsonwebtoken'
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -16,14 +17,23 @@ function Login() {
 
     const onSubmit = (e) =>{
         e.preventDefault();
-        console.log(`login successfully`);
+        // console.log(`login successfully`);
+        const SECRET = 'secret'; // ให้เหมือนของ backend
+        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
+        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         if(username.includes("@")){
             const sendToBackend = {
-                username: username,
-                password: password
+                account_id: username,
+                pwd: password // อย่าลืม hash ก่อนส่ง
             }
             setShowMessage(false)
-            axios.post('http://localhost:4000/signup', sendToBackend).then(res => console.log(res.data));
+            axios.post('http://localhost:8080/login', 
+            sendToBackend,
+            {
+                headers:{
+                    Authorization: token
+                }
+            }).then(res => console.log(res.data));
         }
         else{
             setShowMessage(true)
