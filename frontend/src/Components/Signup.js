@@ -1,18 +1,18 @@
-import React, {useState} from 'react'
-import axios from 'axios'
-import {Link, BrowserRouter as Router} from 'react-router-dom'
+import React, {useState} from 'react';
+import axios from 'axios';
+import {Link, BrowserRouter as Router} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button } from 'antd';
-import Grid from 'antd/lib/card/Grid';
+import jwt from 'jsonwebtoken';
 const { Option } = Select;
 
 function Signup() {
     const [firstName, setFirstName] = useState('');
     const [surName, setSurName] = useState('');
-    const [accountId, setAccountId] = useState('');
+    const [account_id, setAccountId] = useState('');
     const [password, setPassword] = useState('');
-    const [date, setDate] = useState('');
-    const [month, setMonth] = useState('');
-    const [year, setYear] = useState('');
+    const [date, setDate] = useState('1');
+    const [month, setMonth] = useState('Jan');
+    const [year, setYear] = useState('2020');
     const [gender, setGender] = useState('');
     const [pronoun, setPronoun] = useState('');
     const [visPronoun, setVisPronoun] = useState('');
@@ -52,20 +52,37 @@ function Signup() {
 
     const onSubmit = (e) =>{
         e.preventDefault();
+        const SECRET = 'secret'; // ให้เหมือนของ backend
+        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
+        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
             const sendToBackend = {
                 account_id: account_id,
-                password: password,
+                pwd: password, // อย่าลืม hash ก่อนส่ง
                 first_name: firstName,
                 last_name: surName,
                 gender: gender,
                 birth_date: date+'/'+month+'/'+year
+            };
+            const header = {
+                headers:{
+                    Authorization: token
+                }
             }
-            // setShowMessage(false)
-            axios.post('http://localhost:4000/signup', sendToBackend).then(res => console.log(res.data));
+            axios.post('http://localhost:8080/register', sendToBackend, header)
+                .then(res => console.log('success'));
         }
         else{
-            // setShowMessage(true)
+            console.log('bad some field');
+            // console.log('firstname: ',firstName);
+            // console.log('surname: ',surName);
+            // console.log('account_id: ',account_id);
+            // console.log('password: ',password);
+            // console.log('date: ',date);
+            // console.log('month: ',month);
+            // console.log('year: ',year);
+            // console.log('gender: ',gender);
+            // console.log('pronoun: ',pronoun);
         }
     }
     return (
