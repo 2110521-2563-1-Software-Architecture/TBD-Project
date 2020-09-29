@@ -3,6 +3,7 @@ import axios from 'axios';
 import {Link, BrowserRouter as Router} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button } from 'antd';
 import jwt from 'jsonwebtoken';
+import sha512 from '../MiddleWare/sha512';
 const { Option } = Select;
 
 function Signup() {
@@ -55,10 +56,11 @@ function Signup() {
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
+        const password_hash = sha512(password,'check').passwordHash; // hash by sha512 algorithm
         if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
             const sendToBackend = {
                 account_id: account_id,
-                pwd: password, // อย่าลืม hash ก่อนส่ง
+                pwd: password_hash,
                 first_name: firstName,
                 last_name: surName,
                 gender: gender,
@@ -74,6 +76,7 @@ function Signup() {
         }
         else{
             console.log('bad some field');
+            // console.log('pwd hash: ', password_hash);
             // console.log('firstname: ',firstName);
             // console.log('surname: ',surName);
             // console.log('account_id: ',account_id);
@@ -123,7 +126,7 @@ function Signup() {
                     />
                 </Row>
                 <Row style={{marginTop:"10px"}}>
-                    <Input 
+                    <Input
                         style={input}
                         onChange={onChangePassword}
                         placeholder="New password"                       

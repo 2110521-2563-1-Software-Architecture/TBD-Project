@@ -2,6 +2,7 @@ import React, {useState} from 'react'
 import axios from 'axios'
 import {Link, BrowserRouter as Router} from 'react-router-dom'
 import jwt from 'jsonwebtoken'
+import sha512 from '../MiddleWare/sha512';
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -21,10 +22,11 @@ function Login() {
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
+        const password_hash = sha512(password,'check').passwordHash; // hash by sha512 algorithm
         if(username.includes("@")){
             const sendToBackend = {
                 account_id: username,
-                pwd: password // อย่าลืม hash ก่อนส่ง
+                pwd: password_hash // อย่าลืม hash ก่อนส่ง
             }
             setShowMessage(false)
             axios.post('http://localhost:8080/login', 
