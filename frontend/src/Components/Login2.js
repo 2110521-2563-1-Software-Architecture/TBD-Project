@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
+import {Link, BrowserRouter as Router} from 'react-router-dom';
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import {Link, BrowserRouter as Router} from 'react-router-dom'
+import passwordHash from 'password-hash'
 import 'antd/dist/antd.css';
 
 function Login2() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+
     const onFinish = (values) => {
         console.log('Success:', values);
     };
@@ -15,6 +17,12 @@ function Login2() {
     const onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
+    const onChangeUsername = (e) =>{
+        setUsername(e.target.value)
+    }
+    const onChangePassword = (e) =>{
+        setPassword(e.target.value)
+    }
     const onSubmit = (e) =>{
         e.preventDefault();
         // console.log(`login successfully`);
@@ -22,9 +30,10 @@ function Login2() {
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         if(username.includes("@")){
+            const hashedPassword = passwordHash.generate(password);
             const sendToBackend = {
                 account_id: username,
-                pwd: password // อย่าลืม hash ก่อนส่ง
+                pwd: hashedPassword // อย่าลืม hash ก่อนส่ง
             }
             
             axios.post('http://localhost:8080/login', 
@@ -67,8 +76,9 @@ function Login2() {
                                 message: 'Please input your username!',
                             },
                         ]}
+                        
                     >
-                        <Input />
+                        <Input onChange={onChangeUsername}/>
                     </Form.Item>
 
                     <Form.Item
@@ -81,7 +91,7 @@ function Login2() {
                             },
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password onChange={onChangePassword}/>
                     </Form.Item>
 
                     <Form.Item {...tailLayout} name="remember" valuePropName="checked">
