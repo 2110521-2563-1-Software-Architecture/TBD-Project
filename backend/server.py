@@ -1,6 +1,5 @@
 from aiohttp import web
 from aiomysql import connect
-from aiohttp_tokenauth import token_auth_middleware
 from asyncio import get_event_loop
 from dotenv import load_dotenv
 from os import getenv
@@ -69,8 +68,8 @@ async def init(loop):
                     value = (token, timestamp)
                     await cursor.execute(stmt, value)
                     await cursor.close()
-                return web.json_response({'result':'success.', 'token':token})
-            return web.json_response({'result':'incorrect id or password.'})
+                return web.json_response({'status':'success.', 'token':token})
+            return web.json_response({'status':'incorrect id or password.'})
         except:
             return web.HTTPBadRequest()
 
@@ -107,7 +106,7 @@ async def init(loop):
                 result = await cursor.fetchone()
                 await cursor.close() 
             if result:
-                return web.json_response({'result':'already registered.'})
+                return web.json_response({'status':'already registered.'})
             async with conn.cursor() as cursor:
                 stmt = 'INSERT INTO accounts (email, phone_number, first_name, last_name,\
                     hashed_pwd, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
