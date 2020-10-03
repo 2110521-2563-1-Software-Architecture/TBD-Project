@@ -1,4 +1,4 @@
-from aiohttp import web, ClientSession
+from aiohttp import web
 from aiomysql import connect
 from aiohttp_tokenauth import token_auth_middleware
 from asyncio import get_event_loop
@@ -7,6 +7,7 @@ from os import getenv
 from jwt import decode, encode
 from datetime import datetime
 from re import search, compile
+from aiohttp_cors import setup, ResourceOptions
 
 EMAIL_REGEX = compile('[^@]+@[^@]+\.[^@]+')
 ALGORITHM = ['HS256']
@@ -19,11 +20,11 @@ def is_email(email):
 
 load_dotenv()
 
-DATABASE_NAME = getenv('DATABASE_NAME')
-HOST = getenv('HOST')
-USER = getenv('USER')
-PASSWORD = getenv('PASSWORD')
-PORT = int(getenv('PORT'))
+DATABASE_NAME = getenv('DB_DATABASE')
+HOST = getenv('DB_HOST')
+USER = getenv('DB_USERNAME')
+PASSWORD = getenv('DB_PASSWORD')
+PORT = int(getenv('DB_PORT'))
 SECRET = getenv('SECRET')
 
 async def init(loop):
@@ -38,6 +39,10 @@ async def init(loop):
     @routes.post('/login')
     async def handle_login(request):
         try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+        except:
+            return web.HTTPForbidden(text='Invalid Token')      
+        try:
             js = await request.json()
             if is_email(js['account_id']):
                 email = js['account_id']
@@ -49,21 +54,18 @@ async def init(loop):
             timestamp = str(datetime.now().timestamp())
 
             # generate access token
-            payload = {'id':email+phone_number, 'timestamp':timestamp}
-            token = encode(payload, SECRET, algorithm=ALGORITHM)
-
-            if False: # TODO check token
-                return web.HTTPForbidden(text='Invalid Token')
+            payload = {'email':email, 'phone_number':phone_number, 'timestamp':timestamp}
+            token = encode(payload, SECRET, algorithm=ALGORITHM[0]).decode('utf-8')
 
             async with conn.cursor() as cursor:
-                stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
+                stmt = 'SELECT * FROM accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
                 value = (email, phone_number, hashed_pwd)
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
             if result:
                 async with conn.cursor() as cursor:
-                    stmt = 'INSERT INTO Token (token, timestamp) VALUES (%s, %s)'
+                    stmt = 'INSERT INTO tokens (token, timestamp) VALUES (%s, %s)'
                     value = (token, timestamp)
                     await cursor.execute(stmt, value)
                     await cursor.close()
@@ -74,6 +76,10 @@ async def init(loop):
 
     @routes.post('/register')
     async def handle_register(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+        except:
+            return web.HTTPForbidden(text='Invalid Token')  
         try:
             js = await request.json()
             if is_email(js['account_id']):
@@ -94,11 +100,8 @@ async def init(loop):
                 not birth_date or not gender or not first_name:
                 return web.HTTPBadRequest()
 
-            if False: # TODO check token
-                return web.HTTPForbidden(text='Invalid Token')
-
             async with conn.cursor() as cursor: # TODO can update phone/email?
-                stmt = 'SELECT * FROM Accounts WHERE email = %s AND phone_number = %s'
+                stmt = 'SELECT * FROM accounts WHERE email = %s AND phone_number = %s'
                 value = (email, phone_number)
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
@@ -106,7 +109,7 @@ async def init(loop):
             if result:
                 return web.json_response({'result':'already registered.'})
             async with conn.cursor() as cursor:
-                stmt = 'INSERT INTO Accounts (email, phone_number, first_name, last_name\
+                stmt = 'INSERT INTO accounts (email, phone_number, first_name, last_name,\
                     hashed_pwd, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
                      %s, %s, %s)'
                 value = (email, phone_number, first_name, last_name, 
@@ -115,19 +118,22 @@ async def init(loop):
                 await conn.commit()  
                 await cursor.close()
             return web.json_response({'status': 'success.'})
-        except Exception as err:
+        except:
             return web.HTTPBadRequest()
 
-    async def user_loader(token: str):
-        try:
-            user = decode(token, SECRET, algorithms=ALGORITHM) # TODO 
-        except:
-            user = None
-        finally:
-            return user
-
-    app = web.Application(middlewares=[token_auth_middleware(user_loader)])
+    app = web.Application()
     app.add_routes(routes)
+    cors = setup(app, defaults={
+        "*": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+    
+    for route in app.router.routes():
+        cors.add(route)
+
     return app
 
 if __name__ == '__main__':
