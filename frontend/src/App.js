@@ -1,17 +1,24 @@
-import React from "react";
-// import logo from './logo.svg';
-// import './App.css';
-import Login from "./Components/Login";
-import axios from "axios";
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
+import React from 'react';
+import Login from './Components/Login'
+import Signup from './Components/Signup'
+import {BrowserRouter as Router, Link, Route, Switch} from 'react-router-dom'
+import "antd/dist/antd.css";
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Login />
+        <Switch>
+          <Route exact path={'/'}>
+            <Login/>
+          </Route>
+          <Route exact path={'/signup'}>
+            <Signup/>
+          </Route>
+        </Switch>
       </div>
     </Router>
+    
   );
 }
 
