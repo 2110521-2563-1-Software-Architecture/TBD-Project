@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import axios from 'axios';
-import {Link, BrowserRouter as Router} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button } from 'antd';
 import jwt from 'jsonwebtoken';
 import passwordHash from 'password-hash'
@@ -19,6 +19,7 @@ function Signup() {
     const [visPronoun, setVisPronoun] = useState('');
     const [isCustom, setIsCustom] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
+    const history = useHistory();
     const dropdown_day = [];
     const dropdown_year = [];
     const onChangeFirstname = (e) =>{
@@ -63,6 +64,13 @@ function Signup() {
     }
     Dropdown_day();
     Dropdown_year();
+    const checkResult = (status) => {
+        if(status === 'already registered.'){
+            alert('This email is already registered.');
+        }else {
+            // history.push(`/${lang}/buy/search`);
+        }
+    }
     const onSubmit = (e) =>{
         e.preventDefault();
         const SECRET = 'secret'; // ให้เหมือนของ backend
@@ -84,7 +92,11 @@ function Signup() {
                 }
             }
             axios.post('http://localhost:8080/register', sendToBackend, header)
-                .then(res => console.log('success'));
+                .then(res => {
+                    const status = res.data.status;
+                    // console.log(status);
+                    checkResult(status);
+                });
         }
         else{
             console.log('bad some field');
