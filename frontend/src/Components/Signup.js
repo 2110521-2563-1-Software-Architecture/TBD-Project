@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
-import { Radio, Select, Row, Col, Input, Button } from 'antd';
+import { Radio, Select, Row, Col, Input, Button, message } from 'antd';
 import jwt from 'jsonwebtoken';
 import passwordHash from 'password-hash'
 const { Option } = Select;
@@ -66,7 +66,7 @@ function Signup() {
     Dropdown_year();
     const checkResult = (status) => {
         if(status === 'already registered.'){
-            alert('This email is already registered.');
+            message.error('This email is already registered.');
         }else {
             // history.push(`/${lang}/buy/search`);
         }
@@ -99,6 +99,7 @@ function Signup() {
                 });
         }
         else{
+            message.error('check mendatory');
             console.log('bad some field');
             // console.log('pwd hash: ', password_hash);
             // console.log('firstname: ',firstName);
@@ -114,9 +115,6 @@ function Signup() {
     }
     return (
         <div>
-            <div style={head}>
-                    <p>facebook</p>
-            </div>
             <div style={page}>
                 <Row className="head">
                     <Col span={24} style={topic}>
@@ -129,14 +127,12 @@ function Signup() {
                 <Row style={{borderTop: '1px solid #E5E5E5', marginTop:"15px", paddingTop:"15px"}} gutter={10}>
                     <Col span={12}>
                         <Input 
-                            style={input}
                             onChange={onChangeFirstname}
                             placeholder="First name"
                         />
                     </Col>
                     <Col span={12}>
                         <Input 
-                            style={input}
                             onChange={onChangeSurname}
                             placeholder="Surname"
                         />
@@ -144,14 +140,12 @@ function Signup() {
                 </Row>
                 <Row style={{marginTop:"10px"}}>
                     <Input 
-                        style={input}
                         onChange={onChangeAccountId}
                         placeholder="Mobile number or account_id address"                       
                     />
                 </Row>
                 <Row style={{marginTop:"10px"}}>
-                    <Input
-                        style={input}
+                    <Input.Password
                         onChange={onChangePassword}
                         placeholder="New password"                       
                     />
@@ -232,7 +226,6 @@ function Signup() {
                         </Row>
                         <Row>
                             <Input 
-                                style={input}
                                 onChange={onChangeVisPronoun}
                                 placeholder="Gender (Optional)"
                             />
@@ -268,14 +261,6 @@ const down = {
     marginTop: "10px",
     marginBottom: "10px"
 }
-const input = {
-    width: "100%",
-    borderColor: "#ccd0d5",
-    background: "#F4F4F4",
-    border:"none",
-    borderRadius:"5px",
-    padding:"11px"
-}
 const button_sign_up = {
     height: "36px",
     backgroundColor: "#00a400",
@@ -297,17 +282,6 @@ const title = {
     color: "#606770",
     fontSize: "15px",
     lineHeight: "24px"
-}
-const head = {
-    fontSize : "40px",
-    fontWeight : 'bold',
-    color : 'white',
-    backgroundColor : 'red',
-    border: "red solid",
-    width: '100%',
-    height: '100px',
-    paddingLeft: '20px',
-    paddingBottom: '5px'
 }
 const select = {
     width:"100%"

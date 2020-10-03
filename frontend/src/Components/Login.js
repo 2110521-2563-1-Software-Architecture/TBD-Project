@@ -51,9 +51,6 @@ function Login() {
 
   return (
     <div>
-        <div style={head}>
-                <p>facebook</p>
-        </div>
       <div style={LoginZone}>
         <h2>Facebook Login</h2>
         <hr />
@@ -126,15 +123,4 @@ const LoginZone = {
   padding: "20px",
   marginTop: "50px"
 };
-const head = {
-    fontSize : "40px",
-    fontWeight : 'bold',
-    color : 'white',
-    backgroundColor : 'red',
-    border: "red solid",
-    width: '100%',
-    height: '100px',
-    paddingLeft: '20px',
-    paddingBottom: '5px'
-}
 export default Login;
