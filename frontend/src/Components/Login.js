@@ -1,100 +1,132 @@
-import React, {useState} from 'react'
-import axios from 'axios'
-import {Link, BrowserRouter as Router} from 'react-router-dom'
-import jwt from 'jsonwebtoken'
-import 'antd/dist/antd.css';
-import { Form, Input, Button, Checkbox } from 'antd';
-
-const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-};
-const tailLayout = {
-    wrapperCol: { offset: 8, span: 16 },
-};
+import React, { useState } from "react";
+import { Form, Input, Button, Checkbox } from "antd";
+import { Link, BrowserRouter as Router } from "react-router-dom";
+import axios from "axios";
+import jwt from "jsonwebtoken";
+import passwordHash from "password-hash";
+import "antd/dist/antd.css";
 
 function Login() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showMessage, setShowMessage] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-    const onChangeUsername = (e) =>{
-        setUsername(e.target.value)
+  const onFinish = (values) => {
+    console.log("Success:", values);
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
+  const onChangeUsername = (e) => {
+    setUsername(e.target.value);
+  };
+  const onChangePassword = (e) => {
+    setPassword(e.target.value);
+  };
+  const onSubmit = (e) => {
+    e.preventDefault();
+    // console.log(`login successfully`);
+    const SECRET = "secret"; // ให้เหมือนของ backend
+    const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
+    const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });
+    if (username.includes("@")) {
+      const hashedPassword = passwordHash.generate(password);
+      const sendToBackend = {
+        account_id: username,
+        pwd: hashedPassword, // อย่าลืม hash ก่อนส่ง
+      };
+
+      axios
+        .post("http://localhost:8080/login", sendToBackend, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((res) => console.log(res.data));
+    } else {
     }
-    const onChangePassword = (e) =>{
-        setPassword(e.target.value)
-    }
+    setUsername("");
+    setPassword("");
+  };
 
-    const onSubmit = (e) =>{
-        e.preventDefault();
-        // console.log(`login successfully`);
-        const SECRET = 'secret'; // ให้เหมือนของ backend
-        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
-        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        if(username.includes("@")){
-            const sendToBackend = {
-                account_id: username,
-                pwd: password // อย่าลืม hash ก่อนส่ง
-            }
-            setShowMessage(false)
-            axios.post('http://localhost:8080/login', 
-            sendToBackend,
-            {
-                headers:{
-                    Authorization: token
-                }
-            }).then(res => console.log(res.data));
-        }
-        else{
-            setShowMessage(true)
-        }
-        setUsername('');
-        setPassword('');
-    }
-    
-    return (
-        <Router>
-            <div>
-                <div style={title}>
-                    <p>facebook</p>
-                </div>
-                <br/><br/><br/><br/>
-                <div style={loginZone}>
-                    <h2>Facebook Login</h2>
-                    <hr/><br/>
-                    <div style={form}>
-                        <form onSubmit={onSubmit}>
-                            <label><span>Email &emsp;: </span></label>
-                            <input type='text'
-                                value={username}
-                                onChange={onChangeUsername}/>
-                            <br/><br/>
-                            <label>Password : </label>
-                            <input type='password'
-                                value={password}
-                                onChange={onChangePassword}/>
-                            <br/><br/>
-                            <button style={button}>Login</button>
-                            &nbsp; or <Link to="/signup">Sign Up</Link> for free
-                        </form>
-                        {showMessage && <p style={{color:"red"}}>invalid email pattern!!</p>}
-                    </div>
-                </div>
-                    /////////////////////////
+  return (
+    <div>
+        <div style={head}>
+                <p>facebook</p>
+        </div>
+      <div style={LoginZone}>
+        <h2>Facebook Login</h2>
+        <hr />
+        <br />
+        <Form
+          {...layout}
+          name="basic"
+          initialValues={{
+            remember: true,
+          }}
+          onFinish={onFinish}
+          onFinishFailed={onFinishFailed}
+          onSubmit={onSubmit}
+        >
+          <Form.Item
+            label="Email"
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: "Please input your username!",
+              },
+            ]}
+          >
+            <Input onChange={onChangeUsername} />
+          </Form.Item>
 
-                    อยากให้แก้ตรงไหนบอกนะ อย่าแก้ tag title ใน index.html ล่ะ5555
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password onChange={onChangePassword} />
+          </Form.Item>
 
-                    //////////////////////////
-            </div> 
-        </Router>
-        
-        
-        
-    )
+          <Form.Item {...tailLayout} name="remember" valuePropName="checked">
+            <Checkbox>Remember me</Checkbox>
+          </Form.Item>
+
+          <Form.Item {...tailLayout}>
+            <Button type="primary" htmlType="submit">
+              Login
+            </Button>
+          </Form.Item>
+        </Form>
+        <p style={{ textAlign: "center" }}>
+          or <Link to="/signup">Sign Up</Link> for free life-time account
+        </p>
+      </div>
+    </div>
+  );
 }
 
-
-const title = {
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+const tailLayout = {
+  wrapperCol: { offset: 8, span: 16 },
+};
+const LoginZone = {
+  border: "gray solid 2px",
+  width: "50%",
+  margin: "auto",
+  padding: "20px",
+  marginTop: "50px"
+};
+const head = {
     fontSize : "40px",
     fontWeight : 'bold',
     color : 'white',
@@ -105,23 +137,4 @@ const title = {
     paddingLeft: '20px',
     paddingBottom: '5px'
 }
-const loginZone = {
-    margin: 'auto',
-    width: '50%',
-    padding: '20px',
-    paddingBottom: '80px',
-    border: 'gray solid 2px'
-}
-const form = {
-    margin: 'auto',
-    width: 'fit-content',
-}
-const button = {
-    color: "white",
-    background: "red",
-    border: 'none',
-    padding: '10px',
-    borderRadius: '8px',
-    cursor: "pointer"
-}
-export default Login
+export default Login;
