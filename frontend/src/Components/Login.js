@@ -2,7 +2,16 @@ import React, {useState} from 'react'
 import axios from 'axios'
 import {Link, BrowserRouter as Router} from 'react-router-dom'
 import jwt from 'jsonwebtoken'
-import sha512 from '../MiddleWare/sha512';
+import 'antd/dist/antd.css';
+import { Form, Input, Button, Checkbox } from 'antd';
+
+const layout = {
+    labelCol: { span: 8 },
+    wrapperCol: { span: 16 },
+};
+const tailLayout = {
+    wrapperCol: { offset: 8, span: 16 },
+};
 
 function Login() {
     const [username, setUsername] = useState('');
@@ -22,11 +31,10 @@ function Login() {
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        const password_hash = sha512(password,'check').passwordHash; // hash by sha512 algorithm
         if(username.includes("@")){
             const sendToBackend = {
                 account_id: username,
-                pwd: password_hash // อย่าลืม hash ก่อนส่ง
+                pwd: password // อย่าลืม hash ก่อนส่ง
             }
             setShowMessage(false)
             axios.post('http://localhost:8080/login', 
@@ -43,43 +51,49 @@ function Login() {
         setUsername('');
         setPassword('');
     }
+    
     return (
         <Router>
-        <div>
-            <div style={title}>
-                <p>facebook</p>
-            </div>
-            <br/><br/><br/><br/>
-            <div style={loginZone}>
-                <h2>Facebook Login</h2>
-                <hr/><br/>
-                <div style={form}>
-                    <form onSubmit={onSubmit}>
-                        <label><span>Email &emsp;: </span></label>
-                        <input type='text'
-                               value={username}
-                               onChange={onChangeUsername}/>
-                        <br/><br/>
-                        <label>Password : </label>
-                        <input type='password'
-                               value={password}
-                               onChange={onChangePassword}/>
-                        <br/><br/>
-                        <button style={button}>Login</button>
-                        &nbsp; or <Link to="/signup">Sign Up</Link> for free
-                    </form>
-                    {showMessage && <p style={{color:"red"}}>invalid email pattern!!</p>}
+            <div>
+                <div style={title}>
+                    <p>facebook</p>
                 </div>
-            </div>
-                /////////////////////////
+                <br/><br/><br/><br/>
+                <div style={loginZone}>
+                    <h2>Facebook Login</h2>
+                    <hr/><br/>
+                    <div style={form}>
+                        <form onSubmit={onSubmit}>
+                            <label><span>Email &emsp;: </span></label>
+                            <input type='text'
+                                value={username}
+                                onChange={onChangeUsername}/>
+                            <br/><br/>
+                            <label>Password : </label>
+                            <input type='password'
+                                value={password}
+                                onChange={onChangePassword}/>
+                            <br/><br/>
+                            <button style={button}>Login</button>
+                            &nbsp; or <Link to="/signup">Sign Up</Link> for free
+                        </form>
+                        {showMessage && <p style={{color:"red"}}>invalid email pattern!!</p>}
+                    </div>
+                </div>
+                    /////////////////////////
 
-                อยากให้แก้ตรงไหนบอกนะ อย่าแก้ tag title ใน index.html ล่ะ5555
+                    อยากให้แก้ตรงไหนบอกนะ อย่าแก้ tag title ใน index.html ล่ะ5555
 
-                //////////////////////////
-        </div>
+                    //////////////////////////
+            </div> 
         </Router>
+        
+        
+        
     )
 }
+
+
 const title = {
     fontSize : "40px",
     fontWeight : 'bold',

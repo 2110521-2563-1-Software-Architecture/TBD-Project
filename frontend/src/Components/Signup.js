@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Link, BrowserRouter as Router} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button } from 'antd';
 import jwt from 'jsonwebtoken';
-import sha512 from '../MiddleWare/sha512';
+import passwordHash from 'password-hash'
 const { Option } = Select;
 
 function Signup() {
@@ -19,7 +19,8 @@ function Signup() {
     const [visPronoun, setVisPronoun] = useState('');
     const [isCustom, setIsCustom] = useState(false);
     const [showMessage, setShowMessage] = useState(false);
-
+    const dropdown_day = [];
+    const dropdown_year = [];
     const onChangeFirstname = (e) =>{
         setFirstName(e.target.value);
     }
@@ -50,13 +51,24 @@ function Signup() {
     const onChangeVisPronoun = (e) =>{
         setVisPronoun(e.target.value)
     }
-
+    const Dropdown_day = () =>{
+        for(var i=1;i<=31;i++){
+           dropdown_day.push(i);
+        }
+    }
+    const Dropdown_year = () =>{
+        for(var i=2020;i>=1906;--i){
+           dropdown_year.push(i);
+        }
+    }
+    Dropdown_day();
+    Dropdown_year();
     const onSubmit = (e) =>{
         e.preventDefault();
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        const password_hash = sha512(password,'check').passwordHash; // hash by sha512 algorithm
+        const password_hash = passwordHash.generate(password);
         if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
             const sendToBackend = {
                 account_id: account_id,
@@ -140,37 +152,9 @@ function Signup() {
                             defaultValue="1"
                             onSelect={e => {setDate(e)}}
                         >
-                            <Option value="1">1</Option>
-                            <Option value="2">2</Option>
-                            <Option value="3">3</Option>
-                            <Option value="4">4</Option>
-                            <Option value="5">5</Option>
-                            <Option value="6">6</Option>
-                            <Option value="7">7</Option>
-                            <Option value="8">8</Option>
-                            <Option value="9">9</Option>
-                            <Option value="10">10</Option>
-                            <Option value="11">11</Option>
-                            <Option value="12">12</Option>
-                            <Option value="13">13</Option>
-                            <Option value="14">14</Option>
-                            <Option value="15">15</Option>
-                            <Option value="16">16</Option> 
-                            <Option value="17">17</Option>
-                            <Option value="18">18</Option>
-                            <Option value="19">19</Option>
-                            <Option value="20">20</Option>
-                            <Option value="21">21</Option>
-                            <Option value="22">22</Option>
-                            <Option value="23">23</Option>
-                            <Option value="24">24</Option>
-                            <Option value="25">25</Option>
-                            <Option value="26">26</Option>
-                            <Option value="27">27</Option>
-                            <Option value="28">28</Option>
-                            <Option value="29">29</Option>
-                            <Option value="30">30</Option>
-                            <Option value="31">31</Option>
+                            {dropdown_day.map(i => (
+                                <Option value={i}>{i}</Option>
+                            ))}
                         </Select>
                     </Col>
                     <Col span={8}> 
@@ -199,121 +183,9 @@ function Signup() {
                             defaultValue="2020"
                             onSelect={e => {setYear(e)}}
                         >
-                            <Option value='2020'>2020</Option>
-                            <Option value='2019'>2019</Option>
-                            <Option value='2018'>2018</Option>
-                            <Option value='2017'>2017</Option>
-                            <Option value='2016'>2016</Option>
-                            <Option value='2015'>2015</Option>
-                            <Option value='2014'>2014</Option>
-                            <Option value='2013'>2013</Option>
-                            <Option value='2012'>2012</Option>
-                            <Option value='2011'>2011</Option>
-                            <Option value='2010'>2010</Option>
-                            <Option value='2009'>2009</Option>
-                            <Option value='2008'>2008</Option>
-                            <Option value='2007'>2007</Option>
-                            <Option value='2006'>2006</Option>
-                            <Option value='2005'>2005</Option>
-                            <Option value='2004'>2004</Option>
-                            <Option value='2003'>2003</Option>
-                            <Option value='2002'>2002</Option>
-                            <Option value='2001'>2001</Option>
-                            <Option value='2000'>2000</Option>
-                            <Option value='1999'>1999</Option>
-                            <Option value='1998'>1998</Option>
-                            <Option value='1997'>1997</Option>
-                            <Option value='1996'>1996</Option>
-                            <Option value='1995'>1995</Option>
-                            <Option value='1994'>1994</Option>
-                            <Option value='1993'>1993</Option>
-                            <Option value='1992'>1992</Option>
-                            <Option value='1991'>1991</Option>
-                            <Option value='1990'>1990</Option>
-                            <Option value='1989'>1989</Option>
-                            <Option value='1988'>1988</Option>
-                            <Option value='1987'>1987</Option>
-                            <Option value='1986'>1986</Option>
-                            <Option value='1985'>1985</Option>
-                            <Option value='1984'>1984</Option>
-                            <Option value='1983'>1983</Option>
-                            <Option value='1982'>1982</Option>
-                            <Option value='1981'>1981</Option>
-                            <Option value='1980'>1980</Option>
-                            <Option value='1979'>1979</Option>
-                            <Option value='1978'>1978</Option>
-                            <Option value='1977'>1977</Option>
-                            <Option value='1976'>1976</Option>
-                            <Option value='1975'>1975</Option>
-                            <Option value='1974'>1974</Option>
-                            <Option value='1973'>1973</Option>
-                            <Option value='1972'>1972</Option>
-                            <Option value='1971'>1971</Option>
-                            <Option value='1970'>1970</Option>
-                            <Option value='1969'>1969</Option>
-                            <Option value='1968'>1968</Option>
-                            <Option value='1967'>1967</Option>
-                            <Option value='1966'>1966</Option>
-                            <Option value='1965'>1965</Option>
-                            <Option value='1964'>1964</Option>
-                            <Option value='1963'>1963</Option>
-                            <Option value='1962'>1962</Option>
-                            <Option value='1961'>1961</Option>
-                            <Option value='1960'>1960</Option>
-                            <Option value='1959'>1959</Option>
-                            <Option value='1958'>1958</Option>
-                            <Option value='1957'>1957</Option>
-                            <Option value='1956'>1956</Option>
-                            <Option value='1955'>1955</Option>
-                            <Option value='1954'>1954</Option>
-                            <Option value='1953'>1953</Option>
-                            <Option value='1952'>1952</Option>
-                            <Option value='1951'>1951</Option>
-                            <Option value='1950'>1950</Option>
-                            <Option value='1949'>1949</Option>
-                            <Option value='1948'>1948</Option>
-                            <Option value='1947'>1947</Option>
-                            <Option value='1946'>1946</Option>
-                            <Option value='1945'>1945</Option>
-                            <Option value='1944'>1944</Option>
-                            <Option value='1943'>1943</Option>
-                            <Option value='1942'>1942</Option>
-                            <Option value='1941'>1941</Option>
-                            <Option value='1940'>1940</Option>
-                            <Option value='1939'>1939</Option>
-                            <Option value='1938'>1938</Option>
-                            <Option value='1937'>1937</Option>
-                            <Option value='1936'>1936</Option>
-                            <Option value='1935'>1935</Option>
-                            <Option value='1934'>1934</Option>
-                            <Option value='1933'>1933</Option>
-                            <Option value='1932'>1932</Option>
-                            <Option value='1931'>1931</Option>
-                            <Option value='1930'>1930</Option>
-                            <Option value='1929'>1929</Option>
-                            <Option value='1928'>1928</Option>
-                            <Option value='1927'>1927</Option>
-                            <Option value='1926'>1926</Option>
-                            <Option value='1925'>1925</Option>
-                            <Option value='1924'>1924</Option>
-                            <Option value='1923'>1923</Option>
-                            <Option value='1922'>1922</Option>
-                            <Option value='1921'>1921</Option>
-                            <Option value='1920'>1920</Option>
-                            <Option value='1919'>1919</Option>
-                            <Option value='1918'>1918</Option>
-                            <Option value='1917'>1917</Option>
-                            <Option value='1916'>1916</Option>
-                            <Option value='1915'>1915</Option>
-                            <Option value='1914'>1914</Option>
-                            <Option value='1913'>1913</Option>
-                            <Option value='1912'>1912</Option>
-                            <Option value='1911'>1911</Option>
-                            <Option value='1910'>1910</Option>
-                            <Option value='1909'>1909</Option>
-                            <Option value='1908'>1908</Option>
-                            <Option value='1907'>1907</Option>
-                            <Option value='1906'>1906</Option>
+                            {dropdown_year.map(i=>(
+                                <Option value={i}>{i}</Option>
+                            ))}
                         </Select>
                     </Col>
                 </Row>
