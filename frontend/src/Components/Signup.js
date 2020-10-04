@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
-import { Radio, Select, Row, Col, Input, Button, message } from 'antd';
+import { Radio, Select, Row, Col, Input, Button, message, Form } from 'antd';
 import jwt from 'jsonwebtoken';
 import passwordHash from 'password-hash'
 const { Option } = Select;
@@ -68,11 +68,11 @@ function Signup() {
         if(status === 'already registered.'){
             message.error('This email is already registered.');
         }else {
+            message.success('register success');
             // history.push(`/${lang}/buy/search`);
         }
     }
-    const onSubmit = (e) =>{
-        e.preventDefault();
+    const onSubmit = () =>{
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
@@ -99,23 +99,16 @@ function Signup() {
                 });
         }
         else{
-            message.error('check mendatory');
-            console.log('bad some field');
-            // console.log('pwd hash: ', password_hash);
-            // console.log('firstname: ',firstName);
-            // console.log('surname: ',surName);
-            // console.log('account_id: ',account_id);
-            // console.log('password: ',password);
-            // console.log('date: ',date);
-            // console.log('month: ',month);
-            // console.log('year: ',year);
-            // console.log('gender: ',gender);
-            // console.log('pronoun: ',pronoun);
+            message.error('Please choose gender or custom');
         }
     }
     return (
         <div>
             <div style={page}>
+            <Form
+                name="register"
+                onFinish={onSubmit}
+            >
                 <Row className="head">
                     <Col span={24} style={topic}>
                         Sign Up
@@ -126,29 +119,73 @@ function Signup() {
                 </Row>
                 <Row style={{borderTop: '1px solid #E5E5E5', marginTop:"15px", paddingTop:"15px"}} gutter={10}>
                     <Col span={12}>
-                        <Input 
-                            onChange={onChangeFirstname}
-                            placeholder="First name"
-                        />
+                        <Form.Item
+                            name="firstname"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please input your frist name!",
+                                },
+                            ]}
+                        >
+                            <Input 
+                                onChange={onChangeFirstname}
+                                placeholder="First name"
+                            />
+                        </Form.Item>
                     </Col>
                     <Col span={12}>
-                        <Input 
-                            onChange={onChangeSurname}
-                            placeholder="Surname"
-                        />
+                        <Form.Item
+                            name="surname"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Please input your surname!",
+                                },
+                            ]}
+                        >    
+                            <Input 
+                                onChange={onChangeSurname}
+                                placeholder="Surname"
+                            />
+                        </Form.Item>
                     </Col>
                 </Row>
                 <Row style={{marginTop:"10px"}}>
-                    <Input 
-                        onChange={onChangeAccountId}
-                        placeholder="Mobile number or account_id address"                       
-                    />
+                    <Col span={24}>
+                    <Form.Item
+                        name="account_id"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please input your mobile number or email address!",
+                            },
+                        ]}
+                        >   
+                        <Input 
+                            onChange={onChangeAccountId}
+                            placeholder="Mobile number or email address"                       
+                        />
+                    </Form.Item>
+                    </Col>
                 </Row>
                 <Row style={{marginTop:"10px"}}>
-                    <Input.Password
-                        onChange={onChangePassword}
-                        placeholder="New password"                       
-                    />
+                    <Col span={24}>
+                    <Form.Item
+                        name="password"
+                        rules={[
+                            {
+                                required: true,
+                                message: "Please input your password!",
+                            },
+                        ]}
+                    >   
+                        <Input.Password
+                            onChange={onChangePassword}
+                            placeholder="New password"                       
+                        />
+                    </Form.Item>
+                    </Col>
                 </Row>
                 <Row style={{marginTop:"10px"}} gutter={10}>
                     <Col span={24}>Date of birth</Col>
@@ -237,12 +274,13 @@ function Signup() {
                 </Row>
                 <Row justify="center">
                     <Button 
-                        onClick={onSubmit}
+                        htmlType="submit"
                         style={button_sign_up}
                     >
                         Sign Up
                     </Button>
                 </Row>
+            </Form>
             </div>
         </div>
     )
