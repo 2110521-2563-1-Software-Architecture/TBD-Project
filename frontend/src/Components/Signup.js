@@ -93,6 +93,7 @@ function Signup() {
                 headers:{
                     Authorization: token
                 }
+            }
                 axios.post('http://localhost:8080/register', sendToBackend, header)
                     .then(res => {
                         const status = res.data.status;
@@ -100,12 +101,8 @@ function Signup() {
                         checkResult(status);
                     });
             }else{
-                message.error('Please check email format');
+                message.error('Please check data');
             }
-        }
-        else{
-            message.error('Please choose gender or custom');
-        }
     }
     return (
         <div>
