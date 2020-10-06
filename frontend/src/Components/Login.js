@@ -3,7 +3,6 @@ import { Form, Input, Button, Checkbox } from "antd";
 import { Link, BrowserRouter as Router } from "react-router-dom";
 import axios from "axios";
 import jwt from "jsonwebtoken";
-import sha512 from '../middleWare/sha512';
 import "antd/dist/antd.css";
 
 function Login() {
@@ -31,10 +30,9 @@ function Login() {
     const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
     const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });
     if (username.includes("@")) {
-      const hashedPassword = sha512(password,'check').passwordHash; // hash by sha512 algorithm
       const sendToBackend = {
         account_id: username,
-        pwd: hashedPassword, // อย่าลืม hash ก่อนส่ง
+        pwd: password,
       };
 
       axios
