@@ -80,30 +80,33 @@ function Signup() {
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        if(firstName && surName && validateEmail(account_id) && password && date && month && year && (gender || pronoun)){
-            const sendToBackend = {
-                account_id: account_id,
-                pwd: password,
-                first_name: firstName,
-                last_name: surName,
-                gender: gender,
-                birth_date: date+'/'+month+'/'+year
-            };
-            const header = {
-                headers:{
-                    Authorization: token
-                }
+        if(firstName && surName && password && date && month && year && (gender || pronoun)){
+            if(validateEmail(account_id)){
+                const sendToBackend = {
+                    account_id: account_id,
+                    pwd: password,
+                    first_name: firstName,
+                    last_name: surName,
+                    gender: gender,
+                    birth_date: date+'/'+month+'/'+year
+                };
+                const header = {
+                    headers:{
+                        Authorization: token
+                }};
                 axios.post('http://localhost:8080/register', sendToBackend, header)
                     .then(res => {
                         const status = res.data.status;
                         // console.log(status);
                         checkResult(status);
                     });
-            }else{
-                message.error('Please check email format');
+                
             }
-        }
-        else{
+            else{
+                message.error('Please check your email format');
+            }
+            
+        } else{
             message.error('Please choose gender or custom');
         }
     }
