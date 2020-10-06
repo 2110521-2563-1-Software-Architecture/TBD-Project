@@ -69,7 +69,7 @@ function Signup() {
             message.error('This email is already registered.');
         }else {
             message.success('register success');
-            // history.push(`/${lang}/buy/search`);
+            history.push(`/`);
         }
     }
     const onSubmit = () =>{
@@ -78,25 +78,30 @@ function Signup() {
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         const password_hash = sha512(password,'check').passwordHash; // hash by sha512 algorithm
         if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
-            const sendToBackend = {
-                account_id: account_id,
-                pwd: password_hash,
-                first_name: firstName,
-                last_name: surName,
-                gender: gender,
-                birth_date: date+'/'+month+'/'+year
-            };
-            const header = {
-                headers:{
-                    Authorization: token
+            if (account_id.includes("@") 
+                && (account_id.endsWith('.com') || account_id.endsWith('.co.th') || account_id.endsWith('.ac.th'))){
+                const sendToBackend = {
+                    account_id: account_id,
+                    pwd: password_hash,
+                    first_name: firstName,
+                    last_name: surName,
+                    gender: gender,
+                    birth_date: date+'/'+month+'/'+year
+                };
+                const header = {
+                    headers:{
+                        Authorization: token
+                    }
                 }
+                axios.post('http://localhost:8080/register', sendToBackend, header)
+                    .then(res => {
+                        const status = res.data.status;
+                        // console.log(status);
+                        checkResult(status);
+                    });
+            }else{
+                message.error('Please check email format');
             }
-            axios.post('http://localhost:8080/register', sendToBackend, header)
-                .then(res => {
-                    const status = res.data.status;
-                    // console.log(status);
-                    checkResult(status);
-                });
         }
         else{
             message.error('Please choose gender or custom');
