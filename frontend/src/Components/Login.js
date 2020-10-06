@@ -3,7 +3,7 @@ import { Form, Input, Button, Checkbox } from "antd";
 import { Link, BrowserRouter as Router } from "react-router-dom";
 import axios from "axios";
 import jwt from "jsonwebtoken";
-import passwordHash from "password-hash";
+import sha512 from '../middleWare/sha512';
 import "antd/dist/antd.css";
 
 function Login() {
@@ -12,6 +12,7 @@ function Login() {
 
   const onFinish = (values) => {
     console.log("Success:", values);
+    onSubmit();
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -23,14 +24,14 @@ function Login() {
   const onChangePassword = (e) => {
     setPassword(e.target.value);
   };
-  const onSubmit = (e) => {
-    e.preventDefault();
+  const onSubmit = () => {
+    // e.preventDefault();
     // console.log(`login successfully`);
     const SECRET = "secret"; // ให้เหมือนของ backend
     const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
     const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });
     if (username.includes("@")) {
-      const hashedPassword = passwordHash.generate(password);
+      const hashedPassword = sha512(password,'check').passwordHash; // hash by sha512 algorithm
       const sendToBackend = {
         account_id: username,
         pwd: hashedPassword, // อย่าลืม hash ก่อนส่ง
@@ -42,7 +43,11 @@ function Login() {
             Authorization: token,
           },
         })
-        .then((res) => console.log(res.data));
+        .then((res) => {
+            console.log(res.data);
+            localStorage.setItem('token', res.data.token);
+            localStorage.getItem('token');
+        });
     } else {
     }
     setUsername("");
