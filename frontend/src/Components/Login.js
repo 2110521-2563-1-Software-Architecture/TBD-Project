@@ -3,8 +3,12 @@ import { Form, Input, Button, Checkbox } from "antd";
 import { Link, BrowserRouter as Router } from "react-router-dom";
 import axios from "axios";
 import jwt from "jsonwebtoken";
-import sha512 from '../middleWare/sha512';
 import "antd/dist/antd.css";
+
+function validateEmail(email) {
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -30,11 +34,11 @@ function Login() {
     const SECRET = "secret"; // ให้เหมือนของ backend
     const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
     const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });
-    if (username.includes("@")) {
-      const hashedPassword = sha512(password,'check').passwordHash; // hash by sha512 algorithm
+
+    if (validateEmail(username)) {
       const sendToBackend = {
         account_id: username,
-        pwd: hashedPassword, // อย่าลืม hash ก่อนส่ง
+        pwd: password,
       };
 
       axios
@@ -49,6 +53,7 @@ function Login() {
             localStorage.getItem('token');
         });
     } else {
+      alert("It's not an email!")
     }
     setUsername("");
     setPassword("");

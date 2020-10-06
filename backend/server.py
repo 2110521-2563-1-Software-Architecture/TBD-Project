@@ -7,6 +7,8 @@ from jwt import decode, encode
 from datetime import datetime
 from re import search, compile
 from aiohttp_cors import setup, ResourceOptions
+from hashlib import sha512
+from uuid import uuid4
 
 EMAIL_REGEX = compile('[^@]+@[^@]+\.[^@]+')
 ALGORITHM = ['HS256']
@@ -40,33 +42,33 @@ async def init(loop):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
         except:
-            return web.HTTPForbidden(text='Invalid Token')      
+            return web.HTTPForbidden(text='Invalid Token')  
         try:
             js = await request.json()
+
             if is_email(js['account_id']):
                 email = js['account_id']
-                phone_number = ''
-            elif js['account_id']:
-                email = ''
-                phone_number = js['account_id']
-            hashed_pwd = js['pwd']
+            else:
+                return web.HTTPBadRequest(text='account_id is not an email.')
+            password = js['pwd']
             timestamp = str(datetime.now().timestamp())
 
             # generate access token
-            payload = {'email':email, 'phone_number':phone_number, 'timestamp':timestamp}
+            payload = {'email':email, 'timestamp':timestamp}
             token = encode(payload, SECRET, algorithm=ALGORITHM[0]).decode('utf-8')
 
             async with conn.cursor() as cursor:
-                stmt = 'SELECT * FROM accounts WHERE email = %s AND phone_number = %s AND hashed_pwd = %s'
-                value = (email, phone_number, hashed_pwd)
+                stmt = 'SELECT hashed_password, salt FROM accounts WHERE email = %s'
+                value = email
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
-            if result:
+            if result and result[0] == sha512((password + result[1]).encode('utf-8')).hexdigest():
                 async with conn.cursor() as cursor:
                     stmt = 'INSERT INTO tokens (token, timestamp) VALUES (%s, %s)'
                     value = (token, timestamp)
                     await cursor.execute(stmt, value)
+                    await conn.commit() 
                     await cursor.close()
                 return web.json_response({'status':'success.', 'token':token})
             return web.json_response({'status':'incorrect id or password.'})
@@ -83,36 +85,36 @@ async def init(loop):
             js = await request.json()
             if is_email(js['account_id']):
                 email = js['account_id']
-                phone_number = ''
-            elif js['account_id']:
-                email = ''
-                phone_number = js['account_id']
+            else:
+                return web.HTTPBadRequest(text='account_id is not an email.')
             first_name = js['first_name']
             last_name = js['last_name']
-            hashed_pwd = js['pwd']
+            password = js['pwd']
+            salt = uuid4().hex
+            hashed_password = sha512((password + salt).encode('utf-8')).hexdigest()
             birth_date = js['birth_date']
             gender = js['gender']
             timestamp = str(datetime.now().timestamp())
 
             #check if empty
-            if (not email and not phone_number) or not hashed_pwd or\
-                not birth_date or not gender or not first_name:
+            if not email or not password or not birth_date \
+                or not gender or not first_name:
                 return web.HTTPBadRequest()
 
-            async with conn.cursor() as cursor: # TODO can update phone/email?
-                stmt = 'SELECT * FROM accounts WHERE email = %s AND phone_number = %s'
-                value = (email, phone_number)
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT * FROM accounts WHERE email = %s'
+                value = (email, )
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
             if result:
                 return web.json_response({'status':'already registered.'})
             async with conn.cursor() as cursor:
-                stmt = 'INSERT INTO accounts (email, phone_number, first_name, last_name,\
-                    hashed_pwd, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
+                stmt = 'INSERT INTO accounts (email, first_name, last_name,\
+                    hashed_password, salt, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
                      %s, %s, %s)'
-                value = (email, phone_number, first_name, last_name, 
-                hashed_pwd, birth_date, gender, timestamp)
+                value = (email, first_name, last_name, 
+                hashed_password, salt, birth_date, gender, timestamp)
                 await cursor.execute(stmt, value)                   
                 await conn.commit()  
                 await cursor.close()

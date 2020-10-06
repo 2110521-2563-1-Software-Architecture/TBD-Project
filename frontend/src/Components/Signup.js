@@ -3,8 +3,12 @@ import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button, message, Form } from 'antd';
 import jwt from 'jsonwebtoken';
-import sha512 from '../middleWare/sha512';
 const { Option } = Select;
+
+function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
 
 function Signup() {
     const [firstName, setFirstName] = useState('');
@@ -76,22 +80,18 @@ function Signup() {
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        const password_hash = sha512(password,'check').passwordHash; // hash by sha512 algorithm
-        if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
-            if (account_id.includes("@") 
-                && (account_id.endsWith('.com') || account_id.endsWith('.co.th') || account_id.endsWith('.ac.th'))){
-                const sendToBackend = {
-                    account_id: account_id,
-                    pwd: password_hash,
-                    first_name: firstName,
-                    last_name: surName,
-                    gender: gender,
-                    birth_date: date+'/'+month+'/'+year
-                };
-                const header = {
-                    headers:{
-                        Authorization: token
-                    }
+        if(firstName && surName && validateEmail(account_id) && password && date && month && year && (gender || pronoun)){
+            const sendToBackend = {
+                account_id: account_id,
+                pwd: password,
+                first_name: firstName,
+                last_name: surName,
+                gender: gender,
+                birth_date: date+'/'+month+'/'+year
+            };
+            const header = {
+                headers:{
+                    Authorization: token
                 }
                 axios.post('http://localhost:8080/register', sendToBackend, header)
                     .then(res => {
@@ -163,13 +163,13 @@ function Signup() {
                         rules={[
                             {
                                 required: true,
-                                message: "Please input your mobile number or email address!",
+                                message: "Please input your email address!",
                             },
                         ]}
                         >   
                         <Input 
                             onChange={onChangeAccountId}
-                            placeholder="Mobile number or email address"                       
+                            placeholder="Email address"                       
                         />
                     </Form.Item>
                     </Col>
