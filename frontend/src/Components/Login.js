@@ -52,7 +52,7 @@ function Login() {
   return (
     <div>
       <div style={LoginZone}>
-        <h2>Facebook Login</h2>
+        <h2>Fookbace Login</h2>
         <hr />
         <br />
         <Form

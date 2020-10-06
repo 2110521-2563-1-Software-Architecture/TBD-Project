@@ -15,8 +15,7 @@ const head = {
     backgroundColor : 'red',
     border: "red solid",
     width: '100%',
-    height: '100px',
+    paddingTop: "30px",
     paddingLeft: '20px',
-    paddingBottom: '5px'
 }
 export default Header;
