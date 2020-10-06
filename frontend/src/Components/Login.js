@@ -5,6 +5,11 @@ import axios from "axios";
 import jwt from "jsonwebtoken";
 import "antd/dist/antd.css";
 
+function validateEmail(email) {
+  const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(String(email).toLowerCase());
+}
+
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +34,8 @@ function Login() {
     const SECRET = "secret"; // ให้เหมือนของ backend
     const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
     const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });
-    if (username.includes("@")) {
+
+    if (validateEmail(username)) {
       const sendToBackend = {
         account_id: username,
         pwd: password,
@@ -47,6 +53,7 @@ function Login() {
             localStorage.getItem('token');
         });
     } else {
+      alert("It's not an email!")
     }
     setUsername("");
     setPassword("");

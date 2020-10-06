@@ -58,8 +58,8 @@ async def init(loop):
             token = encode(payload, SECRET, algorithm=ALGORITHM[0]).decode('utf-8')
 
             async with conn.cursor() as cursor:
-                stmt = 'SELECT (hashed_password, salt) FROM accounts WHERE email = %s'
-                value = (email,)
+                stmt = 'SELECT hashed_password, salt FROM accounts WHERE email = %s'
+                value = email
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
@@ -68,6 +68,7 @@ async def init(loop):
                     stmt = 'INSERT INTO tokens (token, timestamp) VALUES (%s, %s)'
                     value = (token, timestamp)
                     await cursor.execute(stmt, value)
+                    await conn.commit() 
                     await cursor.close()
                 return web.json_response({'status':'success.', 'token':token})
             return web.json_response({'status':'incorrect id or password.'})

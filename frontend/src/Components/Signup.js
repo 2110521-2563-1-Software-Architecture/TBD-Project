@@ -5,6 +5,11 @@ import { Radio, Select, Row, Col, Input, Button, message, Form } from 'antd';
 import jwt from 'jsonwebtoken';
 const { Option } = Select;
 
+function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
 function Signup() {
     const [firstName, setFirstName] = useState('');
     const [surName, setSurName] = useState('');
@@ -75,7 +80,7 @@ function Signup() {
         const SECRET = 'secret'; // ให้เหมือนของ backend
         const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
         const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        if(firstName && surName && account_id && password && date && month && year && (gender || pronoun)){
+        if(firstName && surName && validateEmail(account_id) && password && date && month && year && (gender || pronoun)){
             const sendToBackend = {
                 account_id: account_id,
                 pwd: password,
@@ -156,13 +161,13 @@ function Signup() {
                         rules={[
                             {
                                 required: true,
-                                message: "Please input your mobile number or email address!",
+                                message: "Please input your email address!",
                             },
                         ]}
                         >   
                         <Input 
                             onChange={onChangeAccountId}
-                            placeholder="Mobile number or email address"                       
+                            placeholder="Email address"                       
                         />
                     </Form.Item>
                     </Col>
