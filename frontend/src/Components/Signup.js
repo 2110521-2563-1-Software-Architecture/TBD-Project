@@ -73,7 +73,7 @@ function Signup() {
             message.error('This email is already registered.');
         }else {
             message.success('register success');
-            // history.push(`/${lang}/buy/search`);
+            history.push(`/`);
         }
     }
     const onSubmit = () =>{
@@ -93,13 +93,15 @@ function Signup() {
                 headers:{
                     Authorization: token
                 }
+                axios.post('http://localhost:8080/register', sendToBackend, header)
+                    .then(res => {
+                        const status = res.data.status;
+                        // console.log(status);
+                        checkResult(status);
+                    });
+            }else{
+                message.error('Please check email format');
             }
-            axios.post('http://localhost:8080/register', sendToBackend, header)
-                .then(res => {
-                    const status = res.data.status;
-                    // console.log(status);
-                    checkResult(status);
-                });
         }
         else{
             message.error('Please choose gender or custom');
