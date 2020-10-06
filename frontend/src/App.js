@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './Components/Header';
 import Login from './Components/Login'
 import Signup from './Components/Signup'
-import {BrowserRouter as Router, Link, Route, Switch} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import "antd/dist/antd.css";
 
 function App() {
