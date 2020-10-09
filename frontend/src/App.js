@@ -5,6 +5,7 @@ import Signup from './Components/Signup'
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import "antd/dist/antd.css";
 import CreatePost from './Components/CreatePost';
+import Post from './Components/Post';
 
 function App() {
   return (
@@ -21,7 +22,11 @@ function App() {
           </Route>
           <Route exact path={'/createPost'}>
             <Header/>
-            <CreatePost/>
+            <CreatePost/> {/* add parameter username*/}
+          </Route>
+          <Route exact path={'/post'}>
+            <Header/>
+            <Post/> {/* add parameter username*/}
           </Route>
         </Switch>
       </div>
