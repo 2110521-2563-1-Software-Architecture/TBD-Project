@@ -30,29 +30,29 @@ function Home() {
 /////////////Friend List///////////////////////
 const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'FriendList',
+      dataIndex: 'FriendList',
+      key: 'FriendList',
     }
     
 ]
 const data = [
     {
-      name: "fffm  kg"
+      FriendList: "fffm  kg"
     }
 ]
 //////////////All User////////////////////////
 const column = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'AllUser',
+      dataIndex: 'AllUser',
+      key: 'AllUser',
     }
     
 ]
 const dat = [
     {
-      name: "fffm  kg"
+      AllUser: "fffm  kg"
     }
 ]
 ////////////////////////////////////////////////
