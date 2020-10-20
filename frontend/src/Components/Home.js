@@ -7,7 +7,7 @@ function Home() {
         <div>
             <Row >
                 <Col style={Style} span={6}>
-                    <div className="picture_name">
+                    <div className="picture_name" style={{width: "90%", margin: "auto"}}>
                         <img src={Default} style={{width:"100%"}}/>
                         My Name is Thanapun(กาก)
                     </div>
