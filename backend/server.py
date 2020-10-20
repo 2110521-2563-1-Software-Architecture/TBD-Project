@@ -122,7 +122,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.post('/post')
+    @routes.post('/feed')
     async def handle_post_status(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -140,12 +140,24 @@ async def init(loop):
         except:
             return web.HTTPForbidden(text='Invalid Token') 
         try:
+            reader = await request.multipart()
+            content_image = None
+            content = None
+            timestamp = str(datetime.now().timestamp())
+            part = await reader.next()
+            while part:
+                if part.name == 'content_image':
+                    content_image = await part.read()
+                elif part.name == 'content':
+                    content = await part.text()
+                part = await reader.next()
+            # TODO convert content_image to string -> type = image if not none else type = string
             # TODO insert into feed+activity
             return web.json_response({'status': 'success.'})
         except:
             return web.HTTPBadRequest()
 
-    @routes.get('/post')
+    @routes.get('/feed')
     async def handle_get_status(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -163,10 +175,36 @@ async def init(loop):
         except:
             return web.HTTPForbidden(text='Invalid Token') 
         try:
-            # TODO select content from user-feed
+            # TODO select content from feed(need algorithm)
             return web.json_response({})
         except:
-            return web.HTTPBadRequest()            
+            return web.HTTPBadRequest()      
+
+    @routes.post('/friend')
+    async def handle_friend(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user = request.headers.get('User')
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
+                value = user
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result:
+                    raise Exception() 
+                # elif
+                # TODO check timestamp     
+        except:
+            return web.HTTPForbidden(text='Invalid Token') 
+        try:
+            js = await request.json()
+            
+            # TODO update friend
+            # TODO insert into activity
+            return web.json_response({'status': 'success.'})
+        except:
+            return web.HTTPBadRequest()                  
 
     app = web.Application()
     app.add_routes(routes)
