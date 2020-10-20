@@ -1,12 +1,14 @@
 import React from 'react'
 import {Row, Col, Table, Tag, Space, Alert } from 'antd'
+import Default from '../picture/default.png'
 
 function Home() {
     return (
         <div>
             <Row >
                 <Col style={Style} span={6}>
-                    <div className="picture&name">
+                    <div className="picture_name">
+                        <img src={Default} style={{width:"100%"}}/>
                         My Name is Thanapun(กาก)
                     </div>
                     <div className="FriendList" style={FriendList}>
@@ -62,6 +64,6 @@ const FriendList = {
     margin: 'auto'
 }
 const AllUser = {
-    
+
 }
 export default Home
