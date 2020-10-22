@@ -260,7 +260,7 @@ async def init(loop):
                 await cursor.close()      
             if not result or not check_timestamp(result[1]):
                 raise Exception()
-            user = result[0]   
+            user = result[0]
         except:
             return web.HTTPForbidden(text='Please Re-login') 
         try:            
