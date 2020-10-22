@@ -19,6 +19,10 @@ def is_email(email):
         return True
     return False
 
+def check_timestamp(timestamp):
+    # TODO check
+    return True
+
 load_dotenv()
 
 DATABASE_NAME = getenv('DB_DATABASE')
@@ -65,8 +69,8 @@ async def init(loop):
                 await cursor.close() 
             if result and result[0] == sha512((password + result[1]).encode('utf-8')).hexdigest():
                 async with conn.cursor() as cursor:
-                    stmt = 'INSERT INTO tokens (token, timestamp) VALUES (%s, %s)'
-                    value = (token, timestamp)
+                    stmt = 'INSERT INTO tokens (email, token, timestamp) VALUES (%s, %s, %s)'
+                    value = (email, token, timestamp)
                     await cursor.execute(stmt, value)
                     await conn.commit() 
                     await cursor.close()
@@ -121,6 +125,137 @@ async def init(loop):
             return web.json_response({'status': 'success.'})
         except:
             return web.HTTPBadRequest()
+
+    @routes.post('/feed')
+    async def handle_post_status(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
+                value = user
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()  
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:
+            js = await request.json()
+            # TODO insert into feed+activity
+            return web.json_response({'status': 'success.'})
+        except:
+            return web.HTTPBadRequest()
+
+    @routes.get('/feed')
+    async def handle_get_status(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
+                value = user
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()   
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:
+            # TODO select content from feed(need algorithm)
+            return web.json_response({})
+        except:
+            return web.HTTPBadRequest()      
+
+    @routes.post('/friend')
+    async def handle_post_friend(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user_token = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
+                value = user_token
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()
+                user = result[0]  
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:
+            js = await request.json()
+            target = js['target']
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT * FROM friends WHERE from_user_id = %s AND to_user_id = %s'
+                value = (user, target)
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()         
+                if result:
+                    async with conn.cursor() as cursor:
+                        stmt = 'DELETE FROM friends WHERE from_user_id = %s AND to_user_id = %s'
+                        value = (user, target)
+                        await cursor.execute(stmt, value)
+                        value = (target, user)
+                        await cursor.execute(stmt, value)
+                        stmt = 'INSERT INTO logs (user_id, interact_to_user_id, action, timestamp) VALUES (%s, %s, %s, %s)'
+                        value = (user, target, 'Remove Friend', timestamp)
+                        await cursor.execute(stmt, value)
+                        value = (target, user, 'Remove Friend', timestamp)
+                        await cursor.execute(stmt, value)                        
+                        await conn.commit()   
+                        await cursor.close() 
+                else:
+                    async with conn.cursor() as cursor:
+                        stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) VALUES (%s, %s, %s, %s)'
+                        value = (user, target, timestamp, None)
+                        await cursor.execute(stmt, value)
+                        value = (target, user, timestamp, None)
+                        await cursor.execute(stmt, value)
+                        stmt = 'INSERT INTO logs (user_id, interact_to_user_id, action, timestamp) VALUES (%s, %s, %s, %s)'
+                        value = (user, target, 'Add Friend', timestamp)
+                        await cursor.execute(stmt, value)
+                        value = (target, user, 'Add Friend', timestamp)
+                        await cursor.execute(stmt, value)                        
+                        await conn.commit()   
+                        await cursor.close()
+            return web.json_response({'status': 'success.'})
+        except:
+            return web.HTTPBadRequest()     
+
+    @routes.get('/friend')
+    async def handle_get_friend(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user_token = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
+                value = user_token
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()
+                user = result[0]   
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:            
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT to_user_id FROM friends WHERE from_user_id = %s'
+                value = user
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchall()
+                await cursor.close()         
+            return web.json_response({'friends': result})
+        except:
+            return web.HTTPBadRequest()                         
 
     app = web.Application()
     app.add_routes(routes)
