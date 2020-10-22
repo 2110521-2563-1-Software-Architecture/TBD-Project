@@ -19,6 +19,10 @@ def is_email(email):
         return True
     return False
 
+def check_timestamp(timestamp):
+    # TODO check
+    return True
+
 load_dotenv()
 
 DATABASE_NAME = getenv('DB_DATABASE')
@@ -127,18 +131,17 @@ async def init(loop):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
             user = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
                 stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
                 value = user
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result:
-                    raise Exception() 
-                # elif
-                # TODO check timestamp     
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()  
         except:
-            return web.HTTPForbidden(text='Invalid Token') 
+            return web.HTTPForbidden(text='Please Re-login') 
         try:
             js = await request.json()
             # TODO insert into feed+activity
@@ -151,18 +154,17 @@ async def init(loop):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
             user = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
                 stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
                 value = user
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result:
-                    raise Exception() 
-                # elif
-                # TODO check timestamp     
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()   
         except:
-            return web.HTTPForbidden(text='Invalid Token') 
+            return web.HTTPForbidden(text='Please Re-login') 
         try:
             # TODO select content from feed(need algorithm)
             return web.json_response({})
@@ -174,20 +176,18 @@ async def init(loop):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
             user_token = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
                 stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
                 value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result:
-                    raise Exception() 
-                user = result[0]
-                timestamp = str(datetime.now().timestamp())
-                # elif
-                # TODO check timestamp     
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()
+                user = result[0]  
         except:
-            return web.HTTPForbidden(text='Invalid Token') 
+            return web.HTTPForbidden(text='Please Re-login') 
         try:
             js = await request.json()
             target = js['target']
@@ -234,21 +234,19 @@ async def init(loop):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
             user_token = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
                 stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
                 value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result:
-                    raise Exception() 
-                user = result[0]
-                # elif
-                # TODO check timestamp     
+                if not result or not check_timestamp(timestamp):
+                    raise Exception()
+                user = result[0]   
         except:
-            return web.HTTPForbidden(text='Invalid Token') 
+            return web.HTTPForbidden(text='Please Re-login') 
         try:            
-            # TODO select * from friend
             async with conn.cursor() as cursor:
                 stmt = 'SELECT to_user_id FROM friends WHERE from_user_id = %s'
                 value = user
