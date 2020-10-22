@@ -41,7 +41,7 @@ async def init(loop):
     db=DATABASE_NAME, loop=loop
     )
 
-    @routes.post('/login')
+    @routes.post('/login') # testing
     async def handle_login(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -62,15 +62,15 @@ async def init(loop):
             token = encode(payload, SECRET, algorithm=ALGORITHM[0]).decode('utf-8')
 
             async with conn.cursor() as cursor:
-                stmt = 'SELECT hashed_password, salt FROM accounts WHERE email = %s'
+                stmt = 'SELECT id, hashed_password, salt FROM accounts WHERE email = %s'
                 value = email
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
-            if result and result[0] == sha512((password + result[1]).encode('utf-8')).hexdigest():
+            if result and result[1] == sha512((password + result[2]).encode('utf-8')).hexdigest():
                 async with conn.cursor() as cursor:
-                    stmt = 'INSERT INTO tokens (email, token, timestamp) VALUES (%s, %s, %s)'
-                    value = (email, token, timestamp)
+                    stmt = 'INSERT INTO tokens (user_id, token, timestamp) VALUES (%s, %s, %s)'
+                    value = (result[0], token, timestamp)
                     await cursor.execute(stmt, value)
                     await conn.commit() 
                     await cursor.close()
@@ -79,7 +79,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.post('/register')
+    @routes.post('/register') # testing
     async def handle_register(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -107,7 +107,7 @@ async def init(loop):
 
             async with conn.cursor() as cursor:
                 stmt = 'SELECT * FROM accounts WHERE email = %s'
-                value = (email, )
+                value = email
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close() 
@@ -126,66 +126,94 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.post('/feed')
-    async def handle_post_status(request):
+    @routes.post('/feed') # testing
+    async def handle_post_feed(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
-            user = request.headers.get('User')
+            user_token = request.headers.get('User')
             timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
-                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
-                value = user
+                stmt = 'SELECT user_id, timestamp FROM tokens WHERE token = %s'
+                value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result or not check_timestamp(timestamp):
+                if not result or not check_timestamp(result[1]):
                     raise Exception()  
+                user = result[0]
         except:
             return web.HTTPForbidden(text='Please Re-login') 
         try:
             js = await request.json()
-            # TODO insert into feed+activity
+            content_type = js['content_type']
+            content = js['content']
+            async with conn.cursor() as cursor:
+                stmt = 'INSERT INTO feed (type, content, owner, timestamp) VALUES (%s, %s, %s, %s)'
+                value = (content_type, content, user, timestamp)
+                await cursor.execute(stmt, value)                   
+                await conn.commit()  
+                await cursor.close()
             return web.json_response({'status': 'success.'})
         except:
             return web.HTTPBadRequest()
 
-    @routes.get('/feed')
-    async def handle_get_status(request):
+    @routes.get('/feed') # testing
+    async def handle_get_feed(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
-            user = request.headers.get('User')
-            timestamp = str(datetime.now().timestamp())
+            user_token = request.headers.get('User')
             async with conn.cursor() as cursor:
-                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
-                value = user
+                stmt = 'SELECT user_id, timestamp FROM tokens WHERE token = %s'
+                value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result or not check_timestamp(timestamp):
+                if not result or not check_timestamp(result[1]):
                     raise Exception()   
+                user = result[0]
         except:
             return web.HTTPForbidden(text='Please Re-login') 
         try:
-            # TODO select content from feed(need algorithm)
-            return web.json_response({})
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT feed_id FROM userfeed WHERE user_id = %s'
+                value = user
+                await cursor.execute(stmt, value)
+                list_of_ids = [feed_id[0] for feed_id in await cursor.fetchall()]
+                format_strings = ','.join(['%s'] * len(list_of_ids))
+                stmt = 'SELECT * FROM feed WHERE id IN (%s)' % format_strings
+                value = tuple(list_of_ids)
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchall()
+                news_feed = [
+                    {
+                        'id': feed[0],
+                        'content_type': feed[1],
+                        'content': feed[2],
+                        'owner': feed[3],
+                        'timestamp': feed[4]
+                    }
+                    for feed in result
+                ]
+                await cursor.close() 
+            return web.json_response({'news_feed':news_feed})
         except:
             return web.HTTPBadRequest()      
 
-    @routes.post('/friend')
+    @routes.post('/friend') # testing
     async def handle_post_friend(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
             user_token = request.headers.get('User')
             timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
-                stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
+                stmt = 'SELECT user_id, timestamp FROM tokens WHERE token = %s'
                 value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result or not check_timestamp(timestamp):
-                    raise Exception()
-                user = result[0]  
+            if not result or not check_timestamp(result[1]):
+                raise Exception()
+            user = result[0]  
         except:
             return web.HTTPForbidden(text='Please Re-login') 
         try:
@@ -197,53 +225,42 @@ async def init(loop):
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()         
-                if result:
-                    async with conn.cursor() as cursor:
-                        stmt = 'DELETE FROM friends WHERE from_user_id = %s AND to_user_id = %s'
-                        value = (user, target)
-                        await cursor.execute(stmt, value)
-                        value = (target, user)
-                        await cursor.execute(stmt, value)
-                        stmt = 'INSERT INTO logs (user_id, interact_to_user_id, action, timestamp) VALUES (%s, %s, %s, %s)'
-                        value = (user, target, 'Remove Friend', timestamp)
-                        await cursor.execute(stmt, value)
-                        value = (target, user, 'Remove Friend', timestamp)
-                        await cursor.execute(stmt, value)                        
-                        await conn.commit()   
-                        await cursor.close() 
-                else:
-                    async with conn.cursor() as cursor:
-                        stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) VALUES (%s, %s, %s, %s)'
-                        value = (user, target, timestamp, None)
-                        await cursor.execute(stmt, value)
-                        value = (target, user, timestamp, None)
-                        await cursor.execute(stmt, value)
-                        stmt = 'INSERT INTO logs (user_id, interact_to_user_id, action, timestamp) VALUES (%s, %s, %s, %s)'
-                        value = (user, target, 'Add Friend', timestamp)
-                        await cursor.execute(stmt, value)
-                        value = (target, user, 'Add Friend', timestamp)
-                        await cursor.execute(stmt, value)                        
-                        await conn.commit()   
-                        await cursor.close()
+            if result:
+                async with conn.cursor() as cursor:
+                    stmt = 'DELETE FROM friends WHERE from_user_id = %s AND to_user_id = %s'
+                    value = (user, target)
+                    await cursor.execute(stmt, value)
+                    value = (target, user)
+                    await cursor.execute(stmt, value)                       
+                    await conn.commit()   
+                    await cursor.close() 
+            else:
+                async with conn.cursor() as cursor:
+                    stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) VALUES (%s, %s, %s, %s)'
+                    value = (user, target, timestamp, None)
+                    await cursor.execute(stmt, value)
+                    value = (target, user, timestamp, None)
+                    await cursor.execute(stmt, value)                       
+                    await conn.commit()   
+                    await cursor.close()
             return web.json_response({'status': 'success.'})
         except:
             return web.HTTPBadRequest()     
 
-    @routes.get('/friend')
+    @routes.get('/friend') # testing
     async def handle_get_friend(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
             user_token = request.headers.get('User')
-            timestamp = str(datetime.now().timestamp())
             async with conn.cursor() as cursor:
-                stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
+                stmt = 'SELECT user_id, timestamp FROM tokens WHERE token = %s'
                 value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
-                if not result or not check_timestamp(timestamp):
-                    raise Exception()
-                user = result[0]   
+            if not result or not check_timestamp(result[1]):
+                raise Exception()
+            user = result[0]   
         except:
             return web.HTTPForbidden(text='Please Re-login') 
         try:            
@@ -251,12 +268,66 @@ async def init(loop):
                 stmt = 'SELECT to_user_id FROM friends WHERE from_user_id = %s'
                 value = user
                 await cursor.execute(stmt, value)
+                list_of_ids = [friend[0] for friend in await cursor.fetchall()]
+                format_strings = ','.join(['%s'] * len(list_of_ids))
+                stmt = 'SELECT id, email, first_name, last_name, birth_date, gender FROM accounts WHERE id IN (%s)' % format_strings
+                value = tuple(list_of_ids)
+                await cursor.execute(stmt, value)
                 result = await cursor.fetchall()
+                friends = [
+                    {
+                        'id': friend[0],
+                        'email': friend[1],
+                        'first_name': friend[2],
+                        'last_name': friend[3],
+                        'birth_date': friend[4],
+                        'gender': friend[5]
+                    }
+                    for friend in result
+                ]
                 await cursor.close()         
-            return web.json_response({'friends': result})
+            return web.json_response({'friends': friends})
         except:
             return web.HTTPBadRequest()                         
 
+    @routes.post('/interact') # testing
+    async def handle_post_interact(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user_token = request.headers.get('User')
+            timestamp = str(datetime.now().timestamp())
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT user_id, timestamp FROM tokens WHERE token = %s'
+                value = user_token
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+            if not result or not check_timestamp(result[1]):
+                raise Exception()
+            user = result[0]  
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:
+            js = await request.json()
+            target = js['target']
+            action = js['action']
+            async with conn.cursor() as cursor:
+                stmt = 'INSERT INTO logs (user_id, interact_to_feed_id, action, timestamp) VALUES (%s, %s, %s, %s)'
+                value = (user, target, action, timestamp)
+                await cursor.execute(stmt, value)    
+                stmt = 'SELECT owner FROM feed WHERE id = %s'
+                value = target
+                await cursor.execute(stmt, value) 
+                result = await cursor.fetchone()
+                stmt = 'UPDATE friends SET last_interact_id = %s WHERE from_user_id = %s AND to_user_id = %s'    
+                value = (target, user, result[0])   
+                await cursor.execute(stmt, value)          
+                await conn.commit()   
+                await cursor.close()
+            return web.json_response({'status': 'success.'})
+        except:
+            return web.HTTPBadRequest()             
+    
     app = web.Application()
     app.add_routes(routes)
     cors = setup(app, defaults={
