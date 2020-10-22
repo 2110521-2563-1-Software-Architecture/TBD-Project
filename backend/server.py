@@ -41,7 +41,7 @@ async def init(loop):
     db=DATABASE_NAME, loop=loop
     )
 
-    @routes.post('/login') # testing
+    @routes.post('/login') # passed
     async def handle_login(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -79,7 +79,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.post('/register') # testing
+    @routes.post('/register') # passed
     async def handle_register(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -148,7 +148,7 @@ async def init(loop):
             content_type = js['content_type']
             content = js['content']
             async with conn.cursor() as cursor:
-                stmt = 'INSERT INTO feed (type, content, owner, timestamp) VALUES (%s, %s, %s, %s)'
+                stmt = 'INSERT INTO feed (type, content, owner_id, timestamp) VALUES (%s, %s, %s, %s)'
                 value = (content_type, content, user, timestamp)
                 await cursor.execute(stmt, value)                   
                 await conn.commit()  
@@ -189,7 +189,7 @@ async def init(loop):
                         'id': feed[0],
                         'content_type': feed[1],
                         'content': feed[2],
-                        'owner': feed[3],
+                        'owner_id': feed[3],
                         'timestamp': feed[4]
                     }
                     for feed in result
@@ -315,7 +315,7 @@ async def init(loop):
                 stmt = 'INSERT INTO logs (user_id, interact_to_feed_id, action, timestamp) VALUES (%s, %s, %s, %s)'
                 value = (user, target, action, timestamp)
                 await cursor.execute(stmt, value)    
-                stmt = 'SELECT owner FROM feed WHERE id = %s'
+                stmt = 'SELECT owner_id FROM feed WHERE id = %s'
                 value = target
                 await cursor.execute(stmt, value) 
                 result = await cursor.fetchone()
