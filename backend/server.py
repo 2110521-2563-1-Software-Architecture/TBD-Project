@@ -65,8 +65,8 @@ async def init(loop):
                 await cursor.close() 
             if result and result[0] == sha512((password + result[1]).encode('utf-8')).hexdigest():
                 async with conn.cursor() as cursor:
-                    stmt = 'INSERT INTO tokens (token, timestamp) VALUES (%s, %s)'
-                    value = (token, timestamp)
+                    stmt = 'INSERT INTO tokens (email, token, timestamp) VALUES (%s, %s, %s)'
+                    value = (email, token, timestamp)
                     await cursor.execute(stmt, value)
                     await conn.commit() 
                     await cursor.close()
@@ -140,18 +140,7 @@ async def init(loop):
         except:
             return web.HTTPForbidden(text='Invalid Token') 
         try:
-            reader = await request.multipart()
-            content_image = None
-            content = None
-            timestamp = str(datetime.now().timestamp())
-            part = await reader.next()
-            while part:
-                if part.name == 'content_image':
-                    content_image = await part.read()
-                elif part.name == 'content':
-                    content = await part.text()
-                part = await reader.next()
-            # TODO convert content_image to string -> type = image if not none else type = string
+            js = await request.json()
             # TODO insert into feed+activity
             return web.json_response({'status': 'success.'})
         except:
@@ -181,30 +170,94 @@ async def init(loop):
             return web.HTTPBadRequest()      
 
     @routes.post('/friend')
-    async def handle_friend(request):
+    async def handle_post_friend(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
-            user = request.headers.get('User')
+            user_token = request.headers.get('User')
             async with conn.cursor() as cursor:
-                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
-                value = user
+                stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
+                value = user_token
                 await cursor.execute(stmt, value)
                 result = await cursor.fetchone()
                 await cursor.close()      
                 if not result:
                     raise Exception() 
+                user = result[0]
+                timestamp = str(datetime.now().timestamp())
                 # elif
                 # TODO check timestamp     
         except:
             return web.HTTPForbidden(text='Invalid Token') 
         try:
             js = await request.json()
-            
-            # TODO update friend
-            # TODO insert into activity
+            target = js['target']
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT * FROM friends WHERE from_user_id = %s AND to_user_id = %s'
+                value = (user, target)
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()         
+                if result:
+                    async with conn.cursor() as cursor:
+                        stmt = 'DELETE FROM friends WHERE from_user_id = %s AND to_user_id = %s'
+                        value = (user, target)
+                        await cursor.execute(stmt, value)
+                        value = (target, user)
+                        await cursor.execute(stmt, value)
+                        stmt = 'INSERT INTO logs (user_id, interact_to_user_id, action, timestamp) VALUES (%s, %s, %s, %s)'
+                        value = (user, target, 'Remove Friend', timestamp)
+                        await cursor.execute(stmt, value)
+                        value = (target, user, 'Remove Friend', timestamp)
+                        await cursor.execute(stmt, value)                        
+                        await conn.commit()   
+                        await cursor.close() 
+                else:
+                    async with conn.cursor() as cursor:
+                        stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) VALUES (%s, %s, %s, %s)'
+                        value = (user, target, timestamp, None)
+                        await cursor.execute(stmt, value)
+                        value = (target, user, timestamp, None)
+                        await cursor.execute(stmt, value)
+                        stmt = 'INSERT INTO logs (user_id, interact_to_user_id, action, timestamp) VALUES (%s, %s, %s, %s)'
+                        value = (user, target, 'Add Friend', timestamp)
+                        await cursor.execute(stmt, value)
+                        value = (target, user, 'Add Friend', timestamp)
+                        await cursor.execute(stmt, value)                        
+                        await conn.commit()   
+                        await cursor.close()
             return web.json_response({'status': 'success.'})
         except:
-            return web.HTTPBadRequest()                  
+            return web.HTTPBadRequest()     
+
+    @routes.get('/friend')
+    async def handle_get_friend(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user_token = request.headers.get('User')
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT email, timestamp FROM tokens WHERE token = %s'
+                value = user_token
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result:
+                    raise Exception() 
+                user = result[0]
+                # elif
+                # TODO check timestamp     
+        except:
+            return web.HTTPForbidden(text='Invalid Token') 
+        try:            
+            # TODO select * from friend
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT to_user_id FROM friends WHERE from_user_id = %s'
+                value = user
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchall()
+                await cursor.close()         
+            return web.json_response({'friends': result})
+        except:
+            return web.HTTPBadRequest()                         
 
     app = web.Application()
     app.add_routes(routes)
