@@ -22,14 +22,6 @@ function App() {
             <Header/>
             <Signup/>
           </Route>
-          <Route exact path={'/createPost'}>
-            <Header/>
-            <CreatePost/> {/* add parameter username*/}
-          </Route>
-          <Route exact path={'/post'}>
-            <Header/>
-            <Post/> {/* add parameter username*/}
-          </Route>
         </Switch>
       </div>
     </Router>

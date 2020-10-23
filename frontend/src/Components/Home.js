@@ -3,6 +3,8 @@ import axios from 'axios'
 import {Row, Col} from 'antd'
 import Default from '../picture/default.png'
 import jwt from "jsonwebtoken";
+import CreatePost from './CreatePost';
+import Post from './Post';
 
 const FriendList = props => (
     <tr>
@@ -18,6 +20,7 @@ const AllUser = props => (
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
+    const [feedList, setFeedList] = useState(['test1','test2']);
 
     useEffect(() => {
         // axios.get('http://localhost:4000')
@@ -62,6 +65,11 @@ function Home() {
             return <AllUser list={currentlist} key={i} />;
         })
     }
+    const FeedList = () => {
+        return feedList.map(function(currentlist, i){
+            return <Post content={currentlist} key={i} />;
+        })
+    }
     return (
         <div>
             <Row >
@@ -85,7 +93,9 @@ function Home() {
                     </div>
                 </Col>
                 <Col style={Style} span={12}>
-                    ไว้ใส่ contents
+                    <div>ไว้ใส่ contents</div>
+                    <CreatePost/>
+                    {FeedList()}
                 </Col>
                 <Col style={Style} span={6}>
                     <div className="All User" style={{margin:"auto",width:"90%"}}>

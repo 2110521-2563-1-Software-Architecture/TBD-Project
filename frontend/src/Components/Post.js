@@ -4,12 +4,12 @@ import {Link, useHistory} from 'react-router-dom';
 import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import jwt from 'jsonwebtoken';
-import user_Image from '../Pictures/user.png';
-import close_icon2 from '../Pictures/closeIcon2.png';
-import upload_icon from '../Pictures/upload.png';
+import user_Image from '../picture/user.png';
+import close_icon2 from '../picture/closeIcon2.png';
+import upload_icon from '../picture/upload.png';
 
 function Post(props) {
-    const [username,setUsername] = useState('bbbbb');
+    const [username,setUsername] = useState(props.content);
     const [text,setText] = useState('aaaaaaaaaaaaaaa');
 
     const deletePost = () => {
@@ -38,9 +38,10 @@ function Post(props) {
 }
 const PostField = {
     margin: 'auto',
-    marginTop: "50px",
-    width: "35%",
+    marginTop: "15px",
+    width: "80%",
     border: 'gray solid 2px',
+    borderRadius: '10px',
     padding: '15px'
 };
 const userImage = {

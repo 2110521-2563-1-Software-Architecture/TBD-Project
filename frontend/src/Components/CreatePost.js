@@ -4,9 +4,9 @@ import {Link, useHistory} from 'react-router-dom';
 import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import jwt from 'jsonwebtoken';
-import user_Image from '../Pictures/user.png';
-import close_icon from '../Pictures/closeIcon.png';
-import upload_icon from '../Pictures/upload.png';
+import user_Image from '../picture/user.png';
+import close_icon from '../picture/closeIcon.png';
+import upload_icon from '../picture/upload.png';
 const { TextArea } = Input;
 
 function CreatePost(props) {
@@ -139,8 +139,9 @@ function CreatePost(props) {
 const prePostField = {
     margin: 'auto',
     marginTop: "50px",
-    width: "35%",
+    width: "80%",
     border: 'gray solid 2px',
+    borderRadius: '10px',
     padding: '15px'
 };
 const body = {
