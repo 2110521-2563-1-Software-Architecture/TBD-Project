@@ -108,3 +108,6 @@ dist
 
 # Vs code
 /.vscode/*
+
+# for debug
+create_db.py
