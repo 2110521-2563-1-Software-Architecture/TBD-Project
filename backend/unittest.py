@@ -47,6 +47,18 @@ def get_feed(current_user):
     r = requests.get(URL+'feed', headers={'Authorization':token, 'User':current_user})
     return r.json()['news_feed']
 
+def patch_feed(current_user, target, content, content_type):
+    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
+    r = requests.patch(URL+'feed', json={'target':target, 'content':content,
+    'content_type':content_type}, headers={'Authorization':token, 'User':current_user})
+    return r.json()['status']
+
+def delete_feed(current_user, target):
+    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
+    r = requests.delete(URL+'feed', json={'target':target}, 
+    headers={'Authorization':token, 'User':current_user})
+    return r.json()['status']        
+
 def interact(current_user, target, action):
     token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
     r = requests.post(URL+'interact', json={'target':target, 
@@ -131,11 +143,32 @@ try:
 except Exception as err:
     print(True, err)
 
-# Test Like/Dislike
-print(interact(login1['token'], 1, 'like') == 'success.')
-print(interact(login1['token'], 1, 'dislike') == 'success.')
-print(interact(login1['token'], 2, 'like') == 'success.')
+# Test Update Feed
+old_news_feed = news_feed
+print(patch_feed(login1['token'], 1, 'edit1', 'string') == 'success.')
+print(patch_feed(login1['token'], 2, 'edit2', 'picture') == 'success.')
+news_feed = get_feed(login2['token'])
+print(news_feed != old_news_feed, news_feed)
 try:
-    interact(login1['token'], 9999, 'like')
+    patch_feed(login1['token'], 1000, 'error', 'string')
+except Exception as err:
+    print(True, err)
+
+# Test Delete Feed
+old_news_feed = news_feed
+print(delete_feed(login1['token'], 1) == 'success.')
+news_feed = get_feed(login2['token'])
+print(news_feed != old_news_feed, news_feed)
+try:
+    delete_feed(login1['token'], 4)
+except Exception as err:
+    print(True, err)
+
+# Test Like/Dislike
+print(interact(login1['token'], 2, 'like') == 'success.')
+print(interact(login1['token'], 2, 'dislike') == 'success.')
+print(interact(login1['token'], 3, 'like') == 'success.')
+try:
+    interact(login1['token'], 1, 'like')
 except Exception as err:
     print(True, err)

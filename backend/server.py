@@ -196,6 +196,64 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()      
 
+    @routes.patch('/feed') # testing
+    async def handle_patch_feed(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user_token = request.headers.get('User')
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
+                value = user_token
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result or not check_timestamp(result[0]):
+                    raise Exception()
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:
+            js = await request.json()
+            target = js['target']
+            content_type = js['content_type']
+            content = js['content']
+            async with conn.cursor() as cursor:
+                stmt = 'UPDATE feed SET type = %s, content = %s WHERE id = %s'
+                value = (content_type, content, target)
+                await cursor.execute(stmt, value)                   
+                await conn.commit()  
+                await cursor.close()
+            return web.json_response({'status': 'success.'})
+        except:
+            return web.HTTPBadRequest()
+
+    @routes.delete('/feed') # testing
+    async def handle_delete_feed(request):
+        try:
+            decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
+            user_token = request.headers.get('User')
+            async with conn.cursor() as cursor:
+                stmt = 'SELECT timestamp FROM tokens WHERE token = %s'
+                value = user_token
+                await cursor.execute(stmt, value)
+                result = await cursor.fetchone()
+                await cursor.close()      
+                if not result or not check_timestamp(result[0]):
+                    raise Exception()
+        except:
+            return web.HTTPForbidden(text='Please Re-login') 
+        try:
+            js = await request.json()
+            target = js['target']
+            async with conn.cursor() as cursor:
+                stmt = 'DELETE FROM feed WHERE id = %s'
+                value = target
+                await cursor.execute(stmt, value)                   
+                await conn.commit()  
+                await cursor.close()
+            return web.json_response({'status': 'success.'})
+        except:
+            return web.HTTPBadRequest()            
+
     @routes.post('/friend') # passed
     async def handle_post_friend(request):
         try:
