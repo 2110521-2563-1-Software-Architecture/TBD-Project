@@ -196,7 +196,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()      
 
-    @routes.patch('/feed') # testing
+    @routes.patch('/feed') # passed
     async def handle_patch_feed(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -226,7 +226,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.delete('/feed') # testing
+    @routes.delete('/feed') # passed
     async def handle_delete_feed(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
