@@ -317,7 +317,7 @@ async def init(loop):
                 await cursor.execute(stmt, value) 
                 result = await cursor.fetchone()
                 stmt = 'UPDATE friends SET last_interact_id = %s WHERE from_user_id = %s AND to_user_id = %s'    
-                value = (target, user, result[0])   
+                value = (target, user, result[0])
                 await cursor.execute(stmt, value)          
                 await conn.commit()   
                 await cursor.close()

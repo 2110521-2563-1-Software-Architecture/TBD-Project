@@ -130,3 +130,12 @@ try:
     get_feed(login1['token'])
 except Exception as err:
     print(True, err)
+
+# Test Like/Dislike
+print(interact(login1['token'], 1, 'like') == 'success.')
+print(interact(login1['token'], 1, 'dislike') == 'success.')
+print(interact(login1['token'], 2, 'like') == 'success.')
+try:
+    interact(login1['token'], 9999, 'like')
+except Exception as err:
+    print(True, err)
