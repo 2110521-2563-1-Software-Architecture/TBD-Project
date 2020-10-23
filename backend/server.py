@@ -50,10 +50,7 @@ async def init(loop):
         try:
             js = await request.json()
 
-            if is_email(js['account_id']):
-                email = js['account_id']
-            else:
-                return web.HTTPBadRequest(text='account_id is not an email.')
+            email = js['account_id']
             password = js['pwd']
             timestamp = str(datetime.now().timestamp())
 
@@ -126,7 +123,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.post('/feed') # testing
+    @routes.post('/feed') # passed
     async def handle_post_feed(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -157,7 +154,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()
 
-    @routes.get('/feed') # testing
+    @routes.get('/feed') # passed
     async def handle_get_feed(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -199,7 +196,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()      
 
-    @routes.post('/friend') # testing
+    @routes.post('/friend') # passed
     async def handle_post_friend(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -247,7 +244,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()     
 
-    @routes.get('/friend') # testing
+    @routes.get('/friend') # passed
     async def handle_get_friend(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
@@ -290,7 +287,7 @@ async def init(loop):
         except:
             return web.HTTPBadRequest()                         
 
-    @routes.post('/interact') # testing
+    @routes.post('/interact') # passed
     async def handle_post_interact(request):
         try:
             decode(request.headers.get('Authorization'), SECRET, ALGORITHM)
