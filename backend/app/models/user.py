@@ -143,6 +143,5 @@ class User(BaseModel):
                     await self.app.mysql_conn.commit()   
                     await cursor.close()
             return {'status': 'success.'}
-        except Exception as err:
-            print(err)
+        except:
             return {'status':'Bad Request.', 'reason':'Unknown Error.'}

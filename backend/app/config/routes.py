@@ -23,7 +23,7 @@ def map_routes(app):
     resource.add_route('DELETE', news_feed_controller.delete)
 
     resource = app.router.add_resource('/interact', name='interact')
-    resource.add_route('POST', news_feed_controller.interact)
+    resource.add_route('POST', news_feed_controller.interact) 
 
     cors = setup(app, defaults={
         "*": ResourceOptions(

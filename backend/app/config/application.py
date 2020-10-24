@@ -8,6 +8,7 @@ async def startup(app):
     port=int(SETTINGS['mysql']['port']), user=SETTINGS['mysql']['user'], 
     password=SETTINGS['mysql']['password'], db=SETTINGS['mysql']['db'], 
     loop=get_event_loop())
+    app.jwt_secret = SETTINGS['jwt_secret']
 
 async def cleanup(app):
     app.mysql_conn.close()

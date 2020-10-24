@@ -2,7 +2,6 @@ class BaseModel(object):
 
     def __init__(self, app):
         self.app = app
-        # self.collection = app.database[self.__class__.__name__.lower()]
 
     def __getattribute__(self, name):
         try:
