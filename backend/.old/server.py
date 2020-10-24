@@ -3,12 +3,13 @@ from aiomysql import connect
 from asyncio import get_event_loop
 from dotenv import load_dotenv
 from os import getenv
-from jwt import decode, encode
+from jwt import decode
 from datetime import datetime
 from re import search, compile
 from aiohttp_cors import setup, ResourceOptions
 from hashlib import sha512
 from uuid import uuid4
+from secrets import token_hex
 
 EMAIL_REGEX = compile('[^@]+@[^@]+\.[^@]+')
 ALGORITHM = ['HS256']
@@ -49,14 +50,10 @@ async def init(loop):
             return web.HTTPForbidden(text='Invalid Token')  
         try:
             js = await request.json()
-
             email = js['account_id']
             password = js['pwd']
             timestamp = str(datetime.now().timestamp())
-
-            # generate access token
-            payload = {'email':email, 'timestamp':timestamp}
-            token = encode(payload, SECRET, algorithm=ALGORITHM[0]).decode('utf-8')
+            token = token_hex()
 
             async with conn.cursor() as cursor:
                 stmt = 'SELECT id, hashed_password, salt FROM accounts WHERE email = %s'

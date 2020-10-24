@@ -82,93 +82,88 @@ register2 = register(EMAIL2, FIRST2, LAST2, PASSWORD, BIRTHDATE, GENDER)
 login1 = login(EMAIL1, PASSWORD)
 login2 = login(EMAIL2, PASSWORD)
 
-# Test Register
-print(register1=='success.')
-print(register2=='success.')
-print(register(EMAIL1, FIRST1, LAST1, PASSWORD, BIRTHDATE, GENDER) \
-    =='already registered.')
-try:
-    register('', FIRST1, LAST1, PASSWORD, BIRTHDATE, GENDER)
-except Exception as err:
-    print(True, err)
-
-# Test Login
-print(login1['status']=='success.')
-print(login2['status']=='success.')
-print(login(EMAIL1, '')['status'] =='incorrect id or password.')
-print(login('', PASSWORD)['status'] =='incorrect id or password.')
-print(login('', '')['status'] =='incorrect id or password.')
-
-# Test Add/Remove Friend
-add_friend = post_friend(login1['token'], 2)
-friends = get_friend(login1['token'])
-print(add_friend == 'success.')
-print(friends != [], friends)
-unfriend = post_friend(login1['token'], 2)
-try:
-    get_friend(login1['token'])
-except Exception as err:
-    print(True, err)
-
-# Test Add News Feed
-print('success.' == post_feed(login1['token'], 'content1', 'message'))
-print('success.' == post_feed(login1['token'], 'content2', 'message'))
-print('success.' == post_feed(login1['token'], 'content3', 'picture'))
-
-# ---------------------------------------------------------------------
-
 DATABASE_NAME = getenv('DB_DATABASE')
 HOST = getenv('DB_HOST')
 USER = getenv('DB_USERNAME')
 PASSWORD = getenv('DB_PASSWORD')
 
 mydb = mysql.connector.connect(
-  host=HOST,
-  user=USER,
-  password=PASSWORD,
-  database=DATABASE_NAME
+host=HOST,
+user=USER,
+password=PASSWORD,
+database=DATABASE_NAME
 )
 
 mycursor = mydb.cursor()
+mycursor.execute('SET FOREIGN_KEY_CHECKS=0')
 mycursor.execute('INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)', (2,1))
 mycursor.execute('INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)', (2,2))
 mycursor.execute('INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)', (2,3))
-mydb.commit()
+mydb.commit()  
+mycursor.execute('SET FOREIGN_KEY_CHECKS=1')    
+mycursor.close()
+mydb.close() 
 
-# Test Get News Feed
-news_feed = get_feed(login2['token'])
-print(news_feed != [], news_feed)
-try:
-    get_feed(login1['token'])
-except Exception as err:
-    print(True, err)
+import unittest
 
-# Test Update Feed
-old_news_feed = news_feed
-print(patch_feed(login1['token'], 1, 'edit1', 'string') == 'success.')
-print(patch_feed(login1['token'], 2, 'edit2', 'picture') == 'success.')
-news_feed = get_feed(login2['token'])
-print(news_feed != old_news_feed, news_feed)
-try:
-    patch_feed(login1['token'], 1000, 'error', 'string')
-except Exception as err:
-    print(True, err)
+class TestMethods(unittest.TestCase):
 
-# Test Delete Feed
-old_news_feed = news_feed
-print(delete_feed(login1['token'], 1) == 'success.')
-news_feed = get_feed(login2['token'])
-print(news_feed != old_news_feed, news_feed)
-try:
-    delete_feed(login1['token'], 4)
-except Exception as err:
-    print(True, err)
+    def test_register(self):
+        self.assertEqual(register1, 'success.')
+        self.assertEqual(register2, 'success.')
+        self.assertEqual(register(EMAIL1, FIRST1, LAST1, PASSWORD, BIRTHDATE, GENDER), 'already registered.')
+        self.assertNotEqual(register('', FIRST1, LAST1, PASSWORD, BIRTHDATE, GENDER), 'success.')
 
-# Test Like/Dislike
-print(interact(login1['token'], 2, 'like') == 'success.')
-print(interact(login1['token'], 2, 'dislike') == 'success.')
-print(interact(login1['token'], 3, 'like') == 'success.')
-try:
-    interact(login1['token'], 1, 'like')
-except Exception as err:
-    print(True, err)
+    def test_login(self):
+        self.assertEqual(login1['status'], 'success.')
+        self.assertEqual(login2['status'], 'success.')
+        self.assertEqual(login(EMAIL1, '')['status'], 'incorrect id or password.')
+        self.assertEqual(login('', PASSWORD)['status'], 'incorrect id or password.')
+        self.assertEqual(login('', '')['status'], 'incorrect id or password.')         
+
+    def test_make_friend(self):         
+        add_friend = post_friend(login1['token'], 2)
+        friends = get_friend(login1['token'])
+        self.assertEqual(add_friend, 'success.')  
+        self.assertNotEqual(friends, [])
+        post_friend(login1['token'], 2)
+        self.assertEqual(get_friend(login1['token']), [])
+
+    def test_add_feed(self):
+        self.assertEqual(post_feed(login1['token'], 'content1', 'message'), 'success.')
+        self.assertEqual(post_feed(login1['token'], 'content2', 'message'), 'success.')
+        self.assertEqual(post_feed(login1['token'], 'content3', 'message'), 'success.')
+
+    def test_get_news_feed(self): 
+        news_feed = get_feed(login2['token'])
+        self.assertNotEqual(news_feed, [])
+        self.assertEqual(get_feed(login1['token']), [])
+
+    def test_update_feed(self):
+        old_news_feed = get_feed(login2['token'])
+        self.assertEqual(patch_feed(login1['token'], 1, 'edit1', 'string'), 'success.')
+        self.assertEqual(patch_feed(login1['token'], 2, 'edit2', 'picture'), 'success.')
+        news_feed = get_feed(login2['token'])
+        self.assertNotEqual(news_feed, old_news_feed)
+        old_news_feed = news_feed
+        patch_feed(login1['token'], 1000, 'error', 'string')
+        news_feed = get_feed(login2['token'])
+        self.assertEqual(news_feed, old_news_feed)
+
+    def test_delete_feed(self):
+        old_news_feed = get_feed(login2['token'])
+        self.assertEqual(delete_feed(login1['token'], 1), 'success.')
+        news_feed = get_feed(login2['token'])
+        self.assertNotEqual(news_feed, old_news_feed)
+        old_news_feed = news_feed
+        delete_feed(login1['token'], 4)
+        self.assertEqual(news_feed, old_news_feed)
+
+    def test_interact(self):
+        self.assertEqual(interact(login1['token'], 2, 'like'), 'success.')
+        self.assertEqual(interact(login1['token'], 2, 'dislike'), 'success.')
+        self.assertEqual(interact(login1['token'], 3, 'like'), 'success.')
+        self.assertNotEqual(interact(login1['token'], 1, 'like'), 'success.')
+        
+if __name__ == '__main__':
+    unittest.main()
