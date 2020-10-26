@@ -3,7 +3,6 @@ import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
 import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import jwt from 'jsonwebtoken';
 import user_Image from '../picture/user.png';
 import close_icon from '../picture/closeIcon.png';
 import upload_icon from '../picture/upload.png';
@@ -50,7 +49,7 @@ function CreatePost(props) {
     const submit = () => {
         let content_type;
         let content;
-        if( photo.length == 0) {
+        if( photo.length != 0) {
             content_type = 'image';
             content = photo;
         }
@@ -58,15 +57,13 @@ function CreatePost(props) {
             content_type = 'text';
             content = text;
         }
-        const SECRET = 'secret'; // ให้เหมือนของ backend
-        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
-        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         const sendToBackend = {
             'content_type':content_type,
             'content':content
         };
         axios.post('http://localhost:8080/feed', 
-            { headers: { Authorization: token, User: localStorage.getItem('token') } }, sendToBackend) 
+            sendToBackend,
+            { headers: { User: localStorage.getItem('token') }}) 
             .then(response => {
                 console.log('post new feed: ',response.data);
                 console.log('token: ', localStorage.getItem('token'));
