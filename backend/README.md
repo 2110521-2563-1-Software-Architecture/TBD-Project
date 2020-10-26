@@ -13,15 +13,8 @@ DB_PORT=
 DB_DATABASE=
 DB_USERNAME=
 DB_PASSWORD=
-SECRET=
 ```
 ## Register(POST) /register
-### Headers
-```
-{
-    'Authorization':jwt_token
-}
-```
 ### Payload
 ```
 {
@@ -40,12 +33,6 @@ SECRET=
 }
 ```
 ## Login(POST) /login
-### Headers
-```
-{
-    'Authorization':jwt_token
-}
-```
 ### Payload
 ```
 {
@@ -64,7 +51,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```
@@ -85,7 +71,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```
@@ -99,7 +84,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```
@@ -121,7 +105,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```
@@ -141,7 +124,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```
@@ -161,7 +143,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```
@@ -175,7 +156,6 @@ SECRET=
 ### Headers
 ```
 {
-    'Authorization':jwt_token,
     'User':access_token
 }
 ```

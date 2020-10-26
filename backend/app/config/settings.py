@@ -11,5 +11,4 @@ SETTINGS = {
         'db':getenv('DB_DATABASE'),
         'port':getenv('DB_PORT')
     },
-    'jwt_secret':getenv('SECRET')
 }
