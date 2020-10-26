@@ -20,7 +20,7 @@ const AllUser = props => (
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
-    const [feedList, setFeedList] = useState([{id: '1',content: 'aaaa', type: 'text', owner_id: '1'}]);
+    const [feedList, setFeedList] = useState([]);
 
     useEffect(() => {
         // axios.get('http://localhost:4000')
@@ -53,7 +53,7 @@ function Home() {
              console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
           }); 
         axios.get('http://localhost:8080/feed', 
-            { headers: { Authorization: token, User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
+            { headers: { User: localStorage.getItem('token') } })
             .then(response => {
                 console.log('feed: ',response.data);
             })

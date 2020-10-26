@@ -15,14 +15,12 @@ function Post(props) {
     const [feedID, setFeedID] = useState(props.id);
 
     const deletePost = () => {
-        const SECRET = 'secret'; // ให้เหมือนของ backend
-        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
-        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         const sendToBackend = {
             'target': feedID
         };
-        axios.delete('http://localhost:8080/feed', 
-            { headers: { Authorization: token, User: localStorage.getItem('token') } }, sendToBackend)
+        axios.delete('http://localhost:8080/feed',  
+            sendToBackend,
+            { headers: { User: localStorage.getItem('token') } })
             .then(response => {
                 console.log('feed: ',response.data);
             })
