@@ -3,6 +3,15 @@ from app.controllers.news_feed_controller import NewsFeedController
 from aiohttp_cors import setup, ResourceOptions
 
 def map_routes(app):
+
+    cors = setup(app, defaults={
+        '*': ResourceOptions(
+            allow_credentials=True,
+            expose_headers='*',
+            allow_headers='*',
+        )
+    })    
+
     user_controller = UserController()
     news_feed_controller = NewsFeedController()
 
@@ -25,13 +34,5 @@ def map_routes(app):
     resource = app.router.add_resource('/interact', name='interact')
     resource.add_route('POST', news_feed_controller.interact) 
 
-    cors = setup(app, defaults={
-        "*": ResourceOptions(
-            allow_credentials=True,
-            expose_headers="*",
-            allow_headers="*",
-        )
-    })
-
     for route in app.router.routes():
-        cors.add(route)    
+        cors.add(route)
