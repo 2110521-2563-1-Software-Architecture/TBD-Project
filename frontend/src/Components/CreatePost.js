@@ -48,24 +48,33 @@ function CreatePost(props) {
         );
     }
     const submit = () => {
-        // const SECRET = 'secret'; // ให้เหมือนของ backend
-        // const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
-        // const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
-        // const sendToBackend = {
-        //     account_id: username,
-        //     text: text,
-        //     photo: photo
-        // };
-        // const header = {
-        //     headers:{
-        //         Authorization: token
-        //     }
-        // };
-        // // TODO add api
-        // axios.post('http://localhost:8080/login', sendToBackend, header)
-        //     .then(res => {
-        //         history.push(`/`);
-        //     });
+        let content_type;
+        let content;
+        if( photo.length == 0) {
+            content_type = 'image';
+            content = photo;
+        }
+        else {
+            content_type = 'text';
+            content = text;
+        }
+        const SECRET = 'secret'; // ให้เหมือนของ backend
+        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
+        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
+        const sendToBackend = {
+            'content_type':content_type,
+            'content':content
+        };
+        axios.post('http://localhost:8080/feed', 
+            { headers: { Authorization: token, User: localStorage.getItem('token') } }, sendToBackend) 
+            .then(response => {
+                console.log('post new feed: ',response.data);
+                console.log('token: ', localStorage.getItem('token'));
+                history.push('/home');
+            })
+            .catch((error) => {
+                console.log('error ' + error); 
+            }); 
     }
     return(
         <div>

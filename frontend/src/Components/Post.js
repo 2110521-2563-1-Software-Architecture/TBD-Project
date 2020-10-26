@@ -9,11 +9,26 @@ import close_icon2 from '../picture/closeIcon2.png';
 import upload_icon from '../picture/upload.png';
 
 function Post(props) {
-    const [username,setUsername] = useState(props.content);
-    const [text,setText] = useState('aaaaaaaaaaaaaaa');
+    const [username, setUsername] = useState(props.owner_id);
+    const [text, setText] = useState(props.content);
+    const [type, setType] = useState(props.type);
+    const [feedID, setFeedID] = useState(props.id);
 
     const deletePost = () => {
-        //TODO add function delete post
+        const SECRET = 'secret'; // ให้เหมือนของ backend
+        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
+        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
+        const sendToBackend = {
+            'target': feedID
+        };
+        axios.delete('http://localhost:8080/feed', 
+            { headers: { Authorization: token, User: localStorage.getItem('token') } }, sendToBackend)
+            .then(response => {
+                console.log('feed: ',response.data);
+            })
+            .catch((error) => {
+                console.log('error ' + error); 
+            }); 
     }
 
     return(
@@ -31,7 +46,9 @@ function Post(props) {
                 </Col>
             </Row>
             <Row style={{marginTop: '10px'}} >
-                {text}
+                {type == 'text'
+                ?text
+                :<img style={{width: '100%'}} src={text}/>}
             </Row>
         </div>
     );

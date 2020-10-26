@@ -20,7 +20,7 @@ const AllUser = props => (
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
-    const [feedList, setFeedList] = useState(['test1','test2']);
+    const [feedList, setFeedList] = useState([{id: '1',content: 'aaaa', type: 'text', owner_id: '1'}]);
 
     useEffect(() => {
         // axios.get('http://localhost:4000')
@@ -37,7 +37,7 @@ function Home() {
         axios.get('http://localhost:8080/friend', 
         { headers: { Authorization: token, User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
          .then(response => {
-             console.log(response.data); // response.data จะหน้าตาประมาณข้างล่างนี้
+             console.log('friend: ',response.data); // response.data จะหน้าตาประมาณข้างล่างนี้
             //  [
             //      {
             //         'id': id,
@@ -51,8 +51,16 @@ function Home() {
           })
          .catch((error) => {
              console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
-          });            
-              
+          }); 
+        axios.get('http://localhost:8080/feed', 
+            { headers: { Authorization: token, User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
+            .then(response => {
+                console.log('feed: ',response.data);
+            })
+            .catch((error) => {
+                console.log('error ' + error); 
+            });            
+                
     }, [])
 
     const Friend = () => {
@@ -67,7 +75,11 @@ function Home() {
     }
     const FeedList = () => {
         return feedList.map(function(currentlist, i){
-            return <Post content={currentlist} key={i} />;
+            return <Post content={currentlist.content} 
+                        type={currentlist.type} 
+                        owner_id={currentlist.owner_id} 
+                        key={i} 
+                    />;
         })
     }
     return (
