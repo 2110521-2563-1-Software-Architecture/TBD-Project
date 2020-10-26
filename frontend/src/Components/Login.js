@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Form, Input, Button, Checkbox } from "antd";
 import { Link, BrowserRouter as Router } from "react-router-dom";
 import axios from "axios";
-import jwt from "jsonwebtoken";
 import "antd/dist/antd.css";
 
 function validateEmail(email) {
@@ -31,9 +30,6 @@ function Login() {
   const onSubmit = () => {
     // e.preventDefault();
     // console.log(`login successfully`);
-    const SECRET = "secret"; // ให้เหมือนของ backend
-    const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
-    const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });
 
     if (validateEmail(username)) {
       const sendToBackend = {
@@ -42,21 +38,20 @@ function Login() {
       };
 
       axios
-        .post("http://localhost:8080/login", sendToBackend, {
-          headers: {
-            Authorization: token,
-          },
-        })
+        .post("http://localhost:8080/login", sendToBackend)
         .then((res) => {
-            console.log(res.data);
+          if(res.data.status == 'success.'){
             localStorage.setItem('token', res.data.token);
             localStorage.getItem('token');
+          }
+          alert(res.data.status)
+          console.log(res.data);
         });
     } else {
       alert("It's not an email!")
     }
-    setUsername("");
-    setPassword("");
+    // setUsername("");
+    // setPassword("");
   };
 
   return (
