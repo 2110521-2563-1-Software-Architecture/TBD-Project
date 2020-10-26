@@ -16,8 +16,11 @@ function App() {
           <Route exact path={'/'}>
             <Header/>
             <Login/>
-            <Home/>
           </Route>
+          <Router exact path={'/home'}>
+            <Header/>
+            <Home/>
+          </Router>
           <Route exact path={'/signup'}>
             <Header/>
             <Signup/>
