@@ -9,11 +9,18 @@ import upload_icon from '../picture/upload.png';
 const { TextArea } = Input;
 
 function CreatePost(props) {
+    const textBeforeEdit = props.text;
+    const {setModalVisible} = props;
+    const [isEdit,setIsEdit] = useState(props.isEdit);
     const [username,setUsername] = useState(props.username);
-    const [text,setText] = useState('');
-    const [photo,setPhoto] = useState('');
-    const [visible,setVisible] = useState(false);
+    const [text,setText] = useState(props.text);
+    const [photo,setPhoto] = useState(props.photo);
+    const [visible,setVisible] = useState(props.modalVisible);
     const history = useHistory();
+    
+    useEffect(() => {
+        setVisible(props.modalVisible);
+     }, [props.modalVisible])
 
     const handleImageChange = (e) => {
         // e.preventDefault();
@@ -79,28 +86,30 @@ function CreatePost(props) {
     }
     return(
         <div>
-              <div style={prePostField}>
-                <Row>
-                    <Col span={2} align='right'>
-                        <img src={user_Image} style={userImage} />
-                    </Col>
-                    <Col span={1}></Col>
-                    <Col span={21}>
-                        <Button 
-                            style={prePostImage}
-                            // disabled
-                            onClick={()=>setVisible(true)}
-                        >What are you thinking?
-                        </Button>
-                    </Col>
-                </Row>
-                <Row style={{marginTop: '10px'}} justify="center">
-                    <MyUploadButton/>
-                </Row>
-            </div>
+              {isEdit==false
+                ?<div style={prePostField}>
+                    <Row>
+                        <Col span={2} align='right'>
+                            <img src={user_Image} style={userImage} />
+                        </Col>
+                        <Col span={1}></Col>
+                        <Col span={21}>
+                            <Button 
+                                style={prePostImage}
+                                // disabled
+                                onClick={()=>setVisible(true)}
+                            >What are you thinking?
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row style={{marginTop: '10px'}} justify="center">
+                        <MyUploadButton/>
+                    </Row>
+                </div> 
+             : null}
               <Modal
                 visible={visible}
-                onCancel={()=>setVisible(false)}
+                onCancel={()=>{setVisible(false); if(isEdit)setModalVisible(false)}}
                 footer={null}
               >
                 <Row justify="center">
@@ -138,7 +147,13 @@ function CreatePost(props) {
                     }
                 </Row>
                 <Row justify="center" style={{marginTop:'10px'}}>
-                    <Button type="primary" disabled={text==='' && photo.length===0} block onClick={submit}>Post</Button>
+                    {isEdit
+                        ?<Button type="primary" disabled={text==textBeforeEdit || photo==textBeforeEdit} block onClick={submit}>
+                            Record
+                        </Button>
+                        :<Button type="primary" disabled={text==='' && photo.length===0} block onClick={submit}>
+                            Post
+                        </Button>}
                 </Row>
               </Modal>
         </div>

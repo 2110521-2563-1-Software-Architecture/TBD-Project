@@ -19,7 +19,7 @@ const AllUser = props => (
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
-    const [feedList, setFeedList] = useState([]);
+    const [feedList, setFeedList] = useState([{id: '3', content: 'aaaa', content_type: 'message', owner_id: '1', owner_name:'first1' }]);
     useEffect(() => {   
         axios.get('http://localhost:8080/friend', 
         { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
@@ -33,7 +33,9 @@ function Home() {
         axios.get('http://localhost:8080/feed', 
             { headers: { User: localStorage.getItem('token') } })
             .then(response => {
-                setFeedList(response.data.news_feed);
+                if(response.data.news_feed.length > 0){
+                    setFeedList(response.data.news_feed);
+                }
                 console.log('feed: ',response.data);
             })
             .catch((error) => {
@@ -93,7 +95,11 @@ function Home() {
                 </Col>
                 <Col style={Style} span={12}>
                     <div>ไว้ใส่ contents</div>
-                    <CreatePost/>
+                    <CreatePost 
+                        isEdit={false}
+                        modalVisible={false}
+                        text={''}
+                        photo={''}/>
                     {FeedList()}
                 </Col>
                 <Col style={Style} span={6}>
