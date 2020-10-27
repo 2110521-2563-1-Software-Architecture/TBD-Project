@@ -20,7 +20,7 @@ const AllUser = props => (
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
-    const [feedList, setFeedList] = useState([]);
+    const [feedList, setFeedList] = useState([{id: '11', content: 'aaaa', type: 'text', owner_id: '3' }]);
 
     useEffect(() => {
         // axios.get('http://localhost:4000')
