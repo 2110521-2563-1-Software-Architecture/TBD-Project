@@ -3,30 +3,30 @@ import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
 import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import jwt from 'jsonwebtoken';
 import user_Image from '../picture/user.png';
 import close_icon2 from '../picture/closeIcon2.png';
 import upload_icon from '../picture/upload.png';
 
 function Post(props) {
-    const [username, setUsername] = useState(props.owner_id);
+    const [username, setUsername] = useState(props.owner_name);
+    const [ownerID, setOwnerID] = useState(props.owner_id);
     const [text, setText] = useState(props.content);
     const [type, setType] = useState(props.type);
     const [feedID, setFeedID] = useState(props.id);
 
     const deletePost = () => {
-        const sendToBackend = {
-            'target': feedID
-        };
-        axios.delete('http://localhost:8080/feed',  
-            sendToBackend,
-            { headers: { User: localStorage.getItem('token') } })
-            .then(response => {
-                console.log('feed: ',response.data);
-            })
-            .catch((error) => {
-                console.log('error ' + error); 
-            }); 
+        axios.delete('http://localhost:8080/feed', {
+            headers:{
+                User: localStorage.getItem('token'),
+                target: feedID
+            }
+        })
+        .then(response => {
+            console.log('feed: ',response.data);
+        })
+        .catch((error) => {
+            console.log('error ' + error); 
+        }); 
     }
 
     return(
