@@ -1,13 +1,15 @@
-from aiomysql import connect
-from asyncio import get_event_loop
+from mysql.connector import connect
 from app.config.settings import SETTINGS
 from app.config.routes import map_routes
 
 async def startup(app):
-    app.mysql_conn = await connect(host=SETTINGS['mysql']['host'], 
-    port=int(SETTINGS['mysql']['port']), user=SETTINGS['mysql']['user'], 
-    password=SETTINGS['mysql']['password'], db=SETTINGS['mysql']['db'], 
-    loop=get_event_loop())
+    app.mysql_conn = connect(
+        host=SETTINGS['mysql']['host'],
+        user=SETTINGS['mysql']['user'],
+        password=SETTINGS['mysql']['password'],
+        database=SETTINGS['mysql']['db']
+        )
+
 
 async def cleanup(app):
     app.mysql_conn.close()

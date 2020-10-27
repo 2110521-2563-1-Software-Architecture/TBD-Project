@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Checkbox } from "antd";
-import { Link, BrowserRouter as Router } from "react-router-dom";
+import { Link, BrowserRouter as Router, useHistory } from "react-router-dom";
 import axios from "axios";
 import "antd/dist/antd.css";
 
@@ -12,7 +12,7 @@ function validateEmail(email) {
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const history = useHistory();
   const onFinish = (values) => {
     console.log("Success:", values);
     onSubmit();
@@ -43,9 +43,8 @@ function Login() {
           if(res.data.status == 'success.'){
             localStorage.setItem('token', res.data.token);
             localStorage.getItem('token');
+            history.push('/home');
           }
-          alert(res.data.status)
-          console.log(res.data);
         });
     } else {
       alert("It's not an email!")

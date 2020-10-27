@@ -2,7 +2,8 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import {Row, Col} from 'antd'
 import Default from '../picture/default.png'
-import jwt from "jsonwebtoken";
+import CreatePost from './CreatePost';
+import Post from './Post';
 
 const FriendList = props => (
     <tr>
@@ -18,41 +19,33 @@ const AllUser = props => (
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
-
-    useEffect(() => {
-        // axios.get('http://localhost:4000')
-        //     .then(response => {
-        //         setFriendsList(response.data.friend)
-        //         setAllUser(response.data.user)
-        //     })
-        //     .catch(function (error){
-        //         console.log(error);
-        //     })  
-        const SECRET = "secret"; // ให้เหมือนของ backend
-        const payload = { a: "a" }; // ยังไม่รู้จะใส่อะไร
-        const token = jwt.sign(payload, SECRET, { algorithm: "HS256" });        
+    const [feedList, setFeedList] = useState([]);
+    useEffect(() => {   
         axios.get('http://localhost:8080/friend', 
-        { headers: { Authorization: token, User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
+        { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
          .then(response => {
-             console.log(response.data); // response.data จะหน้าตาประมาณข้างล่างนี้
-            //  [
-            //      {
-            //         'id': id,
-            //         'email': email,
-            //         'first_name': first_name,
-            //         'last_name': last_name,
-            //         'birth_date': birth_date,
-            //         'gender': gender
-            //     }
-            // ]
+             setFriendsList(response.data.friends)
+             console.log('friend: ',response.data);
           })
          .catch((error) => {
              console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
-          });            
-              
+          }); 
+        axios.get('http://localhost:8080/feed', 
+            { headers: { User: localStorage.getItem('token') } })
+            .then(response => {
+                setFeedList(response.data.news_feed);
+                console.log('feed: ',response.data);
+            })
+            .catch((error) => {
+                console.log('error ' + error); 
+            });            
+                
     }, [])
 
     const Friend = () => {
+        if (friendsList == undefined || friendsList == []){
+            return;
+        }        
         return friendsList.map(function(currentlist, i){
             return <FriendList list={currentlist} key={i} />;
         })
@@ -60,6 +53,20 @@ function Home() {
     const User = () => {
         return allUser.map(function(currentlist, i){
             return <AllUser list={currentlist} key={i} />;
+        })
+    }
+    const FeedList = () => {
+        if (feedList == undefined || feedList == []){
+            return;
+        }
+        return feedList.map(function(currentlist, i){
+            return <Post content={currentlist.content} 
+                        type={currentlist.content_type} 
+                        owner_id={currentlist.owner_id} 
+                        owner_name={currentlist.owner_name}
+                        id={currentlist.id}
+                        key={i} 
+                    />;
         })
     }
     return (
@@ -85,7 +92,9 @@ function Home() {
                     </div>
                 </Col>
                 <Col style={Style} span={12}>
-                    ไว้ใส่ contents
+                    <div>ไว้ใส่ contents</div>
+                    <CreatePost/>
+                    {FeedList()}
                 </Col>
                 <Col style={Style} span={6}>
                     <div className="All User" style={{margin:"auto",width:"90%"}}>

@@ -105,12 +105,7 @@ DB_PASSWORD=
 ### Headers
 ```
 {
-    'User':access_token
-}
-```
-### Payload
-```
-{
+    'User':access_token,
     'target':feed_id
 }
 ```

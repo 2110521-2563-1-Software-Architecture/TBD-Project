@@ -9,7 +9,7 @@ class UserController(Controller):
             response = await User(request.app).login(**payload)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Unknown Error.'}
+            response = {'status':'Bad Request.', 'reason':'Controller rejected.'}
             await self.write(request, self.json_response(response))
 
     async def register(self, request):
@@ -18,7 +18,7 @@ class UserController(Controller):
             response = await User(request.app).register(**payload)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Unknown Error.'}
+            response = {'status':'Bad Request.', 'reason':'Controller rejected.'}
             await self.write(request, self.json_response(response))            
 
     async def get_friend(self, request):
@@ -27,7 +27,7 @@ class UserController(Controller):
             response = await User(request.app).get_friend(current_user)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Unknown Error.'}
+            response = {'status':'Bad Request.', 'reason':'Controller rejected.'}
             await self.write(request, self.json_response(response))
 
     async def make_friend(self, request):
@@ -37,5 +37,5 @@ class UserController(Controller):
             response = await User(request.app).make_friend(current_user, **payload)
             await self.write(request, self.json_response(response))     
         except:
-            response = {'status':'Bad Request.', 'reason':'Unknown Error.'}
+            response = {'status':'Bad Request.', 'reason':'Controller rejected.'}
             await self.write(request, self.json_response(response))
