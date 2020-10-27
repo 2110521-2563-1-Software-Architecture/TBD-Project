@@ -65,9 +65,13 @@ function CreatePost(props) {
             sendToBackend,
             { headers: { User: localStorage.getItem('token') }}) 
             .then(response => {
-                console.log('post new feed: ',response.data);
-                console.log('token: ', localStorage.getItem('token'));
-                history.push('/home');
+                if(response.data.status === 'success.'){
+                    setPhoto('');
+                    setPhoto('');
+                    setVisible(false);
+                }else{
+                    console.log('status post new feed: ',response.data.status);
+                }
             })
             .catch((error) => {
                 console.log('error ' + error); 
