@@ -80,18 +80,16 @@ class NewsFeed(BaseModel):
                 pass            
             return {'status':'Bad Request.', 'reason':'Unknown Error.'}
 
-    async def interact(self, current_user, target, action): # TODO optimize
+    async def interact(self, current_user, target, action):
         try:
             timestamp = str(datetime.now().timestamp())
             cursor = self.app.mysql_conn.cursor()
             stmt = 'INSERT INTO logs (user_id, interact_to_feed_id, action, timestamp) VALUES (%s, %s, %s, %s)'
             value = (current_user, target, action, timestamp)
-            cursor.execute(stmt, value)    
-            stmt = 'SELECT owner_id FROM feed WHERE id = %s'
-            value = target
             cursor.execute(stmt, value)
-            stmt = 'UPDATE friends SET last_interact_id = %s WHERE from_user_id = %s AND to_user_id = %s'
-            value = (target, current_user, cursor.fetchone()[0])
+            stmt = 'UPDATE friends, feed SET friends.last_interact_id = feed.id WHERE friends.from_user_id = %s \
+                AND feed.owner_id = friends.to_user_id AND feed.id = %s'
+            value = (current_user, target)
             cursor.execute(stmt, value)
             self.app.mysql_conn.commit()
             cursor.close()

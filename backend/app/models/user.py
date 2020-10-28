@@ -39,7 +39,7 @@ class User(BaseModel):
 
             cursor = self.app.mysql_conn.cursor()
             stmt = 'SELECT id, hashed_password, salt FROM accounts WHERE email = %s'
-            value = email
+            value = (email,)
             cursor.execute(stmt, value)
             result = cursor.fetchone()
             cursor.close()
@@ -78,7 +78,7 @@ class User(BaseModel):
             stmt = 'SELECT count(*) FROM accounts WHERE email = %s'
             value = (email,)
             cursor.execute(stmt, value)
-            if cursor.fetchone():
+            if cursor.fetchone()[0]:
                 cursor.close() 
                 return {'status':'already registered.'}
             stmt = 'INSERT INTO accounts (email, first_name, last_name,\
@@ -131,7 +131,7 @@ class User(BaseModel):
             stmt = 'SELECT count(*) FROM friends WHERE from_user_id = %s AND to_user_id = %s'
             value = (current_user, target)
             cursor.execute(stmt, value)         
-            if cursor.fetchone():
+            if cursor.fetchone()[0]:
                 stmt = 'DELETE FROM friends WHERE from_user_id = %s AND to_user_id = %s'
                 value = (current_user, target)
                 cursor.execute(stmt, value)

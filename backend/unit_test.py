@@ -9,7 +9,6 @@ URL = 'http://localhost:8080/'
 SECRET = getenv('SECRET')
 
 def register(account_id, first_name, last_name, pwd, birth_date, gender):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
     r = requests.post(URL+'register', json={
         'account_id':account_id,
         'first_name':first_name,
@@ -17,52 +16,43 @@ def register(account_id, first_name, last_name, pwd, birth_date, gender):
         'pwd':pwd,
         'birth_date':birth_date,
         'gender':gender
-    }, headers={'Authorization':token})
+    })
     return r.json()['status']
 
 def login(account_id, pwd):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
-    r = requests.post(URL+'login', json={'account_id':account_id,
-    'pwd':pwd}, headers={'Authorization':token})
+    r = requests.post(URL+'login', json={'account_id':account_id, 'pwd':pwd})
     return r.json()
 
 def post_friend(current_user, target_user):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
-    r = requests.post(URL+'friend', json={'target':target_user}, headers={'Authorization':token, 'User':current_user})
+    r = requests.post(URL+'friend', json={'target':target_user}, headers={'User':current_user})
     return r.json()['status']
 
 def get_friend(current_user):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
-    r = requests.get(URL+'friend', headers={'Authorization':token, 'User':current_user})
+    r = requests.get(URL+'friend', headers={'User':current_user})
     return r.json()['friends']
 
 def post_feed(current_user, content, content_type):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
     r = requests.post(URL+'feed', json={'content':content,
-    'content_type':content_type}, headers={'Authorization':token, 'User':current_user})
+    'content_type':content_type}, headers={'User':current_user})
     return r.json()['status']
 
 def get_feed(current_user):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
-    r = requests.get(URL+'feed', headers={'Authorization':token, 'User':current_user})
+    r = requests.get(URL+'feed', headers={'User':current_user})
     return r.json()['news_feed']
 
 def patch_feed(current_user, target, content, content_type):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
     r = requests.patch(URL+'feed', json={'target':target, 'content':content,
-    'content_type':content_type}, headers={'Authorization':token, 'User':current_user})
+    'content_type':content_type}, headers={'User':current_user})
     return r.json()['status']
 
 def delete_feed(current_user, target):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
-    r = requests.delete(URL+'feed', json={'target':target}, 
-    headers={'Authorization':token, 'User':current_user})
+    r = requests.delete(URL+'feed', 
+    headers={'target':str(target), 'User':current_user})
     return r.json()['status']        
 
 def interact(current_user, target, action):
-    token = encode({'a':'a'}, SECRET, algorithm='HS256').decode('utf-8')
     r = requests.post(URL+'interact', json={'target':target, 
-    'action':action}, headers={'Authorization':token, 'User':current_user})
+    'action':action}, headers={'User':current_user})
     return r.json()['status']
 
 EMAIL1 = 'a@email.com'
@@ -99,8 +89,8 @@ mycursor.execute('SET FOREIGN_KEY_CHECKS=0')
 mycursor.execute('INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)', (2,1))
 mycursor.execute('INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)', (2,2))
 mycursor.execute('INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)', (2,3))
-mydb.commit()  
-mycursor.execute('SET FOREIGN_KEY_CHECKS=1')    
+mydb.commit()
+mycursor.execute('SET FOREIGN_KEY_CHECKS=1') 
 mycursor.close()
 mydb.close() 
 
