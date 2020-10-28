@@ -7,6 +7,8 @@ import user_Image from '../picture/user.png';
 import edit_icon from '../picture/edit.png';
 import bin_icon from '../picture/bin.png';
 import ellipsis_icon from '../picture/ellipsis.jpg';
+import like_icon from '../picture/like.jpg';
+import dislike_icon from '../picture/dislike.jpg';
 import CreatePost from './CreatePost';
 
 function Post(props) {
@@ -43,7 +45,43 @@ function Post(props) {
         })
         .then(response => {
             console.log('feed: ',response.data);
-            if(response.data ==='success.'){
+            if(response.data.status ==='success.'){
+                history.push('/home');
+            };
+        })
+        .catch((error) => {
+            console.log('error ' + error); 
+        }); 
+    }
+    const likePost = () => {
+        axios.post('http://localhost:8080/interact', {
+            headers:{
+                User: localStorage.getItem('token'),
+                target: feedID,
+                action: 'like'
+            }
+        })
+        .then(response => {
+            console.log('feed: ',response.data.status);
+            if(response.data.status ==='success.'){
+                history.push('/home');
+            };
+        })
+        .catch((error) => {
+            console.log('error ' + error); 
+        }); 
+    }
+    const dislikePost = () => {
+        axios.post('http://localhost:8080/interact', {
+            headers:{
+                User: localStorage.getItem('token'),
+                target: feedID,
+                action: 'dislike'
+            }
+        })
+        .then(response => {
+            console.log('feed: ',response.data.status);
+            if(response.data.status ==='success.'){
                 history.push('/home');
             };
         })
@@ -74,6 +112,7 @@ function Post(props) {
                 ?text
                 :<img style={{width: '100%'}} src={text}/>}
             </Row>
+            <Row>
                 {type == 'message'
                 ?<CreatePost 
                     isEdit={true} 
@@ -87,6 +126,21 @@ function Post(props) {
                     setModalVisible={setModalVisble}
                     text={''}
                     photo={text}/>}
+            </Row>
+            <Row style={likeBox} gutter={5}>
+                <Col span={12}>
+                    <Button style={likeButton} onClick={()=>likePost()}>
+                        <img src={like_icon} style={likeIcon}/>
+                        like
+                    </Button>
+                </Col>
+                <Col span={12}>
+                    <Button style={likeButton} onClick={()=>dislikePost()}>
+                        <img src={dislike_icon} style={likeIcon}/>
+                        dislike
+                    </Button>
+                </Col>
+            </Row>
         </div>
     );
 }
@@ -115,6 +169,20 @@ const editButton = {
     padding:'0'
 };
 const ellipsisButton = {
-    width:'25px'
+    maxWidth:'25px'
+}
+const likeBox = {
+    marginTop:'5px', 
+    borderTop: '1px solid #CCCCCC',
+    borderBottom: '1px solid #CCCCCC',
+    padding: '5px'
+}
+const likeIcon = {
+    marginRight: '10px',
+    maxWidth: '20px',
+}
+const likeButton = {
+    width: '100%',
+    // border: '1px'
 }
 export default Post;
