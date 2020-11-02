@@ -1,11 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import LogOut from './LogOut';
+import {Row, Col} from 'antd'
 
 function Header() {
     return(
-        <div style={head}>
-                <p>fookbace</p>
-        </div>
+        <Row style={head}>
+                <Col>
+                    fookbace
+                </Col>
+                <Col>
+                    <LogOut/>
+                </Col>
+        </Row>
     );
 }
 const head = {
@@ -17,5 +24,6 @@ const head = {
     width: '100%',
     paddingTop: "30px",
     paddingLeft: '20px',
+    justifyContent: 'space-between'
 }
 export default Header;
