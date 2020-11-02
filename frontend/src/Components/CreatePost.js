@@ -10,9 +10,10 @@ const { TextArea } = Input;
 
 function CreatePost(props) {
     const textBeforeEdit = props.text;
-    const {setModalVisible,setIsPost} = props;
+    const {setModalVisible, setNewText, setFeedList, feedList} = props;
+    const [ID,setID] = useState(props.id);
     const [isEdit,setIsEdit] = useState(props.isEdit);
-    const [firstname,setfirstname] = useState(props.firstname);
+    const [owner_name,setOwnerName] = useState(props.firstname);
     const [text,setText] = useState(props.text);
     const [photo,setPhoto] = useState(props.photo);
     const [visible,setVisible] = useState(props.modalVisible);
@@ -20,7 +21,7 @@ function CreatePost(props) {
     
     useEffect(() => {
         setVisible(props.modalVisible);
-        setfirstname(props.firstname);
+        setOwnerName(props.firstname);
      }, [props.modalVisible,props.firstname])
 
     const handleImageChange = (e) => {
@@ -55,7 +56,6 @@ function CreatePost(props) {
         );
     }
     const submit = () => {
-        setIsPost(true);
         let content_type;
         let content;
         if( photo.length != 0) {
@@ -66,18 +66,46 @@ function CreatePost(props) {
             content_type = 'text';
             content = text;
         }
-        const sendToBackend = {
-            'content_type':content_type,
-            'content':content
-        };
-        axios.post('http://localhost:8080/feed', 
+        let sendToBackend;
+
+        if(isEdit){
+            setNewText(text);
+            sendToBackend = {
+                'target': ID,
+                'content_type':content_type,
+                'content':content
+            };
+            axios.patch('http://localhost:8080/feed', 
             sendToBackend,
             { headers: { User: localStorage.getItem('token') }}) 
             .then(response => {
                 if(response.data.status === 'success.'){
-                    setPhoto('');
+                    setText('');
                     setPhoto('');
                     setVisible(false);
+                    history.push('/home');
+                }else{
+                    console.log('status update new feed: ',response.data.status);
+                }
+            })
+            .catch((error) => {
+                console.log('error ' + error); 
+            }); 
+        }else{
+            setFeedList([...feedList, {owner_name:owner_name, content:text, content_type:'text'}]);
+            sendToBackend = {
+                'content_type':content_type,
+                'content':content
+            };
+            axios.post('http://localhost:8080/feed', 
+            sendToBackend,
+            { headers: { User: localStorage.getItem('token') }}) 
+            .then(response => {
+                if(response.data.status === 'success.'){
+                    setText('');
+                    setPhoto('');
+                    setVisible(false);
+                    history.push('/home');
                 }else{
                     console.log('status post new feed: ',response.data.status);
                 }
@@ -85,6 +113,7 @@ function CreatePost(props) {
             .catch((error) => {
                 console.log('error ' + error); 
             }); 
+        }
     }
     return(
         <div>
@@ -122,7 +151,7 @@ function CreatePost(props) {
                         <img src={user_Image} style={userImage} />
                     </Col>
                     <Col style={{marginLeft:'5px'}}>
-                        {firstname}
+                        {owner_name}
                     </Col>
                 </Row>
                 <Row style={{marginTop: '10px'}}>

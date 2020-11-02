@@ -12,6 +12,7 @@ import dislike_icon from '../picture/dislike.jpg';
 import CreatePost from './CreatePost';
 
 function Post(props) {
+    const {setIsDelete, setIsLoadFeed} = props;
     const [username, setUsername] = useState(props.owner_name);
     const [ownerID, setOwnerID] = useState(props.owner_id);
     const [text, setText] = useState(props.content);
@@ -48,21 +49,27 @@ function Post(props) {
             if(response.data.status ==='success.'){
                 history.push('/home');
             };
+            setIsDelete(true);
+            setIsLoadFeed(true);
         })
         .catch((error) => {
             console.log('error ' + error); 
+            setIsDelete(true);
+            setIsLoadFeed(true);
         }); 
     }
     const likePost = () => {
-        axios.post('http://localhost:8080/interact', {
+        const sendToBack = {
+            target: feedID,
+            action: 'like'
+        };
+        const header = {
             headers:{
-                User: localStorage.getItem('token'),
-                target: feedID,
-                action: 'like'
-            }
-        })
+                User: localStorage.getItem('token')
+        }};
+        axios.post('http://localhost:8080/interact', sendToBack, header)
         .then(response => {
-            console.log('feed: ',response.data.status);
+            console.log('like: ',response.data.status);
             if(response.data.status ==='success.'){
                 history.push('/home');
             };
@@ -72,15 +79,17 @@ function Post(props) {
         }); 
     }
     const dislikePost = () => {
-        axios.post('http://localhost:8080/interact', {
+        const sendToBack = {
+            target: feedID,
+            action: 'dislike'
+        };
+        const header = {
             headers:{
-                User: localStorage.getItem('token'),
-                target: feedID,
-                action: 'dislike'
-            }
-        })
+                User: localStorage.getItem('token')
+        }};
+        axios.post('http://localhost:8080/interact', sendToBack, header)
         .then(response => {
-            console.log('feed: ',response.data.status);
+            console.log('dislike: ',response.data.status);
             if(response.data.status ==='success.'){
                 history.push('/home');
             };
@@ -108,24 +117,28 @@ function Post(props) {
                 </Col>
             </Row>
             <Row style={{marginTop: '10px'}} >
-                {type == 'message'
+                {type == 'text'
                 ?text
                 :<img style={{width: '100%'}} src={text}/>}
             </Row>
             <Row>
-                {type == 'message'
+                {type == 'text'
                 ?<CreatePost 
+                    id={feedID}
                     isEdit={true} 
                     modalVisible={modalVisible} 
                     setModalVisible={setModalVisble}
                     text={text}
-                    photo={''}/>
+                    photo={''}
+                    setNewText={setText}/>
                 :<CreatePost 
+                    id={feedID}
                     isEdit={true} 
                     modalVisible={modalVisible} 
                     setModalVisible={setModalVisble}
                     text={''}
-                    photo={text}/>}
+                    photo={text}
+                    setNewText={setText}/>}
             </Row>
             <Row style={likeBox} gutter={5}>
                 <Col span={12}>

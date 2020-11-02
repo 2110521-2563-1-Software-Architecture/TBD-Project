@@ -25,15 +25,13 @@ function Home() {
     const [isLoadUser,setIsLoadUser] = useState(true);
     const [isLoadFriend,setIsLoadFriend] = useState(true);
     const [isLoadFeed,setIsLoadFeed] = useState(true);
-    const [isPost, setIsPost] = useState(false);
+    const [isDelete, setIsDelete] = useState(false);
     useEffect(() => {   
         if(isFristTime){
             axios.get('http://localhost:8080/user_data', 
                 { headers: { User: localStorage.getItem('token') } })
                 .then(response => {
-                    if(response.data.status ==='success'){
-                        setUser(response.data.user_data);
-                    }
+                    setUser(response.data.user_data);
                     console.log('user: ',response.data.user_data);
                     setIsLoadUser(false);
                 })
@@ -67,25 +65,22 @@ function Home() {
                 });  
             setIsFristTime(false);  
         }else{
-            if(isPost){
-                axios.get('http://localhost:8080/feed', 
-                { headers: { User: localStorage.getItem('token') } })
-                .then(response => {
-                    if(response.data.news_feed.length > 0){
-                        setFeedList(response.data.news_feed);
-                    }
-                    console.log('feed: ',response.data);
-                    setIsLoadFeed(false);
-                })
-                .catch((error) => {
-                    console.log('error (get feed) ' + error); 
-                    setIsLoadFeed(false);
-                }); 
-                setIsPost(false); 
-            }
+            axios.get('http://localhost:8080/feed', 
+            { headers: { User: localStorage.getItem('token') } })
+            .then(response => {
+                setFeedList(response.data.news_feed);
+                console.log('fetch feed: ',response.data);
+                setIsLoadFeed(false);
+            })
+            .catch((error) => {
+                console.log('error (get feed) ' + error); 
+                setIsLoadFeed(false);
+            }); 
+            setIsDelete(false);
+        
         }
                 
-    }, [isPost])
+    }, [isDelete]);
 
     const Friend = () => {
         if (friendsList == undefined || friendsList == []){
@@ -111,11 +106,13 @@ function Home() {
                         owner_name={currentlist.owner_name}
                         id={currentlist.id}
                         key={i} 
+                        setIsDelete={setIsDelete}
+                        setIsLoadFeed={setIsLoadFeed}
                     />;
         })
     }
     return (
-        <div style={!isLoadUser&&!isLoadFeed&&!isLoadFriend&&!isPost ?{opacity:1} :{opacity:0.5}}>
+        <div style={!isLoadUser&&!isLoadFeed&&!isLoadFriend ?{opacity:1} :{opacity:0.5}}>
             <Row >
                 <Col style={Style} span={6}>
                     <div className="picture_name" style={{width: "90%", margin: "auto"}}>
@@ -144,7 +141,8 @@ function Home() {
                         text={''}
                         photo={''}
                         firstname={user.first_name}
-                        setIsPost={setIsPost}/>
+                        setFeedList={setFeedList}
+                        feedList={feedList}/>
                     {FeedList()}
                 </Col>
                 <Col style={Style} span={6}>
