@@ -9,7 +9,7 @@ def generate_news_feed(news_feed):
                     'content': news_feed[2],
                     'owner_id': news_feed[3],
                     'owner_name': news_feed[4] + ' ' + news_feed[5],
-                    'like': news_feed[7].count('like'),
+                    'like': news_feed[7].replace('dislike','').count('like'),
                     'dislike': news_feed[7].count('dislike'),
                     'timestamp': news_feed[6]
                 }
