@@ -29,6 +29,30 @@ class User(BaseModel):
             except:
                 pass            
             return 0
+
+    async def get_user_data(self, current_user):
+        try:
+            cursor = self.app.mysql_conn.cursor()
+            stmt = 'SELECT email, first_name, last_name, birth_date, \
+                gender, timestamp FROM accounts WHERE id = %s'
+            value = (current_user,)
+            cursor.execute(stmt, value)
+            fetched = cursor.fetchone()[0]
+            cursor.close()
+            return {'status':'success', 'user_data':{
+                'email':fetched[0],
+                'first_name':fetched[1],
+                'last_name':fetched[2],
+                'birth_data':fetched[3],
+                'gender':fetched[4],
+                'created_at':fetched[5]
+            }}
+        except:
+            try:
+                cursor.close()
+            except:
+                pass            
+            return {'status':'incorrect id or password.'}
     
     async def login(self, account_id, pwd):
         try:

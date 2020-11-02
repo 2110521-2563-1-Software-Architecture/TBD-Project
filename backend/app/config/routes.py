@@ -21,6 +21,9 @@ def map_routes(app):
     resource = app.router.add_resource('/register', name='register')
     resource.add_route('POST', user_controller.register)
 
+    resource = app.router.add_resource('/user_data', name='user_data')
+    resource.add_route('GET', user_controller.get_user_data)     
+
     resource = app.router.add_resource('/friend', name='friend')
     resource.add_route('GET', user_controller.get_friend)    
     resource.add_route('POST', user_controller.make_friend)
