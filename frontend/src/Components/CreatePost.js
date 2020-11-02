@@ -10,9 +10,9 @@ const { TextArea } = Input;
 
 function CreatePost(props) {
     const textBeforeEdit = props.text;
-    const {setModalVisible} = props;
+    const {setModalVisible,setIsPost} = props;
     const [isEdit,setIsEdit] = useState(props.isEdit);
-    const [username,setUsername] = useState(props.username);
+    const [firstname,setfirstname] = useState(props.firstname);
     const [text,setText] = useState(props.text);
     const [photo,setPhoto] = useState(props.photo);
     const [visible,setVisible] = useState(props.modalVisible);
@@ -20,7 +20,8 @@ function CreatePost(props) {
     
     useEffect(() => {
         setVisible(props.modalVisible);
-     }, [props.modalVisible])
+        setfirstname(props.firstname);
+     }, [props.modalVisible,props.firstname])
 
     const handleImageChange = (e) => {
         // e.preventDefault();
@@ -54,6 +55,7 @@ function CreatePost(props) {
         );
     }
     const submit = () => {
+        setIsPost(true);
         let content_type;
         let content;
         if( photo.length != 0) {
@@ -120,7 +122,7 @@ function CreatePost(props) {
                         <img src={user_Image} style={userImage} />
                     </Col>
                     <Col style={{marginLeft:'5px'}}>
-                        {username}
+                        {firstname}
                     </Col>
                 </Row>
                 <Row style={{marginTop: '10px'}}>

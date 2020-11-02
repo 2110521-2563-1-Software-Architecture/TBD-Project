@@ -17,32 +17,75 @@ const AllUser = props => (
 )
 
 function Home() {
+    const [user,setUser] = useState({});
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
-    const [feedList, setFeedList] = useState([{id: '3', content: 'aaaa', content_type: 'message', owner_id: '1', owner_name:'first1' }]);
+    const [feedList, setFeedList] = useState([]);
+    const [isFristTime, setIsFristTime] = useState(true);
+    const [isLoadUser,setIsLoadUser] = useState(true);
+    const [isLoadFriend,setIsLoadFriend] = useState(true);
+    const [isLoadFeed,setIsLoadFeed] = useState(true);
+    const [isPost, setIsPost] = useState(false);
     useEffect(() => {   
-        axios.get('http://localhost:8080/friend', 
-        { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
-         .then(response => {
-             setFriendsList(response.data.friends)
-             console.log('friend: ',response.data);
-          })
-         .catch((error) => {
-             console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
-          }); 
-        axios.get('http://localhost:8080/feed', 
-            { headers: { User: localStorage.getItem('token') } })
+        if(isFristTime){
+            axios.get('http://localhost:8080/user_data', 
+                { headers: { User: localStorage.getItem('token') } })
+                .then(response => {
+                    if(response.data.status ==='success'){
+                        setUser(response.data.user_data);
+                    }
+                    console.log('user: ',response.data.user_data);
+                    setIsLoadUser(false);
+                })
+                .catch((error) => {
+                    console.log('error (get user) ' + error); 
+                    setIsLoadUser(false);
+                });        
+            axios.get('http://localhost:8080/friend', 
+            { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
             .then(response => {
-                if(response.data.news_feed.length > 0){
-                    setFeedList(response.data.news_feed);
-                }
-                console.log('feed: ',response.data);
+                setFriendsList(response.data.friends)
+                console.log('friend: ',response.data);
+                setIsLoadFriend(false);
             })
             .catch((error) => {
-                console.log('error ' + error); 
-            });            
+                console.log('error (get friend) ' + error); // bad request = ยังไม่มีเพื่อน
+                setIsLoadFriend(false);
+            }); 
+            axios.get('http://localhost:8080/feed', 
+                { headers: { User: localStorage.getItem('token') } })
+                .then(response => {
+                    if(response.data.news_feed.length > 0){
+                        setFeedList(response.data.news_feed);
+                    }
+                    console.log('feed: ',response.data);
+                    setIsLoadFeed(false);
+                })
+                .catch((error) => {
+                    console.log('error (get feed) ' + error); 
+                    setIsLoadFeed(false);
+                });  
+            setIsFristTime(false);  
+        }else{
+            if(isPost){
+                axios.get('http://localhost:8080/feed', 
+                { headers: { User: localStorage.getItem('token') } })
+                .then(response => {
+                    if(response.data.news_feed.length > 0){
+                        setFeedList(response.data.news_feed);
+                    }
+                    console.log('feed: ',response.data);
+                    setIsLoadFeed(false);
+                })
+                .catch((error) => {
+                    console.log('error (get feed) ' + error); 
+                    setIsLoadFeed(false);
+                }); 
+                setIsPost(false); 
+            }
+        }
                 
-    }, [])
+    }, [isPost])
 
     const Friend = () => {
         if (friendsList == undefined || friendsList == []){
@@ -72,7 +115,7 @@ function Home() {
         })
     }
     return (
-        <div>
+        <div style={!isLoadUser&&!isLoadFeed&&!isLoadFriend&&!isPost ?{opacity:1} :{opacity:0.5}}>
             <Row >
                 <Col style={Style} span={6}>
                     <div className="picture_name" style={{width: "90%", margin: "auto"}}>
@@ -99,7 +142,9 @@ function Home() {
                         isEdit={false}
                         modalVisible={false}
                         text={''}
-                        photo={''}/>
+                        photo={''}
+                        firstname={user.first_name}
+                        setIsPost={setIsPost}/>
                     {FeedList()}
                 </Col>
                 <Col style={Style} span={6}>
