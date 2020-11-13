@@ -1,9 +1,12 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import {Row, Col} from 'antd'
+import { Row, Col, Avatar, Typography, List } from 'antd'
+import { getAvatar } from '../APIs/avartar.api'
 import Default from '../picture/default.png'
 import CreatePost from './CreatePost';
 import Post from './Post';
+
+const { Title } = Typography;
 
 const FriendList = props => (
     <tr>
@@ -20,102 +23,121 @@ function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [allUser, setAllUser] = useState([]);
     const [feedList, setFeedList] = useState([]);
-    useEffect(() => {   
-        axios.get('http://localhost:8080/friend', 
-        { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
-         .then(response => {
-             setFriendsList(response.data.friends)
-             console.log('friend: ',response.data);
-          })
-         .catch((error) => {
-             console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
-          }); 
-        axios.get('http://localhost:8080/feed', 
+
+    const data = [
+        {
+            title: 'Friend1',
+        },
+        {
+            title: 'Friend2',
+        },
+        {
+            title: 'Friend3',
+        },
+        {
+            title: 'Friend4',
+        },
+    ];
+
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/friend',
+            { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
+            .then(response => {
+                setFriendsList(response.data.friends)
+                console.log('friend: ', response.data);
+            })
+            .catch((error) => {
+                console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
+            });
+        axios.get('http://localhost:8080/feed',
             { headers: { User: localStorage.getItem('token') } })
             .then(response => {
                 setFeedList(response.data.news_feed);
-                console.log('feed: ',response.data);
+                console.log('feed: ', response.data);
             })
             .catch((error) => {
-                console.log('error ' + error); 
-            });            
-                
+                console.log('error ' + error);
+            });
+
     }, [])
 
     const Friend = () => {
-        if (friendsList == undefined || friendsList == []){
+        if (friendsList == undefined || friendsList == []) {
             return;
-        }        
-        return friendsList.map(function(currentlist, i){
+        }
+        return friendsList.map(function (currentlist, i) {
             return <FriendList list={currentlist} key={i} />;
         })
     }
     const User = () => {
-        return allUser.map(function(currentlist, i){
+        return allUser.map(function (currentlist, i) {
             return <AllUser list={currentlist} key={i} />;
         })
     }
     const FeedList = () => {
-        if (feedList == undefined || feedList == []){
+        if (feedList == undefined || feedList == []) {
             return;
         }
-        return feedList.map(function(currentlist, i){
-            return <Post content={currentlist.content} 
-                        type={currentlist.content_type} 
-                        owner_id={currentlist.owner_id} 
-                        owner_name={currentlist.owner_name}
-                        id={currentlist.id}
-                        key={i} 
-                    />;
+        return feedList.map(function (currentlist, i) {
+            return <Post content={currentlist.content}
+                type={currentlist.content_type}
+                owner_id={currentlist.owner_id}
+                owner_name={currentlist.owner_name}
+                id={currentlist.id}
+                key={i}
+            />;
         })
     }
     return (
-        <div>
-            <Row >
-                <Col style={Style} span={6}>
-                    <div className="picture_name" style={{width: "90%", margin: "auto"}}>
-                        <img src={Default} style={{width:"100%"}}/>
-                        My Name is Thanapun(ไม่กากและโหดมาก) <br/>
-                        เหลือตรงดึงรูปภาพจาก backend นะ(ตรงนี้) ทำไม่เป็น TT <br/>
-                        แล้วก็ฝากตรวจที่ทำไปด้วยนะ ไม่ค่อยเข้าใจเลย TT
-                    </div>
-                    <div className="FriendList" style={{margin:"auto",width:"90%"}}>
-                        <table style={{width:"100%"}}>
-                            <tr>
-                                <th>Friend List</th>
-                            </tr>
-                            <tr>
-                                {Friend}
-                            </tr>
-                        </table>
-                        
-                    </div>
+        <Row justify="center" style={{ marginTop: '2.5em' }}>
+            <Col span={6}>
+                <Row justify="center" align="middle">
+                    <Col span={24} style={{ textAlign: 'center' }}><Avatar size={128} src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff&size=128" /></Col>
+                </Row>
+                <Row justify="center" align="middle">
+                    <Col span={24} style={{ textAlign: 'center' }}> <Title level={4}>John Doe</Title></Col>
+                </Row>
+                <Row justify="center" align="middle" >
+                    <Col span={16}>
+                        <Title level={5}>Friend Lists</Title>
+                        <List
+                            size="small"
+                            itemLayout="horizontal"
+                            dataSource={data}
+                            renderItem={item => (
+                                <List.Item>
+                                    <List.Item.Meta
+                                        avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                        title={<a href="https://ant.design">{item.title}</a>}
+                                    />
+                                </List.Item>
+                            )}
+                        />
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={8}><CreatePost /></Col>
+            <Col span={6}><Row justify="center" align="middle" >
+                <Col span={24}>
+                    <Title level={5}>All users</Title>
+                    <List
+                        size="small"
+                        itemLayout="horizontal"
+                        dataSource={data}
+                        renderItem={item => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                    title={<a href="https://ant.design">{item.title}</a>}
+                                />
+                            </List.Item>
+                        )}
+                    />
                 </Col>
-                <Col style={Style} span={12}>
-                    <div>ไว้ใส่ contents</div>
-                    <CreatePost/>
-                    {FeedList()}
-                </Col>
-                <Col style={Style} span={6}>
-                    <div className="All User" style={{margin:"auto",width:"90%"}}>
-                        <table style={{width:"100%"}}>
-                            <tr>
-                                <th>All User</th>
-                            </tr>
-                            <tr>
-                                {User}
-                            </tr>
-                        </table>
-                    </div>
-                </Col>
-            </Row>
-        </div>
+            </Row></Col>
+        </Row>
     )
-}
-
-////////////////////////////////////////////////
-const Style = {
-    border: "solid black"
 }
 
 export default Home
