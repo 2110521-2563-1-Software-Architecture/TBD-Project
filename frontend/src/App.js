@@ -1,9 +1,9 @@
 import React from 'react';
-import Header from './Components/Header';
+import PageHeader from './Components/Header';
 import Login from './Components/Login';
 import Signup from './Components/Signup';
 import Home from './Components/Home';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import "antd/dist/antd.css";
 import CreatePost from './Components/CreatePost';
 import Post from './Components/Post';
@@ -12,23 +12,21 @@ function App() {
   return (
     <Router>
       <div className="App">
+        <PageHeader />
         <Switch>
           <Route exact path={'/'}>
-            <Header/>
-            <Login/>
+            <Login />
           </Route>
           <Router exact path={'/home'}>
-            <Header/>
-            <Home/>
+            <Home />
           </Router>
           <Route exact path={'/signup'}>
-            <Header/>
-            <Signup/>
+            <Signup />
           </Route>
         </Switch>
       </div>
     </Router>
-    
+
   );
 }
 

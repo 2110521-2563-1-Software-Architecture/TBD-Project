@@ -1,21 +1,20 @@
 import React from 'react'
+import { Layout, Menu, Breadcrumb } from 'antd';
 import ReactDOM from 'react-dom'
 
-function Header() {
-    return(
-        <div style={head}>
-                <p>fookbace</p>
-        </div>
+const { Header, Content, Footer } = Layout;
+
+const PageHeader = () => {
+    return (
+        <Layout className="layout">
+            <Header>
+                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
+                    <Menu.Item key="1">nav 1</Menu.Item>
+                    <Menu.Item key="2">nav 2</Menu.Item>
+                    <Menu.Item key="3">nav 3</Menu.Item>
+                </Menu>
+            </Header>
+        </Layout>
     );
 }
-const head = {
-    fontSize : "40px",
-    fontWeight : 'bold',
-    color : 'white',
-    backgroundColor : 'red',
-    border: "red solid",
-    width: '100%',
-    paddingTop: "30px",
-    paddingLeft: '20px',
-}
-export default Header;
+export default PageHeader;
