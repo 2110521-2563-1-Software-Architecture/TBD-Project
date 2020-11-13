@@ -11,3 +11,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.logo_fb {
+  width: 36px;
+  height: 36px;
+  background-image: url('./picture/logo_fb.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+}
