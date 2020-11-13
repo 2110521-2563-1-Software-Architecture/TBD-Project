@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom';
-import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
+import { Modal, Row, Col, Input, Button, message, Form, Upload, Avatar } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import user_Image from '../picture/user.png';
 import close_icon2 from '../picture/closeIcon2.png';
@@ -34,7 +34,8 @@ function Post(props) {
             <Row style={{ justifyContent: 'space-between' }}>
                 <Col>
                     {/* TODO get user image */}
-                    <img src={user_Image} style={userImage} />
+                    {/* <img src={user_Image} style={userImage} /> */}
+                    <Avatar style={{ marginRight: '1rem' }} size={32} src={"https://ui-avatars.com/api/?name=" + username + "&size=64"} />
                     {username}
                 </Col>
                 <Col >
