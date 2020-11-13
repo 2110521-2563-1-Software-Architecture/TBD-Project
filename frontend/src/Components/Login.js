@@ -40,7 +40,7 @@ function Login() {
       axios
         .post("http://localhost:8080/login", sendToBackend)
         .then((res) => {
-          if(res.data.status == 'success.'){
+          if (res.data.status == 'success.') {
             localStorage.setItem('token', res.data.token);
             localStorage.getItem('token');
             history.push('/home');
@@ -58,7 +58,6 @@ function Login() {
       <div style={LoginZone}>
         <h2>Fookbace Login</h2>
         <hr />
-        <br />
         <Form
           {...layout}
           name="basic"

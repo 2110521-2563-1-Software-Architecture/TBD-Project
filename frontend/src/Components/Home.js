@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Row, Col, Avatar, Typography, List } from 'antd'
-import { getAvatar } from '../APIs/avartar.api'
-import Default from '../picture/default.png'
+import { Row, Col, Avatar, Typography, List, Button } from 'antd'
 import CreatePost from './CreatePost';
 import Post from './Post';
 
@@ -77,7 +75,7 @@ function Home() {
     }
     const FeedList = () => {
         if (feedList == undefined || feedList == []) {
-            return;
+            return <div>No Feeds</div>;
         }
         return feedList.map(function (currentlist, i) {
             return <Post content={currentlist.content}
@@ -99,14 +97,17 @@ function Home() {
                     <Col span={24} style={{ textAlign: 'center' }}> <Title level={4}>John Doe</Title></Col>
                 </Row>
                 <Row justify="center" align="middle" >
-                    <Col span={16}>
+                    <Col span={16} >
                         <Title level={5}>Friend Lists</Title>
                         <List
                             size="small"
                             itemLayout="horizontal"
                             dataSource={data}
                             renderItem={item => (
-                                <List.Item>
+                                <List.Item actions={
+                                    [<Button type="primary" shape="round" size="small" danger>
+                                        Remove
+                              </Button>]}>
                                     <List.Item.Meta
                                         avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
                                         title={<a href="https://ant.design">{item.title}</a>}
@@ -117,16 +118,34 @@ function Home() {
                     </Col>
                 </Row>
             </Col>
-            <Col span={8}><CreatePost /></Col>
+            <Col span={8}><CreatePost />
+                <List
+                    dataSource={data}
+                    split={false}
+                    renderItem={item => (
+                        <List.Item>
+                            <Post content={"Test"}
+                                type={"text"}
+                                owner_id={123}
+                                owner_name={"Nick"}
+                                id={1}
+                                key={1}
+                            />
+                        </List.Item>
+                    )}
+                /></Col>
             <Col span={6}><Row justify="center" align="middle" >
-                <Col span={24}>
+                <Col span={20}>
                     <Title level={5}>All users</Title>
                     <List
                         size="small"
                         itemLayout="horizontal"
                         dataSource={data}
                         renderItem={item => (
-                            <List.Item>
+                            <List.Item actions={
+                                [<Button type="primary" shape="round">
+                                    Add
+                          </Button>]}>
                                 <List.Item.Meta
                                     avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
                                     title={<a href="https://ant.design">{item.title}</a>}

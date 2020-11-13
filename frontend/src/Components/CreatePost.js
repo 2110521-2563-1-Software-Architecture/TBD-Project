@@ -80,7 +80,7 @@ function CreatePost(props) {
     return (
         <div>
             <div style={prePostField}>
-                <Row>
+                <Row >
                     <Col span={2} align='right'>
                         <img src={user_Image} style={userImage} />
                     </Col>
@@ -149,8 +149,8 @@ function CreatePost(props) {
 const prePostField = {
     // margin: 'auto',
     // marginTop: "50px",
-    width: "80%",
-    border: 'gray solid 2px',
+    width: "100%",
+    border: '#3884e1 solid 1px',
     borderRadius: '10px',
     padding: '15px'
 };
