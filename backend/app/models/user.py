@@ -87,7 +87,7 @@ class User(BaseModel):
             token = token_hex()
 
             cursor = self.app.mysql_conn.cursor()
-            stmt = 'SELECT id, hashed_password, salt FROM accounts WHERE email = %s'
+            stmt = 'SELECT id, hashed_password, salt, first_name FROM accounts WHERE email = %s'
             value = (email,)
             cursor.execute(stmt, value)
             result = cursor.fetchone()
@@ -99,7 +99,7 @@ class User(BaseModel):
                 cursor.execute(stmt, value)
                 self.app.mysql_conn.commit()
                 cursor.close()
-                return {'status': 'success.', 'token': token}
+                return {'status': 'success.', 'user': {'user_id': result[0], 'token': token}}
             return {'status': 'incorrect id or password.'}
         except:
             try:
@@ -157,11 +157,11 @@ class User(BaseModel):
             friends = [
                 {
                     'id': friend[0],
-                    'email': friend[1],
+                    # 'email': friend[1],
                     'first_name': friend[2],
                     'last_name': friend[3],
-                    'birth_date': friend[4],
-                    'gender': friend[5]
+                    # 'birth_date': friend[4],
+                    # 'gender': friend[5]
                 }
                 for friend in cursor.fetchall()
             ]
