@@ -5,10 +5,12 @@ from hashlib import sha512
 from uuid import uuid4
 from re import search, compile
 
+
 def is_email(email):
     if search(compile('[^@]+@[^@]+\.[^@]+'), email):
         return True
     return False
+
 
 class User(BaseModel):
 
@@ -19,7 +21,7 @@ class User(BaseModel):
             value = (user_token,)
             cursor.execute(stmt, value)
             result = cursor.fetchone()
-            cursor.close()      
+            cursor.close()
             if not result:
                 return 0
             return result[0]
@@ -27,7 +29,7 @@ class User(BaseModel):
             try:
                 cursor.close()
             except:
-                pass            
+                pass
             return 0
 
     async def get_user_data(self, current_user):
@@ -39,21 +41,37 @@ class User(BaseModel):
             cursor.execute(stmt, value)
             fetched = cursor.fetchone()[0]
             cursor.close()
-            return {'status':'success', 'user_data':{
-                'email':fetched[0],
-                'first_name':fetched[1],
-                'last_name':fetched[2],
-                'birth_data':fetched[3],
-                'gender':fetched[4],
-                'created_at':fetched[5]
+            return {'status': 'success', 'user_data': {
+                'email': fetched[0],
+                'first_name': fetched[1],
+                'last_name': fetched[2],
+                'birth_data': fetched[3],
+                'gender': fetched[4],
+                'created_at': fetched[5]
             }}
         except:
             try:
                 cursor.close()
             except:
-                pass            
-            return {'status':'incorrect id or password.'}
-    
+                pass
+            return {'status': 'incorrect id or password.'}
+
+    async def get_all_users(self):
+        try:
+            cursor = self.app.mysql_conn.cursor()
+            stmt = 'SELECT id, first_name, last_name FROM accounts'
+            # value = ()
+            cursor.execute(stmt)
+            fetched = cursor.fetchall()
+            cursor.close()
+            return {'status': 'success', 'users': fetched}
+        except:
+            try:
+                cursor.close()
+            except:
+                pass
+            return {'status': 'err'}
+
     async def login(self, account_id, pwd):
         try:
             email = account_id
@@ -72,57 +90,58 @@ class User(BaseModel):
                 stmt = 'INSERT INTO tokens (user_id, token, timestamp) VALUES (%s, %s, %s)'
                 value = (result[0], token, timestamp)
                 cursor.execute(stmt, value)
-                self.app.mysql_conn.commit() 
+                self.app.mysql_conn.commit()
                 cursor.close()
-                return {'status':'success.', 'token':token}
-            return {'status':'incorrect id or password.'}
+                return {'status': 'success.', 'token': token}
+            return {'status': 'incorrect id or password.'}
         except:
             try:
                 cursor.close()
             except:
                 pass
-            return {'status':'Bad Request.', 'reason':'Unknown Error.'}
+            return {'status': 'Bad Request.', 'reason': 'Unknown Error.'}
 
-    async def register(self, account_id, first_name, last_name, pwd, birth_date, gender): 
+    async def register(self, account_id, first_name, last_name, pwd, birth_date, gender):
         try:
             if is_email(account_id):
                 email = account_id
             else:
-                return {'status':'Bad Request.', 'reason':'account_id is not an email.'}
+                return {'status': 'Bad Request.', 'reason': 'account_id is not an email.'}
             password = pwd
             salt = uuid4().hex
-            hashed_password = sha512((password + salt).encode('utf-8')).hexdigest()
+            hashed_password = sha512(
+                (password + salt).encode('utf-8')).hexdigest()
             timestamp = str(datetime.now().timestamp())
 
             if not email or not password or not birth_date \
-                or not gender or not first_name:
-                return {'status':'Bad Request.', 'reason':'Please fill all data.'}
+                    or not gender or not first_name:
+                return {'status': 'Bad Request.', 'reason': 'Please fill all data.'}
 
             cursor = self.app.mysql_conn.cursor()
             stmt = 'SELECT count(*) FROM accounts WHERE email = %s'
             value = (email,)
             cursor.execute(stmt, value)
             if cursor.fetchone()[0]:
-                cursor.close() 
-                return {'status':'already registered.'}
+                cursor.close()
+                return {'status': 'already registered.'}
             stmt = 'INSERT INTO accounts (email, first_name, last_name,\
                 hashed_password, salt, birth_date, gender, timestamp) VALUES (%s, %s, %s, %s, %s,\
                     %s, %s, %s)'
-            value = (email, first_name, last_name, 
-            hashed_password, salt, birth_date, gender, timestamp)
-            cursor.execute(stmt, value)                   
-            self.app.mysql_conn.commit()  
+            value = (email, first_name, last_name,
+                     hashed_password, salt, birth_date, gender, timestamp)
+            cursor.execute(stmt, value)
+            self.app.mysql_conn.commit()
             cursor.close()
             return {'status': 'success.'}
         except:
             try:
                 cursor.close()
             except:
-                pass            
-            return {'status':'Bad Request.', 'reason':'Unknown Error.'}
+                pass
+            return {'status': 'Bad Request.', 'reason': 'Unknown Error.'}
 
     async def get_friend(self, current_user):
-        try:            
+        try:
             cursor = self.app.mysql_conn.cursor()
             stmt = 'SELECT accounts.id, accounts.email, accounts.first_name, accounts.last_name, accounts.birth_date, \
                 accounts.gender FROM friends INNER JOIN accounts ON friends.to_user_id=accounts.id WHERE friends.from_user_id = %s'
@@ -139,13 +158,13 @@ class User(BaseModel):
                 }
                 for friend in cursor.fetchall()
             ]
-            cursor.close()         
+            cursor.close()
             return {'friends': friends}
         except:
             try:
                 cursor.close()
             except:
-                pass            
+                pass
             return {'friends': []}
 
     async def make_friend(self, current_user, target):
@@ -154,7 +173,7 @@ class User(BaseModel):
             cursor = self.app.mysql_conn.cursor()
             stmt = 'SELECT count(*) FROM friends WHERE from_user_id = %s AND to_user_id = %s'
             value = (current_user, target)
-            cursor.execute(stmt, value)         
+            cursor.execute(stmt, value)
             if cursor.fetchone()[0]:
                 stmt = 'DELETE FROM friends WHERE from_user_id = %s AND to_user_id = %s'
                 value = (current_user, target)
@@ -168,12 +187,12 @@ class User(BaseModel):
                 cursor.execute(stmt, value)
                 value = (target, current_user, timestamp, None)
                 cursor.execute(stmt, value)
-                self.app.mysql_conn.commit()   
+                self.app.mysql_conn.commit()
             cursor.close()
             return {'status': 'success.'}
         except:
             try:
                 cursor.close()
             except:
-                pass            
-            return {'status':'Bad Request.', 'reason':'Unknown Error.'}
+                pass
+            return {'status': 'Bad Request.', 'reason': 'Unknown Error.'}
