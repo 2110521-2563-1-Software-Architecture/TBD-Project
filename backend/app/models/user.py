@@ -62,9 +62,16 @@ class User(BaseModel):
             stmt = 'SELECT id, first_name, last_name FROM accounts'
             # value = ()
             cursor.execute(stmt)
-            fetched = cursor.fetchall()
+            users = [
+                {
+                    'id': user[0],
+                    'first_name': user[1],
+                    'last_name': user[2],
+                }
+                for user in cursor.fetchall()
+            ]
             cursor.close()
-            return {'status': 'success', 'users': fetched}
+            return {'status': 'success', 'users': users}
         except:
             try:
                 cursor.close()
