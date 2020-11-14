@@ -3,20 +3,11 @@ import axios from 'axios'
 import { Row, Col, Avatar, Typography, List, Button } from 'antd'
 import CreatePost from './CreatePost';
 import UserService from '../APIs/user.service';
+import FeedService from '../APIs/feed.service';
 import Post from './Post';
 
 const { Title } = Typography;
 
-// const FriendList = props => (
-//     <tr>
-//         <td>{props.list}</td>
-//     </tr>
-// )
-const AllUser = props => (
-    <tr>
-        <td>{props.list}</td>
-    </tr>
-)
 
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
@@ -30,6 +21,12 @@ function Home() {
         UserService.getFriends().then(response => {
             setFriendsList(response['data']['friends'])
             setFriendsListIDs(response['data']['friends'].map(list => { return list.id }))
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
+        FeedService.getFeed().then(response => {
+            console.log('Feed', response.data)
+            setFeedList(response.data.news_feed);
         }).catch((error) => {
             console.log('error ' + error);
         });
@@ -53,9 +50,13 @@ function Home() {
 
     }
 
-    const addFriend = (user_id) => {
+    const addFriend = (user_id, first_name, last_name) => {
         UserService.addFriend(user_id).then(response => {
-            console.log(response['data']['status']);
+            if (response['data']['status'] === 'success.') {
+                const new_friend = { id: user_id, first_name: first_name, last_name: last_name }
+                setFriendsList(prev => [...prev, new_friend])
+                friendsListIDs(prev => [...prev, user_id])
+            }
         }).catch((error) => {
             console.log('error ' + error);
         });
@@ -119,18 +120,20 @@ function Home() {
                     </Col>
                 </Row>
             </Col>
-            <Col span={8}><CreatePost />
+            <Col span={8}>
+                <CreatePost />
                 <List
-                    dataSource={[]}
+                    dataSource={feedList}
                     split={false}
                     renderItem={item => (
                         <List.Item>
-                            <Post content={"Test"}
-                                type={"text"}
-                                owner_id={123}
-                                owner_name={"Nick"}
-                                id={1}
-                                key={1}
+                            <Post
+                                content={item.content}
+                                type={item.content_type}
+                                owner_id={item.owner_id}
+                                owner_name={item.owner_name}
+                                id={item.id}
+                                key={item.id}
                             />
                         </List.Item>
                     )}
@@ -145,7 +148,7 @@ function Home() {
                         renderItem={item => (
                             user.user_id !== item.id ?
                                 < List.Item actions={
-                                    friendsListIDs.indexOf(item.id) < 0 ? [<Button type="primary" shape="round" onClick={() => addFriend(item.id)}>
+                                    friendsListIDs.indexOf(item.id) < 0 ? [<Button type="primary" shape="round" onClick={() => addFriend(item.id, item.first_name, item.last_name)}>
                                         Add
                                 </Button>] : [<Button type="primary" shape="round" danger>
                                             Remove

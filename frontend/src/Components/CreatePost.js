@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useHistory } from 'react-router-dom';
 import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import PostService from '../APIs/post.service';
 import user_Image from '../picture/user.png';
 import close_icon from '../picture/closeIcon.png';
 import upload_icon from '../picture/upload.png';
@@ -61,21 +62,33 @@ function CreatePost(props) {
             'content_type': content_type,
             'content': content
         };
-        axios.post('http://localhost:8080/feed',
-            sendToBackend,
-            { headers: { User: localStorage.getItem('token') } })
-            .then(response => {
-                if (response.data.status === 'success.') {
-                    setPhoto('');
-                    setPhoto('');
-                    setVisible(false);
-                } else {
-                    console.log('status post new feed: ', response.data.status);
-                }
-            })
-            .catch((error) => {
-                console.log('error ' + error);
-            });
+        // axios.post('http://localhost:8080/feed',
+        //     sendToBackend,
+        //     { headers: { User: localStorage.getItem('token') } })
+        //     .then(response => {
+        //         if (response.data.status === 'success.') {
+        //             setPhoto('');
+        //             setPhoto('');
+        //             setVisible(false);
+        //         } else {
+        //             console.log('status post new feed: ', response.data.status);
+        //         }
+        //     })
+        //     .catch((error) => {
+        //         console.log('error ' + error);
+        //     });
+
+        PostService.createPost(sendToBackend).then(response => {
+            if (response.data.status === 'success.') {
+                setPhoto('');
+                setPhoto('');
+                setVisible(false);
+            } else {
+                console.log('status post new feed: ', response.data.status);
+            }
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
     }
     return (
         <div>
