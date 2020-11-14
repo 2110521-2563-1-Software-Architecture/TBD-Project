@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Row, Col, Avatar, Typography, List, Button } from 'antd'
 import CreatePost from './CreatePost';
+import UserService from '../APIs/user.service';
 import Post from './Post';
 
 const { Title } = Typography;
 
-const FriendList = props => (
-    <tr>
-        <td>{props.list}</td>
-    </tr>
-)
+// const FriendList = props => (
+//     <tr>
+//         <td>{props.list}</td>
+//     </tr>
+// )
 const AllUser = props => (
     <tr>
         <td>{props.list}</td>
@@ -22,32 +23,12 @@ function Home() {
     const [allUser, setAllUser] = useState([]);
     const [feedList, setFeedList] = useState([]);
 
-    const data = [
-        {
-            title: 'Friend1',
-        },
-        {
-            title: 'Friend2',
-        },
-        {
-            title: 'Friend3',
-        },
-        {
-            title: 'Friend4',
-        },
-    ];
-
-
     useEffect(() => {
-        axios.get('http://localhost:8080/friend',
-            { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
-            .then(response => {
-                setFriendsList(response.data.friends)
-                console.log('friend: ', response.data);
-            })
-            .catch((error) => {
-                console.log('error ' + error); // bad request = ยังไม่มีเพื่อน
-            });
+        UserService.getFriends().then(response => {
+            setFriendsList(response['data']['friends'])
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
         axios.get('http://localhost:8080/feed',
             { headers: { User: localStorage.getItem('token') } })
             .then(response => {
@@ -57,22 +38,38 @@ function Home() {
             .catch((error) => {
                 console.log('error ' + error);
             });
-
+        UserService.getAllUsers().then(response => {
+            setAllUser(response['data']['users'])
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
     }, [])
 
-    const Friend = () => {
-        if (friendsList == undefined || friendsList == []) {
-            return;
-        }
-        return friendsList.map(function (currentlist, i) {
-            return <FriendList list={currentlist} key={i} />;
-        })
+    const removeFriend = id => {
+
     }
-    const User = () => {
-        return allUser.map(function (currentlist, i) {
-            return <AllUser list={currentlist} key={i} />;
-        })
+
+    const addFriend = (user_id) => {
+        UserService.addFriend(user_id).then(response => {
+            console.log(response['data']['status']);
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
     }
+
+    // const Friend = () => {
+    //     if (friendsList == undefined || friendsList == []) {
+    //         return;
+    //     }
+    //     return friendsList.map(function (currentlist, i) {
+    //         return <FriendList list={currentlist} key={i} />;
+    //     })
+    // }
+    // const User = () => {
+    //     return allUser.map(function (currentlist, i) {
+    //         return <AllUser list={currentlist} key={i} />;
+    //     })
+    // }
     const FeedList = () => {
         if (feedList == undefined || feedList == []) {
             return <div>No Feeds</div>;
@@ -102,15 +99,15 @@ function Home() {
                         <List
                             size="small"
                             itemLayout="horizontal"
-                            dataSource={data}
+                            dataSource={friendsList}
                             renderItem={item => (
                                 <List.Item actions={
                                     [<Button type="primary" shape="round" size="small" danger>
                                         Remove
                               </Button>]}>
                                     <List.Item.Meta
-                                        avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                                        title={<a href="https://ant.design">{item.title}</a>}
+                                        avatar={<Avatar size={32} src={"https://ui-avatars.com/api/?name=" + item.first_name + "+" + item.last_name + "&background=0D8ABC&color=fff&size=36"} />}
+                                        title={<a href="#">{item.first_name + " " + item.last_name}</a>}
                                     />
                                 </List.Item>
                             )}
@@ -120,7 +117,7 @@ function Home() {
             </Col>
             <Col span={8}><CreatePost />
                 <List
-                    dataSource={data}
+                    dataSource={[]}
                     split={false}
                     renderItem={item => (
                         <List.Item>
@@ -140,15 +137,15 @@ function Home() {
                     <List
                         size="small"
                         itemLayout="horizontal"
-                        dataSource={data}
+                        dataSource={allUser}
                         renderItem={item => (
                             <List.Item actions={
-                                [<Button type="primary" shape="round">
+                                [<Button type="primary" shape="round" onClick={() => addFriend(item.id)}>
                                     Add
                           </Button>]}>
                                 <List.Item.Meta
-                                    avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                                    title={<a href="https://ant.design">{item.title}</a>}
+                                    avatar={<Avatar size={32} src={"https://ui-avatars.com/api/?name=" + item.first_name + "+" + item.last_name + "&background=0D8ABC&color=fff&size=36"} />}
+                                    title={<a href="#">{item.first_name + " " + item.last_name}</a>}
                                 />
                             </List.Item>
                         )}
