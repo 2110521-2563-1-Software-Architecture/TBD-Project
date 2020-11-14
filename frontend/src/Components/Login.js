@@ -44,7 +44,8 @@ function Login() {
             const user = { user_id: res.data.user.user_id, token: res.data.user.token }
             localStorage.setItem('user', JSON.stringify(user));
             console.log('user', user);
-            history.push('/home');
+            // history.push('/home');
+            window.location.replace("/home");
           }
         });
     } else {

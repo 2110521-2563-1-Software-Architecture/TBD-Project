@@ -62,21 +62,6 @@ function CreatePost(props) {
             'content_type': content_type,
             'content': content
         };
-        // axios.post('http://localhost:8080/feed',
-        //     sendToBackend,
-        //     { headers: { User: localStorage.getItem('token') } })
-        //     .then(response => {
-        //         if (response.data.status === 'success.') {
-        //             setPhoto('');
-        //             setPhoto('');
-        //             setVisible(false);
-        //         } else {
-        //             console.log('status post new feed: ', response.data.status);
-        //         }
-        //     })
-        //     .catch((error) => {
-        //         console.log('error ' + error);
-        //     });
 
         PostService.createPost(sendToBackend).then(response => {
             if (response.data.status === 'success.') {

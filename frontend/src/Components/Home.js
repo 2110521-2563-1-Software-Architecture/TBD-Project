@@ -146,7 +146,7 @@ function Home() {
                         itemLayout="horizontal"
                         dataSource={allUser}
                         renderItem={item => (
-                            user.user_id !== item.id ?
+                            user && user.user_id !== item.id ?
                                 < List.Item actions={
                                     friendsListIDs.indexOf(item.id) < 0 ? [<Button type="primary" shape="round" onClick={() => addFriend(item.id, item.first_name, item.last_name)}>
                                         Add
