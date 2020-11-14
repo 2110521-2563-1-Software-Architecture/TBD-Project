@@ -25,6 +25,7 @@ function Home() {
 
     useEffect(() => {
         UserService.getFriends().then(response => {
+            console.log('friends', response)
             setFriendsList(response['data']['friends'])
         }).catch((error) => {
             console.log('error ' + error);
