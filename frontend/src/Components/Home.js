@@ -20,25 +20,28 @@ const AllUser = props => (
 
 function Home() {
     const [friendsList, setFriendsList] = useState([]);
+    const [friendsListIDs, setFriendsListIDs] = useState([]);
     const [allUser, setAllUser] = useState([]);
     const [feedList, setFeedList] = useState([]);
 
+    const user = JSON.parse(localStorage.getItem('user'));
+
     useEffect(() => {
         UserService.getFriends().then(response => {
-            console.log('friends', response)
             setFriendsList(response['data']['friends'])
+            setFriendsListIDs(response['data']['friends'].map(list => { return list.id }))
         }).catch((error) => {
             console.log('error ' + error);
         });
-        axios.get('http://localhost:8080/feed',
-            { headers: { User: localStorage.getItem('token') } })
-            .then(response => {
-                setFeedList(response.data.news_feed);
-                console.log('feed: ', response.data);
-            })
-            .catch((error) => {
-                console.log('error ' + error);
-            });
+        // axios.get('http://localhost:8080/feed',
+        //     { headers: { User: localStorage.getItem('token') } })
+        //     .then(response => {
+        //         setFeedList(response.data.news_feed);
+        //         console.log('feed: ', response.data);
+        //     })
+        //     .catch((error) => {
+        //         console.log('error ' + error);
+        //     });
         UserService.getAllUsers().then(response => {
             setAllUser(response['data']['users'])
         }).catch((error) => {
@@ -140,16 +143,20 @@ function Home() {
                         itemLayout="horizontal"
                         dataSource={allUser}
                         renderItem={item => (
-                            <List.Item actions={
-                                [<Button type="primary" shape="round" onClick={() => addFriend(item.id)}>
-                                    Add
-                          </Button>]}>
-                                <List.Item.Meta
-                                    avatar={<Avatar size={32} src={"https://ui-avatars.com/api/?name=" + item.first_name + "+" + item.last_name + "&background=0D8ABC&color=fff&size=36"} />}
-                                    title={<a href="#">{item.first_name + " " + item.last_name}</a>}
-                                />
-                            </List.Item>
-                        )}
+                            user.user_id !== item.id ?
+                                < List.Item actions={
+                                    friendsListIDs.indexOf(item.id) < 0 ? [<Button type="primary" shape="round" onClick={() => addFriend(item.id)}>
+                                        Add
+                                </Button>] : [<Button type="primary" shape="round" danger>
+                                            Remove
+                                </Button>]
+                                }>
+                                    <List.Item.Meta
+                                        avatar={<Avatar size={32} src={"https://ui-avatars.com/api/?name=" + item.first_name + "+" + item.last_name + "&background=0D8ABC&color=fff&size=36"} />}
+                                        title={<a href="#">{item.first_name + " " + item.last_name}</a>}
+                                    />
+                                </List.Item>
+                                : null)}
                     />
                 </Col>
             </Row></Col>

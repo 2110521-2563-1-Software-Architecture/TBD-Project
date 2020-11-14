@@ -157,11 +157,11 @@ class User(BaseModel):
             friends = [
                 {
                     'id': friend[0],
-                    'email': friend[1],
+                    # 'email': friend[1],
                     'first_name': friend[2],
                     'last_name': friend[3],
-                    'birth_date': friend[4],
-                    'gender': friend[5]
+                    # 'birth_date': friend[4],
+                    # 'gender': friend[5]
                 }
                 for friend in cursor.fetchall()
             ]
