@@ -112,3 +112,6 @@ dist
 
 # for debug
 create_db.py
+
+# Others
+*.DS_Store
