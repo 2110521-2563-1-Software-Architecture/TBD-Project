@@ -10,11 +10,20 @@ import upload_icon from '../picture/upload.png';
 const { TextArea } = Input;
 
 function CreatePost(props) {
-    const [username, setUsername] = useState(props.username);
-    const [text, setText] = useState('');
-    const [photo, setPhoto] = useState('');
-    const [visible, setVisible] = useState(false);
+    const textBeforeEdit = props.text;
+    const {setModalVisible, setNewText, setFeedList, feedList} = props;
+    const [ID,setID] = useState(props.id);
+    const [isEdit,setIsEdit] = useState(props.isEdit);
+    const [owner_name,setOwnerName] = useState(props.firstname);
+    const [text,setText] = useState(props.text);
+    const [photo,setPhoto] = useState(props.photo);
+    const [visible,setVisible] = useState(props.modalVisible);
     const history = useHistory();
+    
+    useEffect(() => {
+        setVisible(props.modalVisible);
+        setOwnerName(props.firstname);
+     }, [props.modalVisible,props.firstname])
 
     const handleImageChange = (e) => {
         // e.preventDefault();
@@ -58,47 +67,71 @@ function CreatePost(props) {
             content_type = 'text';
             content = text;
         }
-        const sendToBackend = {
-            'content_type': content_type,
-            'content': content
-        };
+        let sendToBackend;
 
-        PostService.createPost(sendToBackend).then(response => {
-            if (response.data.status === 'success.') {
-                setPhoto('');
-                setPhoto('');
-                setVisible(false);
-            } else {
-                console.log('status post new feed: ', response.data.status);
-            }
-        }).catch((error) => {
-            console.log('error ' + error);
-        });
+        if(isEdit){
+            setNewText(text);
+            sendToBackend = {
+                'target': ID,
+                'content_type':content_type,
+                'content':content
+            };
+            PostService.updatePost(sendToBackend).then(response => {
+                if (response.data.status === 'success.') {
+                    setPhoto('');
+                    setPhoto('');
+                    setVisible(false);
+                } else {
+                    console.log('status post new feed: ', response.data.status);
+                }
+            }).catch((error) => {
+                console.log('error ' + error);
+            });
+        }else{
+            setFeedList([...feedList, {owner_name:owner_name, content:text, content_type:'text'}]);
+            sendToBackend = {
+                'content_type':content_type,
+                'content':content
+            };
+            PostService.createPost(sendToBackend).then(response => {
+                if (response.data.status === 'success.') {
+                    setPhoto('');
+                    setPhoto('');
+                    setVisible(false);
+                } else {
+                    console.log('status post new feed: ', response.data.status);
+                }
+            }).catch((error) => {
+                console.log('error ' + error);
+            });
+        }
     }
     return (
         <div>
-            <div style={prePostField}>
-                <Row >
-                    <Col span={2} align='right'>
-                        <img src={user_Image} style={userImage} />
-                    </Col>
-                    <Col span={1}></Col>
-                    <Col span={21}>
-                        <Button
-                            style={prePostImage}
-                            // disabled
-                            onClick={() => setVisible(true)}
-                        >What are you thinking?
-                        </Button>
-                    </Col>
-                </Row>
-                <Row style={{ marginTop: '10px' }} justify="center">
-                    <MyUploadButton />
-                </Row>
-            </div>
-            <Modal
+              {isEdit==false
+                ?<div style={prePostField}>
+                    <Row>
+                        <Col span={2} align='right'>
+                            <img src={user_Image} style={userImage} />
+                        </Col>
+                        <Col span={1}></Col>
+                        <Col span={21}>
+                            <Button 
+                                style={prePostImage}
+                                // disabled
+                                onClick={()=>setVisible(true)}
+                            >What are you thinking?
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row style={{marginTop: '10px'}} justify="center">
+                        <MyUploadButton/>
+                    </Row>
+                </div> 
+             : null}
+              <Modal
                 visible={visible}
-                onCancel={() => setVisible(false)}
+                onCancel={()=>{setVisible(false); if(isEdit)setModalVisible(false)}}
                 footer={null}
             >
                 <Row justify="center">
@@ -108,8 +141,8 @@ function CreatePost(props) {
                     <Col>
                         <img src={user_Image} style={userImage} />
                     </Col>
-                    <Col style={{ marginLeft: '5px' }}>
-                        {username}
+                    <Col style={{marginLeft:'5px'}}>
+                        {owner_name}
                     </Col>
                 </Row>
                 <Row style={{ marginTop: '10px' }}>
@@ -135,8 +168,14 @@ function CreatePost(props) {
                         </div>
                     }
                 </Row>
-                <Row justify="center" style={{ marginTop: '10px' }}>
-                    <Button type="primary" disabled={text === '' && photo.length === 0} block onClick={submit}>Post</Button>
+                <Row justify="center" style={{marginTop:'10px'}}>
+                    {isEdit
+                        ?<Button type="primary" disabled={text==textBeforeEdit || photo==textBeforeEdit} block onClick={submit}>
+                            Record
+                        </Button>
+                        :<Button type="primary" disabled={text==='' && photo.length===0} block onClick={submit}>
+                            Post
+                        </Button>}
                 </Row>
             </Modal>
         </div>

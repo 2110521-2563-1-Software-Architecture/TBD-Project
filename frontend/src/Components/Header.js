@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { Layout, Menu, Breadcrumb } from 'antd';
 import Logo from '../picture/logo_fb.png'
 import ReactDOM from 'react-dom'
+import LogOut from './LogOut';
+import {Row, Col} from 'antd'
 
 const { Header, Content, Footer } = Layout;
 

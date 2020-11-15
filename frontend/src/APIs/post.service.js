@@ -9,6 +9,10 @@ class PostService {
         return axios.post(API_URL + 'feed', sendToBackend, { headers: authHeader() });
     }
 
+    updatePost(sendToBackend) {
+        return axios.patch(API_URL + 'feed', sendToBackend, { headers: authHeader() });
+    }
+
 }
 
 export default new PostService();
