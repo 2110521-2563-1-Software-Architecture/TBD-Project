@@ -6,7 +6,7 @@ import Post from './Post';
 import CreatePost from './CreatePost';
 
 const FeedList = () => {
-  const [feedList, setFeedList] = useState([]); //mock data to test scrolling 
+  const [feedList, setFeedList] = useState([]);
   const [isFetching, setIsFetching] = useInfiniteScroll(fetchMoreListItems);
   const [isFristTime, setIsFristTime] = useState(true);
   const [isLoadUser,setIsLoadUser] = useState(true);
@@ -69,6 +69,8 @@ const FeedList = () => {
                                 owner_name={item.owner_name}
                                 like={item.like}
                                 love={item.dislike}
+                                is_like={item.isLike}
+                                is_love={item.isLove}
                                 id={item.id}
                                 key={item.id}
                             />

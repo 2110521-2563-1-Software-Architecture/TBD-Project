@@ -35,7 +35,7 @@ class NewsFeed(BaseModel):
                  WHERE userfeed.user_id = %s GROUP BY feed.id'
             value = (current_user,) 
             cursor.execute(stmt, value)
-            news_feed = [ generate_news_feed(feed) for feed in cursor.fetchall() ][(page-1)*10:page*10+1]
+            news_feed = [ generate_news_feed(feed) for feed in cursor.fetchall()[(page-1)*10:page*10] ]
             all_feed_id = [ nf['id'] for nf in news_feed ]
             format_strings = ','.join(['%s'] * len(all_feed_id))
             stmt = 'SELECT interact_to_feed_id, action FROM logs WHERE user_id = %s AND \
