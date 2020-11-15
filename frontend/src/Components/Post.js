@@ -13,7 +13,7 @@ import love_icon from '../picture/love.jpg';
 import CreatePost from './CreatePost';
 
 function Post(props) {
-    const {setIsDelete, setIsLoadFeed} = props;
+    const {setIsDelete, setIsLoadFeed, user_id} = props;
     const [username, setUsername] = useState(props.owner_name);
     const [ownerID, setOwnerID] = useState(props.owner_id);
     const [text, setText] = useState(props.content);
@@ -137,11 +137,12 @@ function Post(props) {
                     <Avatar style={{ marginRight: '1rem' }} size={32} src={"https://ui-avatars.com/api/?name=" + username + "&size=64"} />
                     {username}
                 </Col>
-                <Col >
-                    <Popover placement="bottomRight" content={content} trigger="click">
-                            <img style={ellipsisButton} src={ellipsis_icon}/>
-                        
-                    </Popover>
+                <Col>
+                    {user_id==ownerID
+                    ?<Popover placement="bottomRight" content={content} trigger="click">
+                        <img style={ellipsisButton} src={ellipsis_icon}/>
+                    </Popover> 
+                    :null}
                 </Col>
             </Row>
             <Row style={{ marginTop: '10px' }} >
@@ -150,10 +151,10 @@ function Post(props) {
                     : <img style={{ width: '100%' }} src={text} />}
             </Row>
             <Row>
-                {numLike}
                 <img src={like_icon} style={likeIcon}/>
-                {numLove}
+                <div style={{marginRight:'5px', fontSize:'12px'}}>{numLike}</div>
                 <img src={love_icon} style={likeIcon}/>
+                <div style={{marginRight:'5px', fontSize:'12px'}}>{numLove}</div>
             </Row>
             <Row>
                 {type == 'text'
