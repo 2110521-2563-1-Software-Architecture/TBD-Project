@@ -62,6 +62,8 @@ const FeedList = () => {
                                 type={item.content_type}
                                 owner_id={item.owner_id}
                                 owner_name={item.owner_name}
+                                like={item.like}
+                                love={item.dislike}
                                 id={item.id}
                                 key={item.id}
                             />

@@ -7,8 +7,9 @@ import user_Image from '../picture/user.png';
 import edit_icon from '../picture/edit.png';
 import bin_icon from '../picture/bin.png';
 import ellipsis_icon from '../picture/ellipsis.jpg';
-import like_icon from '../picture/like.jpg';
+import like_icon from '../picture/like.png';
 import dislike_icon from '../picture/dislike.jpg';
+import love_icon from '../picture/love.jpg';
 import CreatePost from './CreatePost';
 
 function Post(props) {
@@ -18,6 +19,10 @@ function Post(props) {
     const [text, setText] = useState(props.content);
     const [type, setType] = useState(props.type);
     const [feedID, setFeedID] = useState(props.id);
+    const [numLike,setNumLike] = useState(props.like);
+    const [numLove,setNumLove] = useState(props.love);
+    const [isLike,setisLike] = useState(true);
+    const [isLove,setisLove] = useState(false);
     const [modalVisible,setModalVisble] = useState(false);
     const history = useHistory();
     const content = (
@@ -59,6 +64,14 @@ function Post(props) {
         }); 
     }
     const likePost = () => {
+        if(isLike) {
+            setNumLike(numLike-1);
+            setisLike(false);
+        }else{
+            setNumLike(numLike+1);
+            setisLike(true);
+            setisLove(false);
+        }
         const sendToBack = {
             target: feedID,
             action: 'like'
@@ -78,7 +91,15 @@ function Post(props) {
             console.log('error ' + error); 
         }); 
     }
-    const dislikePost = () => {
+    const lovePost = () => {
+        if(isLove) {
+            setNumLove(numLove-1);
+            setisLove(false);
+        }else{
+            setNumLove(numLove+1);
+            setisLove(true);
+            setisLike(false);
+        }
         const sendToBack = {
             target: feedID,
             action: 'dislike'
@@ -123,6 +144,12 @@ function Post(props) {
                     : <img style={{ width: '100%' }} src={text} />}
             </Row>
             <Row>
+                {numLike}
+                <img src={like_icon} style={likeIcon}/>
+                {numLove}
+                <img src={love_icon} style={likeIcon}/>
+            </Row>
+            <Row>
                 {type == 'text'
                 ?<CreatePost 
                     id={feedID}
@@ -143,15 +170,15 @@ function Post(props) {
             </Row>
             <Row style={likeBox} gutter={5}>
                 <Col span={12}>
-                    <Button style={likeButton} onClick={()=>likePost()}>
+                    <Button style={isLike?isLikeButton:{width:'100%'}} onClick={()=>likePost()}>
                         <img src={like_icon} style={likeIcon}/>
                         like
                     </Button>
                 </Col>
                 <Col span={12}>
-                    <Button style={likeButton} onClick={()=>dislikePost()}>
-                        <img src={dislike_icon} style={likeIcon}/>
-                        dislike
+                    <Button style={isLove?isLikeButton:{width:'100%'}} onClick={()=>lovePost()}>
+                        <img src={love_icon} style={likeIcon}/>
+                        love
                     </Button>
                 </Col>
             </Row>
@@ -195,8 +222,9 @@ const likeIcon = {
     marginRight: '10px',
     maxWidth: '20px',
 }
-const likeButton = {
+const isLikeButton = {
     width: '100%',
-    // border: '1px'
+    color: '#096dd9',
+    borderColor: '#096dd9'
 }
 export default Post;
