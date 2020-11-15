@@ -10,7 +10,6 @@ const { Title } = Typography;
 
 
 function Home() {
-    const [user,setUser] = useState({});
     const [friendsList, setFriendsList] = useState([]);
     const [friendsListIDs, setFriendsListIDs] = useState([]);
     const [allUser, setAllUser] = useState([]);
