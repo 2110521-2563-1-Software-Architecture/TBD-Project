@@ -98,9 +98,14 @@ function Post(props) {
         }); 
     }
     const lovePost = () => {
-        if(isLove) {
+        if(isLove && !isLike) {
             setNumLove(numLove-1);
             setisLove(false);
+        }else if(!isLove && isLike){
+            setNumLike(numLike-1);
+            setNumLove(numLove+1);
+            setisLike(false);
+            setisLove(true);
         }else{
             setNumLove(numLove+1);
             setisLove(true);
