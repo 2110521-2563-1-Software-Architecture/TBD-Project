@@ -6,23 +6,28 @@ import Post from './Post';
 import CreatePost from './CreatePost';
 
 const FeedList = () => {
-  const [feedList, setFeedList] = useState(['1','2','3']); //mock data to test scrolling 
+  const [feedList, setFeedList] = useState([]); //mock data to test scrolling 
   const [isFetching, setIsFetching] = useInfiniteScroll(fetchMoreListItems);
   const [isFristTime, setIsFristTime] = useState(true);
   const [isLoadUser,setIsLoadUser] = useState(true);
   const [isLoadFriend,setIsLoadFriend] = useState(true);
   const [isLoadFeed,setIsLoadFeed] = useState(true);
   const [isDelete, setIsDelete] = useState(false);
-  const [page,setPage] = useState(0);
+  const [page,setPage] = useState(1);
   const user = JSON.parse(localStorage.getItem('user'));
-  
+
   function fetchMoreListItems() {
     const newpage = page + 1;
     setPage(newpage);
-    //TODO send new page to getFeed api 
-    FeedService.getFeed().then(response => {
-        console.log('Feed', response.data)
-        setFeedList([...feedList, ...response.data.news_feed])
+    FeedService.getFeed(newpage).then(response => {
+        // console.log('Feed', response.data)
+        if(!response.data.news_feed.length){
+            setPage(newpage - 1);
+        }
+        else{
+            console.log('Feed', response.data.news_feed)
+            setFeedList([...feedList, ...response.data.news_feed])
+        }
     }).then(()=>{
         setIsFetching(false);
     })
@@ -30,9 +35,9 @@ const FeedList = () => {
         console.log('error ' + error);
     });
   }
+
   useEffect(() => {
-        //TODO send page to getFeed api 
-        FeedService.getFeed().then(response => {
+        FeedService.getFeed(page).then(response => {
             console.log('Feed', response.data)
             setFeedList([...feedList, ...response.data.news_feed])
         })

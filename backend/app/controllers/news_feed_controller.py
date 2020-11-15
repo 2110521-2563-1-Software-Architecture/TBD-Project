@@ -7,7 +7,8 @@ class NewsFeedController(Controller):
     async def get(self, request):
         try:
             current_user = await User(request.app).get_user(request.headers.get('User'))
-            response = await NewsFeed(request.app).get_news_feed(current_user)
+            response = await NewsFeed(request.app).get_news_feed(current_user,
+            int(request.headers.get('page')))
             await self.write(request, self.json_response(response))
         except:
             response = {'status':'Bad Request.', 'reason':'Controller rejected.'}

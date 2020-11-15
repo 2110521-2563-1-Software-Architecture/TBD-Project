@@ -107,11 +107,9 @@ dist
 *.pmc
 *.pyc
 
-# Vs code
-/.vscode/*
-
-# for debug
-create_db.py
-
 # Others
 *.DS_Store
+/.vscode/*
+Lib/*
+Scripts/*
+*.cfg

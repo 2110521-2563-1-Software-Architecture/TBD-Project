@@ -19,9 +19,9 @@ const useInfiniteScroll = (callback) => {
     const scrollBottom = window.pageYOffset + window.innerHeight;
     // console.log('scrollBottom:', scrollBottom);
     // console.log('scroll hieght:', document.documentElement.scrollHeight);
-    if (scrollBottom == document.documentElement.scrollHeight){
+    if (document.documentElement.scrollHeight - scrollBottom < 1){
       setIsFetching(true);
-      console.log('test 2');
+      // console.log('test 2');
     }
   }
 

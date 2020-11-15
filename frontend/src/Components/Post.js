@@ -45,7 +45,7 @@ function Post(props) {
     const deletePost = () => {
         axios.delete('http://localhost:8080/feed', {
             headers: {
-                User: localStorage.getItem('token'),
+                User: JSON.parse(localStorage.getItem('user')).token,
                 target: feedID
             }
         })
@@ -78,9 +78,9 @@ function Post(props) {
         };
         const header = {
             headers:{
-                User: localStorage.getItem('token')
+                User: JSON.parse(localStorage.getItem('user')).token
         }};
-        axios.post('http://localhost:8080/interact', sendToBack, header)
+        axios.post('http://localhost:8080/interact', sendToBack, header )
         .then(response => {
             console.log('like: ',response.data.status);
             if(response.data.status ==='success.'){
@@ -106,9 +106,9 @@ function Post(props) {
         };
         const header = {
             headers:{
-                User: localStorage.getItem('token')
+                User: JSON.parse(localStorage.getItem('user')).token
         }};
-        axios.post('http://localhost:8080/interact', sendToBack, header)
+        axios.post('http://localhost:8080/interact', sendToBack, header )
         .then(response => {
             console.log('dislike: ',response.data.status);
             if(response.data.status ==='success.'){

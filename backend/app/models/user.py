@@ -14,9 +14,9 @@ def is_email(email):
 
 class User(BaseModel):
 
-    async def get_user(self, user_token):
+    async def get_user(self, user_token, **kwargs):
         try:
-            cursor = self.app.mysql_conn.cursor()
+            cursor = self.app.mysql_conn.cursor(buffered=True)
             stmt = 'SELECT user_id FROM tokens WHERE token = %s'
             value = (user_token,)
             cursor.execute(stmt, value)
@@ -32,9 +32,9 @@ class User(BaseModel):
                 pass
             return 0
 
-    async def get_user_data(self, current_user):
+    async def get_user_data(self, current_user, **kwargs):
         try:
-            cursor = self.app.mysql_conn.cursor()
+            cursor = self.app.mysql_conn.cursor(buffered=True)
             stmt = 'SELECT email, first_name, last_name, birth_date, \
                 gender, timestamp FROM accounts WHERE id = %s'
             value = (current_user,)
@@ -56,9 +56,9 @@ class User(BaseModel):
                 pass
             return {'status': 'incorrect id or password.'}
 
-    async def get_all_users(self):
+    async def get_all_users(self, **kwargs):
         try:
-            cursor = self.app.mysql_conn.cursor()
+            cursor = self.app.mysql_conn.cursor(buffered=True)
             stmt = 'SELECT id, first_name, last_name FROM accounts'
             # value = ()
             cursor.execute(stmt)
@@ -79,14 +79,14 @@ class User(BaseModel):
                 pass
             return {'status': 'err'}
 
-    async def login(self, account_id, pwd):
+    async def login(self, account_id, pwd, **kwargs):
         try:
             email = account_id
             password = pwd
             timestamp = str(datetime.now().timestamp())
             token = token_hex()
 
-            cursor = self.app.mysql_conn.cursor()
+            cursor = self.app.mysql_conn.cursor(buffered=True)
             stmt = 'SELECT id, hashed_password, salt, first_name FROM accounts WHERE email = %s'
             value = (email,)
             cursor.execute(stmt, value)
@@ -108,7 +108,7 @@ class User(BaseModel):
                 pass
             return {'status': 'Bad Request.', 'reason': 'Unknown Error.'}
 
-    async def register(self, account_id, first_name, last_name, pwd, birth_date, gender):
+    async def register(self, account_id, first_name, last_name, pwd, birth_date, gender, **kwargs):
         try:
             if is_email(account_id):
                 email = account_id
@@ -124,7 +124,7 @@ class User(BaseModel):
                     or not gender or not first_name:
                 return {'status': 'Bad Request.', 'reason': 'Please fill all data.'}
 
-            cursor = self.app.mysql_conn.cursor()
+            cursor = self.app.mysql_conn.cursor(buffered=True)
             stmt = 'SELECT count(*) FROM accounts WHERE email = %s'
             value = (email,)
             cursor.execute(stmt, value)
@@ -147,24 +147,34 @@ class User(BaseModel):
                 pass
             return {'status': 'Bad Request.', 'reason': 'Unknown Error.'}
 
-    async def get_friend(self, current_user):
+    async def get_friend(self, current_user, **kwargs):
         try:
-            cursor = self.app.mysql_conn.cursor()
-            stmt = 'SELECT accounts.id, accounts.email, accounts.first_name, accounts.last_name, accounts.birth_date, \
-                accounts.gender FROM friends INNER JOIN accounts ON friends.to_user_id=accounts.id WHERE friends.from_user_id = %s'
+            cursor = self.app.mysql_conn.cursor(buffered=True)
+            # stmt = 'SELECT accounts.id, accounts.email, accounts.first_name, accounts.last_name, accounts.birth_date, \
+            #     accounts.gender FROM friends INNER JOIN accounts ON friends.to_user_id=accounts.id WHERE friends.from_user_id = %s'
+            stmt = 'SELECT accounts.id, accounts.first_name, accounts.last_name FROM friends INNER JOIN accounts \
+                ON friends.to_user_id=accounts.id WHERE friends.from_user_id = %s'
             value = (current_user,)
             cursor.execute(stmt, value)
+            # friends = [
+            #     {
+            #         'id': friend[0],
+            #         # 'email': friend[1],
+            #         'first_name': friend[2],
+            #         'last_name': friend[3],
+            #         # 'birth_date': friend[4],
+            #         # 'gender': friend[5]
+            #     }
+            #     for friend in cursor.fetchall()
+            # ]
             friends = [
                 {
                     'id': friend[0],
-                    # 'email': friend[1],
-                    'first_name': friend[2],
-                    'last_name': friend[3],
-                    # 'birth_date': friend[4],
-                    # 'gender': friend[5]
+                    'first_name': friend[1],
+                    'last_name': friend[2],
                 }
                 for friend in cursor.fetchall()
-            ]
+            ]            
             cursor.close()
             return {'friends': friends}
         except:
@@ -174,10 +184,10 @@ class User(BaseModel):
                 pass
             return {'friends': []}
 
-    async def make_friend(self, current_user, target):
+    async def make_friend(self, current_user, target, **kwargs):
         try:
             timestamp = str(datetime.now().timestamp())
-            cursor = self.app.mysql_conn.cursor()
+            cursor = self.app.mysql_conn.cursor(buffered=True)
             stmt = 'SELECT count(*) FROM friends WHERE from_user_id = %s AND to_user_id = %s'
             value = (current_user, target)
             cursor.execute(stmt, value)
@@ -189,7 +199,8 @@ class User(BaseModel):
                 cursor.execute(stmt, value)
                 self.app.mysql_conn.commit()
             else:
-                stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) VALUES (%s, %s, %s, %s)'
+                stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) \
+                    VALUES (%s, %s, %s, %s)'
                 value = (current_user, target, timestamp, None)
                 cursor.execute(stmt, value)
                 value = (target, current_user, timestamp, None)

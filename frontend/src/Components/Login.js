@@ -28,8 +28,6 @@ function Login() {
     setPassword(e.target.value);
   };
   const onSubmit = () => {
-    // e.preventDefault();
-    // console.log(`login successfully`);
 
     if (validateEmail(username)) {
       const sendToBackend = {
@@ -44,15 +42,15 @@ function Login() {
             const user = { user_id: res.data.user.user_id, token: res.data.user.token }
             localStorage.setItem('user', JSON.stringify(user));
             console.log('user', user);
-            // history.push('/home');
             window.location.replace("/home");
+          }
+          else{
+            alert(res.data.status)
           }
         });
     } else {
       alert("It's not an email!")
     }
-    // setUsername("");
-    // setPassword("");
   };
 
   return (
