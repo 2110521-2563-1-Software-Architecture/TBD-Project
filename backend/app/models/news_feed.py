@@ -148,3 +148,26 @@ class NewsFeed(BaseModel):
             except:
                 pass
             return {'status':'Bad Request.', 'reason':'Unknown Error.'}
+
+#def actionScore(action):
+#    if action == "like":
+#        return 2
+#    if action == "love":
+#        return 3
+
+#def affinity(self):
+#    affinity = dict()
+#    getUser(self, affinityList)
+#    cursor = self.app.mysql_conn.cursor()
+#    stmt = 'SELECT feed.owner_id, logs.user_id, logs.action FROM feed JOIN logs ON feed.id = logs.interact_to_feed_id'
+#    cursor.execute(stmt)
+#    userList = cursor.fetchall()
+#    for user in userList:
+#       if user[0] not in [p for p in affinity.keys()]:
+#           affinity[user[0]] = {user[1]:actionScore(user[2])}
+#       else:
+#           if user[1] not in [p for p in affinity[user[0]].keys()]:
+#               affinity[user[0]][user[1]] = actionScore(user[2])
+#           else:
+#               affinity[user[0]][user[1]] += actionScore(user[2])
+#     cursor.close()
