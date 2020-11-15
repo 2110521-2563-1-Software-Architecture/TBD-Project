@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Checkbox } from "antd";
 import { Link, BrowserRouter as Router, useHistory } from "react-router-dom";
 import axios from "axios";
@@ -52,6 +52,13 @@ function Login() {
       alert("It's not an email!")
     }
   };
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if(user) 
+      window.location.replace("/home");
+  
+  }, [])
 
   return (
     <div>

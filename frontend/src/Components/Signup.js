@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button, message, Form } from 'antd';
@@ -110,6 +110,13 @@ function Signup() {
             message.error('Please choose gender or custom');
         }
     }
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if(user) 
+        window.location.replace("/home");
+      
+      }, [])
+
     return (
         <div>
             <div style={page}>
