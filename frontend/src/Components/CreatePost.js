@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {Link, useHistory} from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { Modal, Row, Col, Input, Button, message, Form, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import user_Image from '../picture/user.png';
@@ -31,13 +31,13 @@ function CreatePost(props) {
             let file = index.originFileObj;
             let reader = new FileReader();
             reader.onloadend = () => {
-              setPhoto(reader.result);
+                setPhoto(reader.result);
             };
             reader.readAsDataURL(file);
         });
         setVisible(true);
         setText('');
-    }    
+    }
     const onChangeText = (e) => {
         e.preventDefault();
         setText(e.target.value);
@@ -46,10 +46,10 @@ function CreatePost(props) {
         setPhoto('');
     }
     const MyUploadButton = () => {
-        return(
+        return (
             <Upload onChange={handleImageChange} >
-                <Button style={{border:'0px'}}>
-                    <img src={upload_icon} style={{width:'35px',marginRight:'10px'}}/>
+                <Button style={{ border: '0px' }}>
+                    <img src={upload_icon} style={{ width: '35px', marginRight: '10px' }} />
                     photo
                 </Button>
             </Upload>
@@ -58,7 +58,7 @@ function CreatePost(props) {
     const submit = () => {
         let content_type;
         let content;
-        if( photo.length != 0) {
+        if (photo.length != 0) {
             content_type = 'image';
             content = photo;
         }
@@ -77,7 +77,7 @@ function CreatePost(props) {
             };
             axios.patch('http://localhost:8080/feed', 
             sendToBackend,
-            { headers: { User: localStorage.getItem('token') }}) 
+            { headers: { User: localStorage.getItem('token') } })
             .then(response => {
                 if(response.data.status === 'success.'){
                     setText('');
@@ -105,9 +105,8 @@ function CreatePost(props) {
                     setText('');
                     setPhoto('');
                     setVisible(false);
-                    history.push('/home');
-                }else{
-                    console.log('status post new feed: ',response.data.status);
+                } else {
+                    console.log('status post new feed: ', response.data.status);
                 }
             })
             .catch((error) => {
@@ -115,7 +114,7 @@ function CreatePost(props) {
             }); 
         }
     }
-    return(
+    return (
         <div>
               {isEdit==false
                 ?<div style={prePostField}>
@@ -142,7 +141,7 @@ function CreatePost(props) {
                 visible={visible}
                 onCancel={()=>{setVisible(false); if(isEdit)setModalVisible(false)}}
                 footer={null}
-              >
+            >
                 <Row justify="center">
                     Create post
                 </Row>
@@ -154,27 +153,27 @@ function CreatePost(props) {
                         {owner_name}
                     </Col>
                 </Row>
-                <Row style={{marginTop: '10px'}}>
-                    {photo ===''
-                        ?<div style={{width:'100%'}}>
+                <Row style={{ marginTop: '10px' }}>
+                    {photo === ''
+                        ? <div style={{ width: '100%' }}>
                             <Row>
-                                <TextArea 
-                                    placeholder="What are you thinking?" 
-                                    onChange={onChangeText} 
+                                <TextArea
+                                    placeholder="What are you thinking?"
+                                    onChange={onChangeText}
                                     value={text}
                                     id="textArea"
                                 />
                             </Row>
                             <Row justify='center'>
-                                <MyUploadButton/>
+                                <MyUploadButton />
                             </Row>
                         </div>
-                        :<div style={{width:'100%'}}>
-                            <Button onClick={()=>deletePhoto()} style={{border:'0px'}}>
-                                <img style={closeButton} src={close_icon}/>
+                        : <div style={{ width: '100%' }}>
+                            <Button onClick={() => deletePhoto()} style={{ border: '0px' }}>
+                                <img style={closeButton} src={close_icon} />
                             </Button>
-                            <img src={photo} style={{width:'100%'}}/>
-                        </div>                        
+                            <img src={photo} style={{ width: '100%' }} />
+                        </div>
                     }
                 </Row>
                 <Row justify="center" style={{marginTop:'10px'}}>
@@ -186,17 +185,17 @@ function CreatePost(props) {
                             Post
                         </Button>}
                 </Row>
-              </Modal>
+            </Modal>
         </div>
     );
 }
 
 //TODO css 
 const prePostField = {
-    margin: 'auto',
-    marginTop: "50px",
-    width: "80%",
-    border: 'gray solid 2px',
+    // margin: 'auto',
+    // marginTop: "50px",
+    width: "100%",
+    border: '#3884e1 solid 1px',
     borderRadius: '10px',
     padding: '15px'
 };
@@ -216,11 +215,11 @@ const prePostImage = {
     textAlign: 'left'
 };
 const closeButton = {
-    position:'absolute',
-    top:'50px',
-    right:'-420px',
-    width:'40px',
-    cursor:'pointer'
+    position: 'absolute',
+    top: '50px',
+    right: '-420px',
+    width: '40px',
+    cursor: 'pointer'
 }
 
 export default CreatePost;

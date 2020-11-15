@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import {Row, Col} from 'antd'
-import Default from '../picture/default.png'
+import { Row, Col, Avatar, Typography, List, Button } from 'antd'
 import CreatePost from './CreatePost';
 import Post from './Post';
+
+const { Title } = Typography;
 
 const FriendList = props => (
     <tr>
@@ -26,6 +27,21 @@ function Home() {
     const [isLoadFriend,setIsLoadFriend] = useState(true);
     const [isLoadFeed,setIsLoadFeed] = useState(true);
     const [isDelete, setIsDelete] = useState(false);
+    const data = [
+        {
+            title: 'Friend1',
+        },
+        {
+            title: 'Friend2',
+        },
+        {
+            title: 'Friend3',
+        },
+        {
+            title: 'Friend4',
+        },
+    ];
+    
     useEffect(() => {   
         if(isFristTime){
             axios.get('http://localhost:8080/user_data', 
@@ -83,21 +99,21 @@ function Home() {
     }, [isDelete]);
 
     const Friend = () => {
-        if (friendsList == undefined || friendsList == []){
+        if (friendsList == undefined || friendsList == []) {
             return;
-        }        
-        return friendsList.map(function(currentlist, i){
+        }
+        return friendsList.map(function (currentlist, i) {
             return <FriendList list={currentlist} key={i} />;
         })
     }
     const User = () => {
-        return allUser.map(function(currentlist, i){
+        return allUser.map(function (currentlist, i) {
             return <AllUser list={currentlist} key={i} />;
         })
     }
     const FeedList = () => {
-        if (feedList == undefined || feedList == []){
-            return;
+        if (feedList == undefined || feedList == []) {
+            return <div>No Feeds</div>;
         }
         return feedList.map(function(currentlist, i){
             return <Post content={currentlist.content} 
@@ -112,30 +128,38 @@ function Home() {
         })
     }
     return (
-        <div style={!isLoadUser&&!isLoadFeed&&!isLoadFriend ?{opacity:1} :{opacity:0.5}}>
-            <Row >
-                <Col style={Style} span={6}>
-                    <div className="picture_name" style={{width: "90%", margin: "auto"}}>
-                        <img src={Default} style={{width:"100%"}}/>
-                        My Name is Thanapun(ไม่กากและโหดมาก) <br/>
-                        เหลือตรงดึงรูปภาพจาก backend นะ(ตรงนี้) ทำไม่เป็น TT <br/>
-                        แล้วก็ฝากตรวจที่ทำไปด้วยนะ ไม่ค่อยเข้าใจเลย TT
-                    </div>
-                    <div className="FriendList" style={{margin:"auto",width:"90%"}}>
-                        <table style={{width:"100%"}}>
-                            <tr>
-                                <th>Friend List</th>
-                            </tr>
-                            <tr>
-                                {Friend}
-                            </tr>
-                        </table>
-                        
-                    </div>
-                </Col>
-                <Col style={Style} span={12}>
-                    <div>ไว้ใส่ contents</div>
-                    <CreatePost 
+        <Row justify="center" style={{ marginTop: '2.5em' }}>
+            <Col span={6}>
+                <Row justify="center" align="middle">
+                    <Col span={24} style={{ textAlign: 'center' }}><Avatar size={128} src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff&size=128" /></Col>
+                </Row>
+                <Row justify="center" align="middle">
+                    <Col span={24} style={{ textAlign: 'center' }}> <Title level={4}>John Doe</Title></Col>
+                </Row>
+                <Row justify="center" align="middle" >
+                    <Col span={16} >
+                        <Title level={5}>Friend Lists</Title>
+                        <List
+                            size="small"
+                            itemLayout="horizontal"
+                            dataSource={data}
+                            renderItem={item => (
+                                <List.Item actions={
+                                    [<Button type="primary" shape="round" size="small" danger>
+                                        Remove
+                              </Button>]}>
+                                    <List.Item.Meta
+                                        avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                        title={<a href="https://ant.design">{item.title}</a>}
+                                    />
+                                </List.Item>
+                            )}
+                        />
+                    </Col>
+                </Row>
+            </Col>
+            <Col span={8}>
+                <CreatePost 
                         isEdit={false}
                         modalVisible={false}
                         text={''}
@@ -143,28 +167,45 @@ function Home() {
                         firstname={user.first_name}
                         setFeedList={setFeedList}
                         feedList={feedList}/>
-                    {FeedList()}
+                <List
+                // Post list
+                    dataSource={data}
+                    split={false}
+                    renderItem={item => (
+                        <List.Item>
+                            <Post content={"Test"}
+                                type={"text"}
+                                owner_id={123}
+                                owner_name={"Nick"}
+                                id={1}
+                                key={1}
+                            />
+                        </List.Item>
+                    )}
+                /></Col>
+            <Col span={6}><Row justify="center" align="middle" >
+                <Col span={20}>
+                    <Title level={5}>All users</Title>
+                    <List
+                        size="small"
+                        itemLayout="horizontal"
+                        dataSource={data}
+                        renderItem={item => (
+                            <List.Item actions={
+                                [<Button type="primary" shape="round">
+                                    Add
+                          </Button>]}>
+                                <List.Item.Meta
+                                    avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                    title={<a href="https://ant.design">{item.title}</a>}
+                                />
+                            </List.Item>
+                        )}
+                    />
                 </Col>
-                <Col style={Style} span={6}>
-                    <div className="All User" style={{margin:"auto",width:"90%"}}>
-                        <table style={{width:"100%"}}>
-                            <tr>
-                                <th>All User</th>
-                            </tr>
-                            <tr>
-                                {User}
-                            </tr>
-                        </table>
-                    </div>
-                </Col>
-            </Row>
-        </div>
+            </Row></Col>
+        </Row>
     )
-}
-
-////////////////////////////////////////////////
-const Style = {
-    border: "solid black"
 }
 
 export default Home
