@@ -197,6 +197,11 @@ class User(BaseModel):
                 cursor.execute(stmt, value)
                 value = (target, current_user)
                 cursor.execute(stmt, value)
+                stmt = 'DELETE userfeed.* FROM userfeed INNER JOIN feed WHERE feed.owner_id = %s AND userfeed.user_id = %s'
+                value = (target, current_user)
+                cursor.execute(stmt, value)
+                value = (current_user, target)
+                cursor.execute(stmt, value)
                 self.app.mysql_conn.commit()
             else:
                 stmt = 'INSERT INTO friends (from_user_id, to_user_id, added_time, last_interact_id) \
@@ -204,6 +209,12 @@ class User(BaseModel):
                 value = (current_user, target, timestamp, None)
                 cursor.execute(stmt, value)
                 value = (target, current_user, timestamp, None)
+                cursor.execute(stmt, value)
+                stmt = 'INSERT INTO userfeed (user_id, feed_id) SELECT %s, id  FROM\
+                    feed WHERE owner_id = %s'
+                value = (current_user, target)
+                cursor.execute(stmt, value)
+                value = (target, current_user)
                 cursor.execute(stmt, value)
                 self.app.mysql_conn.commit()
             cursor.close()

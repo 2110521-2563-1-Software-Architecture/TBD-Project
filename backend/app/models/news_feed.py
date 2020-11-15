@@ -41,8 +41,11 @@ class NewsFeed(BaseModel):
             stmt = 'SELECT interact_to_feed_id, action FROM logs WHERE user_id = %s AND \
                 interact_to_feed_id in ({})'.format(format_strings)
             value = (current_user, *tuple(all_feed_id))
-            cursor.execute(stmt, value)
-            actions = { k:v for k, v in cursor.fetchall()}
+            try:
+                cursor.execute(stmt, value)
+                actions = { k:v for k, v in cursor.fetchall()}
+            except:
+                actions = {}
             for nf in news_feed:
                 if nf['id'] in actions:
                     nf.update({'isLike':actions[nf['id']].strip().lower() == 'like',
