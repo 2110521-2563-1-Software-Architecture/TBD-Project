@@ -158,8 +158,8 @@ class NewsFeed(BaseModel):
 #       score = 2
 #   if action == "love":
 #       score = 3
-#   u = max(old_score,rate * t)
-#   v = min(old_score,rate * t)
+#   u = max(old_score, t)
+#   v = min(old_score, t)
 #   return (u + math.log(math.exp(v-u))) * score
 
 #def affinity(self):
