@@ -21,8 +21,8 @@ function Post(props) {
     const [feedID, setFeedID] = useState(props.id);
     const [numLike,setNumLike] = useState(props.like);
     const [numLove,setNumLove] = useState(props.love);
-    const [isLike,setisLike] = useState(true);
-    const [isLove,setisLove] = useState(false);
+    const [isLike,setisLike] = useState(props.is_like);
+    const [isLove,setisLove] = useState(props.is_love);
     const [modalVisible,setModalVisble] = useState(false);
     const history = useHistory();
     const content = (
@@ -64,9 +64,15 @@ function Post(props) {
         }); 
     }
     const likePost = () => {
-        if(isLike) {
+        if(isLike && !isLove) {
             setNumLike(numLike-1);
             setisLike(false);
+        }
+        else if(!isLike && isLove){
+            setNumLike(numLike+1);
+            setNumLove(numLove-1);
+            setisLike(true);
+            setisLove(false);
         }else{
             setNumLike(numLike+1);
             setisLike(true);
