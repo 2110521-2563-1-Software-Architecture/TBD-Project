@@ -30,21 +30,30 @@ function Home() {
         });
     }, [])
 
-    const removeFriend = id => {
-
-    }
-
     const addFriend = (user_id, first_name, last_name) => {
         UserService.addFriend(user_id).then(response => {
             if (response['data']['status'] === 'success.') {
                 const new_friend = { id: user_id, first_name: first_name, last_name: last_name }
                 setFriendsList(prev => [...prev, new_friend])
-                friendsListIDs(prev => [...prev, user_id])
+                setFriendsListIDs(prev => [...prev, user_id])
             }
         }).catch((error) => {
             console.log('error ' + error);
         });
     }
+
+    const removeFriend = (user_id) => {
+        UserService.addFriend(user_id).then(response => {
+            if (response['data']['status'] === 'success.') {
+                const _friendsList = friendsList.filter(item => item.id !== user_id);
+                const _friendsListIDs = friendsListIDs.filter(item => item !== user_id)
+                setFriendsList(_friendsList);
+                setFriendsListIDs(_friendsListIDs);
+            }
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
+    }    
 
     // const Friend = () => {
     //     if (friendsList == undefined || friendsList == []) {
@@ -106,7 +115,7 @@ function Home() {
                                 < List.Item actions={
                                     friendsListIDs.indexOf(item.id) < 0 ? [<Button type="primary" shape="round" onClick={() => addFriend(item.id, item.first_name, item.last_name)}>
                                         Add
-                                </Button>] : [<Button type="primary" shape="round" danger>
+                                </Button>] : [<Button type="primary" shape="round" onClick={() => removeFriend(item.id)} danger>
                                             Remove
                                 </Button>]
                                 }>
