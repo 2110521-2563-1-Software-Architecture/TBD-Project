@@ -2,6 +2,7 @@ from app.controllers.users_controller import UserController
 from app.controllers.news_feed_controller import NewsFeedController
 from aiohttp_cors import setup, ResourceOptions
 
+
 def map_routes(app):
 
     cors = setup(app, defaults={
@@ -10,7 +11,7 @@ def map_routes(app):
             expose_headers='*',
             allow_headers='*',
         )
-    })    
+    })
 
     user_controller = UserController()
     news_feed_controller = NewsFeedController()
@@ -22,10 +23,13 @@ def map_routes(app):
     resource.add_route('POST', user_controller.register)
 
     resource = app.router.add_resource('/user_data', name='user_data')
-    resource.add_route('GET', user_controller.get_user_data)     
+    resource.add_route('GET', user_controller.get_user_data)
+
+    resource = app.router.add_resource('/all_users', name='all_users')
+    resource.add_route('GET', user_controller.get_all_users)
 
     resource = app.router.add_resource('/friend', name='friend')
-    resource.add_route('GET', user_controller.get_friend)    
+    resource.add_route('GET', user_controller.get_friend)
     resource.add_route('POST', user_controller.make_friend)
 
     resource = app.router.add_resource('/feed', name='news_feed')
@@ -35,7 +39,7 @@ def map_routes(app):
     resource.add_route('DELETE', news_feed_controller.delete)
 
     resource = app.router.add_resource('/interact', name='interact')
-    resource.add_route('POST', news_feed_controller.interact) 
+    resource.add_route('POST', news_feed_controller.interact)
 
     for route in app.router.routes():
         cors.add(route)

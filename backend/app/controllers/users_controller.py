@@ -1,6 +1,7 @@
 from app.controllers.base import Controller
 from app.models.user import User
 
+
 class UserController(Controller):
 
     async def login(self, request):
@@ -9,7 +10,8 @@ class UserController(Controller):
             response = await User(request.app).login(**payload)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Controller rejected. Please check input.'}
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
             await self.write(request, self.json_response(response))
 
     async def register(self, request):
@@ -18,7 +20,8 @@ class UserController(Controller):
             response = await User(request.app).register(**payload)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Controller rejected. Please check input.'}
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
             await self.write(request, self.json_response(response))
 
     async def get_user_data(self, request):
@@ -27,7 +30,17 @@ class UserController(Controller):
             response = await User(request.app).get_user_data(current_user)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Controller rejected. Please check input.'}
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
+            await self.write(request, self.json_response(response))
+
+    async def get_all_users(self, request):
+        try:
+            response = await User(request.app).get_all_users()
+            await self.write(request, self.json_response(response))
+        except:
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
             await self.write(request, self.json_response(response))
 
     async def get_friend(self, request):
@@ -36,7 +49,8 @@ class UserController(Controller):
             response = await User(request.app).get_friend(current_user)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Controller rejected. Please check input.'}
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
             await self.write(request, self.json_response(response))
 
     async def make_friend(self, request):
@@ -46,5 +60,6 @@ class UserController(Controller):
             response = await User(request.app).make_friend(current_user, **payload)
             await self.write(request, self.json_response(response))
         except:
-            response = {'status':'Bad Request.', 'reason':'Controller rejected. Please check input.'}
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
             await self.write(request, self.json_response(response))

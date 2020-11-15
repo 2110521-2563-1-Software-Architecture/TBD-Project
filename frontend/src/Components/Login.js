@@ -41,9 +41,11 @@ function Login() {
         .post("http://localhost:8080/login", sendToBackend)
         .then((res) => {
           if (res.data.status == 'success.') {
-            localStorage.setItem('token', res.data.token);
-            localStorage.getItem('token');
-            history.push('/home');
+            const user = { user_id: res.data.user.user_id, token: res.data.user.token }
+            localStorage.setItem('user', JSON.stringify(user));
+            console.log('user', user);
+            // history.push('/home');
+            window.location.replace("/home");
           }
         });
     } else {

@@ -2,24 +2,17 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { Row, Col, Avatar, Typography, List, Button } from 'antd'
 import CreatePost from './CreatePost';
+import UserService from '../APIs/user.service';
+import FeedService from '../APIs/feed.service';
 import Post from './Post';
 
 const { Title } = Typography;
 
-const FriendList = props => (
-    <tr>
-        <td>{props.list}</td>
-    </tr>
-)
-const AllUser = props => (
-    <tr>
-        <td>{props.list}</td>
-    </tr>
-)
 
 function Home() {
     const [user,setUser] = useState({});
     const [friendsList, setFriendsList] = useState([]);
+    const [friendsListIDs, setFriendsListIDs] = useState([]);
     const [allUser, setAllUser] = useState([]);
     const [feedList, setFeedList] = useState([]);
     const [isFristTime, setIsFristTime] = useState(true);
@@ -27,90 +20,66 @@ function Home() {
     const [isLoadFriend,setIsLoadFriend] = useState(true);
     const [isLoadFeed,setIsLoadFeed] = useState(true);
     const [isDelete, setIsDelete] = useState(false);
-    const data = [
-        {
-            title: 'Friend1',
-        },
-        {
-            title: 'Friend2',
-        },
-        {
-            title: 'Friend3',
-        },
-        {
-            title: 'Friend4',
-        },
-    ];
-    
-    useEffect(() => {   
-        if(isFristTime){
-            axios.get('http://localhost:8080/user_data', 
-                { headers: { User: localStorage.getItem('token') } })
-                .then(response => {
-                    setUser(response.data.user_data);
-                    console.log('user: ',response.data.user_data);
-                    setIsLoadUser(false);
-                })
-                .catch((error) => {
-                    console.log('error (get user) ' + error); 
-                    setIsLoadUser(false);
-                });        
-            axios.get('http://localhost:8080/friend', 
-            { headers: { User: localStorage.getItem('token') } }) // ใส่ User: localStorage.getItem('token') เอา token ที่ได้ตอน login มาใช้
-            .then(response => {
-                setFriendsList(response.data.friends)
-                console.log('friend: ',response.data);
-                setIsLoadFriend(false);
-            })
-            .catch((error) => {
-                console.log('error (get friend) ' + error); // bad request = ยังไม่มีเพื่อน
-                setIsLoadFriend(false);
-            }); 
-            axios.get('http://localhost:8080/feed', 
-                { headers: { User: localStorage.getItem('token') } })
-                .then(response => {
-                    if(response.data.news_feed.length > 0){
-                        setFeedList(response.data.news_feed);
-                    }
-                    console.log('feed: ',response.data);
-                    setIsLoadFeed(false);
-                })
-                .catch((error) => {
-                    console.log('error (get feed) ' + error); 
-                    setIsLoadFeed(false);
-                });  
-            setIsFristTime(false);  
-        }else{
-            axios.get('http://localhost:8080/feed', 
-            { headers: { User: localStorage.getItem('token') } })
-            .then(response => {
-                setFeedList(response.data.news_feed);
-                console.log('fetch feed: ',response.data);
-                setIsLoadFeed(false);
-            })
-            .catch((error) => {
-                console.log('error (get feed) ' + error); 
-                setIsLoadFeed(false);
-            }); 
-            setIsDelete(false);
-        
-        }
-                
-    }, [isDelete]);
+    const user = JSON.parse(localStorage.getItem('user'));
 
-    const Friend = () => {
-        if (friendsList == undefined || friendsList == []) {
-            return;
-        }
-        return friendsList.map(function (currentlist, i) {
-            return <FriendList list={currentlist} key={i} />;
-        })
+    useEffect(() => {
+        UserService.getFriends().then(response => {
+            setFriendsList(response['data']['friends'])
+            setFriendsListIDs(response['data']['friends'].map(list => { return list.id }))
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
+        FeedService.getFeed().then(response => {
+            console.log('Feed', response.data)
+            setFeedList(response.data.news_feed);
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
+        // axios.get('http://localhost:8080/feed',
+        //     { headers: { User: localStorage.getItem('token') } })
+        //     .then(response => {
+        //         setFeedList(response.data.news_feed);
+        //         console.log('feed: ', response.data);
+        //     })
+        //     .catch((error) => {
+        //         console.log('error ' + error);
+        //     });
+        UserService.getAllUsers().then(response => {
+            setAllUser(response['data']['users'])
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
+    }, [])
+
+    const removeFriend = id => {
+
     }
-    const User = () => {
-        return allUser.map(function (currentlist, i) {
-            return <AllUser list={currentlist} key={i} />;
-        })
+
+    const addFriend = (user_id, first_name, last_name) => {
+        UserService.addFriend(user_id).then(response => {
+            if (response['data']['status'] === 'success.') {
+                const new_friend = { id: user_id, first_name: first_name, last_name: last_name }
+                setFriendsList(prev => [...prev, new_friend])
+                friendsListIDs(prev => [...prev, user_id])
+            }
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
     }
+
+    // const Friend = () => {
+    //     if (friendsList == undefined || friendsList == []) {
+    //         return;
+    //     }
+    //     return friendsList.map(function (currentlist, i) {
+    //         return <FriendList list={currentlist} key={i} />;
+    //     })
+    // }
+    // const User = () => {
+    //     return allUser.map(function (currentlist, i) {
+    //         return <AllUser list={currentlist} key={i} />;
+    //     })
+    // }
     const FeedList = () => {
         if (feedList == undefined || feedList == []) {
             return <div>No Feeds</div>;
@@ -142,15 +111,15 @@ function Home() {
                         <List
                             size="small"
                             itemLayout="horizontal"
-                            dataSource={data}
+                            dataSource={friendsList}
                             renderItem={item => (
                                 <List.Item actions={
                                     [<Button type="primary" shape="round" size="small" danger>
                                         Remove
                               </Button>]}>
                                     <List.Item.Meta
-                                        avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                                        title={<a href="https://ant.design">{item.title}</a>}
+                                        avatar={<Avatar size={32} src={"https://ui-avatars.com/api/?name=" + item.first_name + "+" + item.last_name + "&background=0D8ABC&color=fff&size=36"} />}
+                                        title={<a href="#">{item.first_name + " " + item.last_name}</a>}
                                     />
                                 </List.Item>
                             )}
@@ -168,17 +137,17 @@ function Home() {
                         setFeedList={setFeedList}
                         feedList={feedList}/>
                 <List
-                // Post list
-                    dataSource={data}
+                    dataSource={feedList}
                     split={false}
                     renderItem={item => (
                         <List.Item>
-                            <Post content={"Test"}
-                                type={"text"}
-                                owner_id={123}
-                                owner_name={"Nick"}
-                                id={1}
-                                key={1}
+                            <Post
+                                content={item.content}
+                                type={item.content_type}
+                                owner_id={item.owner_id}
+                                owner_name={item.owner_name}
+                                id={item.id}
+                                key={item.id}
                             />
                         </List.Item>
                     )}
@@ -189,18 +158,22 @@ function Home() {
                     <List
                         size="small"
                         itemLayout="horizontal"
-                        dataSource={data}
+                        dataSource={allUser}
                         renderItem={item => (
-                            <List.Item actions={
-                                [<Button type="primary" shape="round">
-                                    Add
-                          </Button>]}>
-                                <List.Item.Meta
-                                    avatar={<Avatar size={16} src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
-                                    title={<a href="https://ant.design">{item.title}</a>}
-                                />
-                            </List.Item>
-                        )}
+                            user && user.user_id !== item.id ?
+                                < List.Item actions={
+                                    friendsListIDs.indexOf(item.id) < 0 ? [<Button type="primary" shape="round" onClick={() => addFriend(item.id, item.first_name, item.last_name)}>
+                                        Add
+                                </Button>] : [<Button type="primary" shape="round" danger>
+                                            Remove
+                                </Button>]
+                                }>
+                                    <List.Item.Meta
+                                        avatar={<Avatar size={32} src={"https://ui-avatars.com/api/?name=" + item.first_name + "+" + item.last_name + "&background=0D8ABC&color=fff&size=36"} />}
+                                        title={<a href="#">{item.first_name + " " + item.last_name}</a>}
+                                    />
+                                </List.Item>
+                                : null)}
                     />
                 </Col>
             </Row></Col>
