@@ -5,6 +5,7 @@ import CreatePost from './CreatePost';
 import UserService from '../APIs/user.service';
 import FeedService from '../APIs/feed.service';
 import Post from './Post';
+import FeedList from './FeedList';
 
 const { Title } = Typography;
 
@@ -13,12 +14,6 @@ function Home() {
     const [friendsList, setFriendsList] = useState([]);
     const [friendsListIDs, setFriendsListIDs] = useState([]);
     const [allUser, setAllUser] = useState([]);
-    const [feedList, setFeedList] = useState([]);
-    const [isFristTime, setIsFristTime] = useState(true);
-    const [isLoadUser,setIsLoadUser] = useState(true);
-    const [isLoadFriend,setIsLoadFriend] = useState(true);
-    const [isLoadFeed,setIsLoadFeed] = useState(true);
-    const [isDelete, setIsDelete] = useState(false);
     const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
@@ -28,21 +23,6 @@ function Home() {
         }).catch((error) => {
             console.log('error ' + error);
         });
-        FeedService.getFeed().then(response => {
-            console.log('Feed', response.data)
-            setFeedList(response.data.news_feed);
-        }).catch((error) => {
-            console.log('error ' + error);
-        });
-        // axios.get('http://localhost:8080/feed',
-        //     { headers: { User: localStorage.getItem('token') } })
-        //     .then(response => {
-        //         setFeedList(response.data.news_feed);
-        //         console.log('feed: ', response.data);
-        //     })
-        //     .catch((error) => {
-        //         console.log('error ' + error);
-        //     });
         UserService.getAllUsers().then(response => {
             setAllUser(response['data']['users'])
         }).catch((error) => {
@@ -79,22 +59,7 @@ function Home() {
     //         return <AllUser list={currentlist} key={i} />;
     //     })
     // }
-    const FeedList = () => {
-        if (feedList == undefined || feedList == []) {
-            return <div>No Feeds</div>;
-        }
-        return feedList.map(function(currentlist, i){
-            return <Post content={currentlist.content} 
-                        type={currentlist.content_type} 
-                        owner_id={currentlist.owner_id} 
-                        owner_name={currentlist.owner_name}
-                        id={currentlist.id}
-                        key={i} 
-                        setIsDelete={setIsDelete}
-                        setIsLoadFeed={setIsLoadFeed}
-                    />;
-        })
-    }
+
     return (
         <Row justify="center" style={{ marginTop: '2.5em' }}>
             <Col span={6}>
@@ -127,30 +92,8 @@ function Home() {
                 </Row>
             </Col>
             <Col span={8}>
-                <CreatePost 
-                        isEdit={false}
-                        modalVisible={false}
-                        text={''}
-                        photo={''}
-                        firstname={user.first_name}
-                        setFeedList={setFeedList}
-                        feedList={feedList}/>
-                <List
-                    dataSource={feedList}
-                    split={false}
-                    renderItem={item => (
-                        <List.Item>
-                            <Post
-                                content={item.content}
-                                type={item.content_type}
-                                owner_id={item.owner_id}
-                                owner_name={item.owner_name}
-                                id={item.id}
-                                key={item.id}
-                            />
-                        </List.Item>
-                    )}
-                /></Col>
+                <FeedList/>
+            </Col>
             <Col span={6}><Row justify="center" align="middle" >
                 <Col span={20}>
                     <Title level={5}>All users</Title>
