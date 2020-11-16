@@ -1,5 +1,6 @@
 from app.models.base import BaseModel
 from datetime import datetime
+import math
 
 def generate_news_feed(news_feed):
     if news_feed[7]:
@@ -23,8 +24,6 @@ def generate_news_feed(news_feed):
                 'dislike': 0,
                 'timestamp': news_feed[6]
             }
-
-class NewsFeed(BaseModel):
 
     async def get_news_feed(self, current_user, page, **kwargs):
         try:
