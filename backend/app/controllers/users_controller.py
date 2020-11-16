@@ -14,6 +14,16 @@ class UserController(Controller):
                         'reason': 'Controller rejected. Please check input.'}
             await self.write(request, self.json_response(response))
 
+    async def logout(self, request):
+        try:
+            current_user = await User(request.app).get_user(request.headers.get('User'))
+            response = await User(request.app).logout(current_user, request.headers.get('User'))
+            await self.write(request, self.json_response(response))
+        except:
+            response = {'status': 'Bad Request.',
+                        'reason': 'Controller rejected. Please check input.'}
+            await self.write(request, self.json_response(response))
+
     async def register(self, request):
         try:
             payload = await request.json()

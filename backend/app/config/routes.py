@@ -19,6 +19,9 @@ def map_routes(app):
     resource = app.router.add_resource('/login', name='login')
     resource.add_route('POST', user_controller.login)
 
+    resource = app.router.add_resource('/logout', name='logout')
+    resource.add_route('GET', user_controller.logout)
+
     resource = app.router.add_resource('/register', name='register')
     resource.add_route('POST', user_controller.register)
 

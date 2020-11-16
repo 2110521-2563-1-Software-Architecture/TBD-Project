@@ -108,6 +108,22 @@ class User(BaseModel):
                 pass
             return {'status': 'Bad Request.', 'reason': 'Unknown Error.'}
 
+    async def logout(self, current_user, access_token, **kwargs):
+        try:
+            cursor = self.app.mysql_conn.cursor(buffered=True)
+            stmt = 'DELETE FROM tokens WHERE user_id = %s AND token = %s'
+            value = (current_user, access_token)
+            cursor.execute(stmt, value)
+            self.app.mysql_conn.commit()
+            cursor.close()
+            return {'status': 'success'}
+        except:
+            try:
+                cursor.close()
+            except:
+                pass
+            return {'status': 'Bad Request.'}
+
     async def register(self, account_id, first_name, last_name, pwd, birth_date, gender, **kwargs):
         try:
             if is_email(account_id):
