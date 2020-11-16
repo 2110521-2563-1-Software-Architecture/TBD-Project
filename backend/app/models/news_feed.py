@@ -25,6 +25,38 @@ def generate_news_feed(news_feed):
                 'timestamp': news_feed[6]
             }
 
+def actionScore(old_score,action,t):
+    score = 0
+    if action == "like":
+        score = 2
+    if action == "dislike":
+        score = 3
+    u = max(old_score, t/3600)
+    v = min(old_score, t/3600)
+    return (u + math.log(math.exp(v-u))) * score
+
+class NewsFeed(BaseModel):
+
+    def affinity(self, current_user):
+        affinity = {}
+        current = int(datetime.now().timestamp())
+        cursor = self.app.mysql_conn.cursor()
+        stmt = 'SELECT feed.owner_id, logs.action, logs.timestamp FROM logs INNER JOIN feed ON \
+            logs.interact_to_feed_id = feed.id WHERE logs.user_id = %s'
+        value = (current_user, )
+        cursor.execute(stmt, value)
+        for user in cursor.fetchall():
+            time = current - int(float(user[2]))
+            if current_user == user[0]:
+                continue
+            if user[0] not in affinity.keys():
+                affinity[user[0]] = actionScore(0,user[1],time)
+            else:
+                old_score = affinity[user[0]]
+                affinity[user[0]] = actionScore(old_score,user[1],time)
+        cursor.close()
+        return affinity
+
     async def get_news_feed(self, current_user, page, **kwargs):
         try:
             cursor = self.app.mysql_conn.cursor(buffered=True)
@@ -48,10 +80,14 @@ def generate_news_feed(news_feed):
             for nf in news_feed:
                 if nf['id'] in actions:
                     nf.update({'isLike':actions[nf['id']].strip().lower() == 'like',
-                    'isLove':actions[nf['id']].strip().lower() == 'love'})
+                    'isLove':actions[nf['id']].strip().lower() == 'dislike'})
                 else:
                     nf.update({'isLike':False, 'isLove':False})
             cursor.close()
+            affinity = self.affinity(current_user)
+            affinity.update({k:float('-inf') for k in \
+                [e['owner_id'] for e in news_feed] if k not in affinity.keys()})
+            news_feed.sort(key=lambda param: affinity[param['owner_id']])
             return {'news_feed':news_feed}
         except:
             try:
