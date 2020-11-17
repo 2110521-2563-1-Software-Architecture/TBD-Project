@@ -7,7 +7,8 @@ import CreatePost from './CreatePost';
 
 const FeedList = () => {
   const [feedList, setFeedList] = useState([]);
-  const [isFetching, setIsFetching] = useInfiniteScroll(fetchMoreListItems);
+  const [isFinish,setIsFinish] = useState(false);
+  const [isFetching, setIsFetching] = useInfiniteScroll(fetchMoreListItems, isFinish);
   const [isFristTime, setIsFristTime] = useState(true);
   const [isLoadUser,setIsLoadUser] = useState(true);
   const [isLoadFriend,setIsLoadFriend] = useState(true);
@@ -23,6 +24,8 @@ const FeedList = () => {
         // console.log('Feed', response.data)
         if(!response.data.news_feed.length){
             setPage(newpage - 1);
+            setIsFinish(true);
+            console.log('set is finish:',isFinish);
         }
         else{
             console.log('Feed', response.data.news_feed);
