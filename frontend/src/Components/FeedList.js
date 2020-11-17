@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useInfiniteScroll from "./UseInfiniteScroll";
-import { Row, Col, Avatar, Typography, List, Button } from 'antd'
+import { Row, Col, Avatar, Typography, List, Button, Spin } from 'antd'
 import FeedService from '../APIs/feed.service';
 import Post from './Post';
 import CreatePost from './CreatePost';
@@ -25,8 +25,8 @@ const FeedList = () => {
             setPage(newpage - 1);
         }
         else{
-            console.log('Feed', response.data.news_feed)
-            setFeedList([...feedList, ...response.data.news_feed])
+            console.log('Feed', response.data.news_feed);
+            setFeedList([...feedList, ...response.data.news_feed]);
         }
     }).then(()=>{
         setIsFetching(false);
@@ -79,7 +79,9 @@ const FeedList = () => {
                     )}
                 />
         {/* TODO css while fetching */}
-      {isFetching && 'Fetching more list items...'}
+        <Row justify='center'>
+            {isFetching ?<Spin size='large' justify='center'/>:null}
+        </Row>
     </>
   );
 };
