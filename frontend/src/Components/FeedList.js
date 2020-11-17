@@ -7,8 +7,7 @@ import CreatePost from './CreatePost';
 
 const FeedList = () => {
   const [feedList, setFeedList] = useState([]);
-  const [isFinish,setIsFinish] = useState(false);
-  const [isFetching, setIsFetching] = useInfiniteScroll(fetchMoreListItems, isFinish);
+  const [[isFetching, setIsFetching],[isFinish, setIsFinish]] = useInfiniteScroll(fetchMoreListItems);
   const [isFristTime, setIsFristTime] = useState(true);
   const [isLoadUser,setIsLoadUser] = useState(true);
   const [isLoadFriend,setIsLoadFriend] = useState(true);
@@ -25,10 +24,9 @@ const FeedList = () => {
         if(!response.data.news_feed.length){
             setPage(newpage - 1);
             setIsFinish(true);
-            console.log('set is finish:',isFinish);
         }
         else{
-            console.log('Feed', response.data.news_feed);
+            // console.log('Feed', response.data.news_feed);
             setFeedList([...feedList, ...response.data.news_feed]);
         }
     }).then(()=>{
@@ -41,7 +39,7 @@ const FeedList = () => {
 
   useEffect(() => {
         FeedService.getFeed(page).then(response => {
-            console.log('Feed', response.data)
+            // console.log('Feed', response.data)
             setFeedList([...feedList, ...response.data.news_feed])
         })
         .catch((error) => {
