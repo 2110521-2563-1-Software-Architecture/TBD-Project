@@ -33,6 +33,9 @@ function App() {
           {/* <Router exact path={'/home'}>
             <Home />
           </Router> */}
+          <Router exact path={'/'}>
+            <Login />
+          </Router>
           <Router exact path={'/login'}>
             <Login />
           </Router>

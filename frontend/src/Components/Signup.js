@@ -290,7 +290,8 @@ function Signup() {
                 <Row justify="center">
                     <Button 
                         htmlType="submit"
-                        style={button_sign_up}
+                        type="primary"
+                        
                     >
                         Sign Up
                     </Button>
@@ -313,16 +314,6 @@ const down = {
     fontSize: "11px",
     marginTop: "10px",
     marginBottom: "10px"
-}
-const button_sign_up = {
-    height: "36px",
-    backgroundColor: "#00a400",
-    border: "none",
-    borderRadius: "6px",
-    paddingLeft: "50px",
-    paddingRight: "50px",
-    color: "#fff",
-    fontSize: "18px",
 }
 const topic = {
     color: "#1c1e21",

@@ -91,7 +91,7 @@ function Post(props) {
         }};
         axios.post('http://localhost:8080/interact', sendToBack, header )
         .then(response => {
-            console.log('like: ',response.data.status);
+            // console.log('like: ',response.data.status);
             if(response.data.status ==='success.'){
                 history.push('/home');
             };
@@ -127,7 +127,7 @@ function Post(props) {
         }};
         axios.post('http://localhost:8080/interact', sendToBack, header )
         .then(response => {
-            console.log('dislike: ',response.data.status);
+            // console.log('love: ',response.data.status);
             if(response.data.status ==='success.'){
                 history.push('/home');
             };

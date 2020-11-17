@@ -112,7 +112,7 @@ function Login() {
           </Form.Item>
         </Form>
         <p style={{ textAlign: "center" }}>
-          or <Link to="/signup">Sign Up</Link> for free life-time account
+          or <Link to="/signup" onClick={()=> window.location.replace("/signup")}>Sign Up</Link> for free life-time account 
         </p>
       </div>
     </div>
