@@ -15,7 +15,8 @@ function Home() {
     const [friendsListIDs, setFriendsListIDs] = useState([]);
     const [allUser, setAllUser] = useState([]);
     const user = JSON.parse(localStorage.getItem('user'));
-
+    if(user === null) window.location.replace("/login");
+    
     useEffect(() => {
         UserService.getFriends().then(response => {
             setFriendsList(response['data']['friends'])

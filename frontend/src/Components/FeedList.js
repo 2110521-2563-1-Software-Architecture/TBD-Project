@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import useInfiniteScroll from "./UseInfiniteScroll";
-import { Row, Col, Avatar, Typography, List, Button } from 'antd'
+import { Row, Col, Avatar, Typography, List, Button, Spin } from 'antd'
 import FeedService from '../APIs/feed.service';
 import Post from './Post';
 import CreatePost from './CreatePost';
 
 const FeedList = () => {
   const [feedList, setFeedList] = useState([]);
-  const [isFetching, setIsFetching] = useInfiniteScroll(fetchMoreListItems);
+  const [[isFetching, setIsFetching],[isFinish, setIsFinish]] = useInfiniteScroll(fetchMoreListItems);
   const [isFristTime, setIsFristTime] = useState(true);
   const [isLoadUser,setIsLoadUser] = useState(true);
   const [isLoadFriend,setIsLoadFriend] = useState(true);
@@ -23,10 +23,11 @@ const FeedList = () => {
         // console.log('Feed', response.data)
         if(!response.data.news_feed.length){
             setPage(newpage - 1);
+            setIsFinish(true);
         }
         else{
-            console.log('Feed', response.data.news_feed)
-            setFeedList([...feedList, ...response.data.news_feed])
+            // console.log('Feed', response.data.news_feed);
+            setFeedList([...feedList, ...response.data.news_feed]);
         }
     }).then(()=>{
         setIsFetching(false);
@@ -38,7 +39,7 @@ const FeedList = () => {
 
   useEffect(() => {
         FeedService.getFeed(page).then(response => {
-            console.log('Feed', response.data)
+            // console.log('Feed', response.data)
             setFeedList([...feedList, ...response.data.news_feed])
         })
         .catch((error) => {
@@ -79,7 +80,9 @@ const FeedList = () => {
                     )}
                 />
         {/* TODO css while fetching */}
-      {isFetching && 'Fetching more list items...'}
+        <Row justify='center'>
+            {isFetching ?<Spin size='large' justify='center'/>:null}
+        </Row>
     </>
   );
 };

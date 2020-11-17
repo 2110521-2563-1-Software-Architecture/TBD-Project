@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 const useInfiniteScroll = (callback) => {
   const [isFetching, setIsFetching] = useState(false);
+  const [isFinish,setIsFinish] = useState(false);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
@@ -10,10 +11,15 @@ const useInfiniteScroll = (callback) => {
 
   useEffect(() => {
     if (!isFetching) return;
+    if (isFinish) {
+      setIsFetching(false);
+      console.log('you have all feed already');
+      return;
+    }
     callback(() => {
       console.log('called back');
     });
-  }, [isFetching]);
+  }, [isFetching,isFinish]);
 
   function handleScroll() {
     const scrollBottom = window.pageYOffset + window.innerHeight;
@@ -21,11 +27,10 @@ const useInfiniteScroll = (callback) => {
     // console.log('scroll hieght:', document.documentElement.scrollHeight);
     if (document.documentElement.scrollHeight - scrollBottom < 1){
       setIsFetching(true);
-      // console.log('test 2');
     }
   }
 
-  return [isFetching, setIsFetching];
+  return [[isFetching, setIsFetching],[isFinish, setIsFinish]];
 };
 
 export default useInfiniteScroll;
