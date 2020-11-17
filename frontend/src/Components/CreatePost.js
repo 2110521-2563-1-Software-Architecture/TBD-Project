@@ -88,7 +88,8 @@ function CreatePost(props) {
                 console.log('error ' + error);
             });
         }else{
-            setFeedList([...feedList, {owner_name:owner_name, content:text, content_type:'text'}]);
+            // add new post to first feed
+            setFeedList([{owner_name:owner_name, content:text, content_type:'text'}, ...feedList]);
             sendToBackend = {
                 'content_type':content_type,
                 'content':content
