@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Button, Checkbox } from "antd";
 import { Link, BrowserRouter as Router, useHistory } from "react-router-dom";
-import axios from "axios";
-import "antd/dist/antd.css";
+import UserService from '../APIs/user.service';
 
 function validateEmail(email) {
   const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -30,24 +29,25 @@ function Login() {
   const onSubmit = () => {
 
     if (validateEmail(username)) {
+
       const sendToBackend = {
         account_id: username,
         pwd: password,
       };
 
-      axios
-        .post("http://localhost:8080/login", sendToBackend)
-        .then((res) => {
-          if (res.data.status == 'success.') {
-            const user = { user_id: res.data.user.user_id, token: res.data.user.token }
-            localStorage.setItem('user', JSON.stringify(user));
-            console.log('user', user);
-            window.location.replace("/home");
-          }
-          else{
-            alert(res.data.status)
-          }
-        });
+      UserService.login(sendToBackend).then((res) => {
+        if (res.data.status == 'success.') {
+          const user = { user_id: res.data.user.user_id, token: res.data.user.token }
+          localStorage.setItem('user', JSON.stringify(user));
+          console.log('user', user);
+          window.location.replace("/home");
+        }
+        else {
+          alert(res.data.status)
+        }
+      })
+
+
     } else {
       alert("It's not an email!")
     }
@@ -55,9 +55,9 @@ function Login() {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
-    if(user) 
+    if (user)
       window.location.replace("/home");
-  
+
   }, [])
 
   return (

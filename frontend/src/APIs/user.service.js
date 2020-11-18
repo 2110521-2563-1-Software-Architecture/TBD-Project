@@ -17,6 +17,14 @@ class UserService {
         return axios.post(API_URL + 'friend', { target: user_id }, { headers: authHeader() });
     }
 
+    login(sendToBackend) {
+        return axios.post("http://localhost:8080/login", sendToBackend);
+    }
+
+    logout() {
+        return axios.get("http://localhost:8080/logout", { headers: authHeader() })
+    }
+
 }
 
 export default new UserService();

@@ -50,11 +50,12 @@ function Home() {
                 const _friendsListIDs = friendsListIDs.filter(item => item !== user_id)
                 setFriendsList(_friendsList);
                 setFriendsListIDs(_friendsListIDs);
+                console.log("Remove successfully")
             }
         }).catch((error) => {
             console.log('error ' + error);
         });
-    }    
+    }
 
     // const Friend = () => {
     //     if (friendsList == undefined || friendsList == []) {
@@ -88,7 +89,7 @@ function Home() {
                             dataSource={friendsList}
                             renderItem={item => (
                                 <List.Item actions={
-                                    [<Button type="primary" shape="round" size="small" danger>
+                                    [<Button type="primary" shape="round" size="small" danger onClick={() => removeFriend()}>
                                         Remove
                               </Button>]}>
                                     <List.Item.Meta
@@ -102,7 +103,7 @@ function Home() {
                 </Row>
             </Col>
             <Col span={8}>
-                <FeedList/>
+                <FeedList />
             </Col>
             <Col span={6}><Row justify="center" align="middle" >
                 <Col span={20}>
