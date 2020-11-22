@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+ front:
+  build: ./frontend
+  container_name: frontend
+  networks:
+   - mynet
+  ports:
+   - 3000:3000
+ back:
+  build: ./backend
+  container_name: backend
+  networks:
+   - mynet
+  ports:
+   - 5000:5000
+networks:
+ mynet: {}
