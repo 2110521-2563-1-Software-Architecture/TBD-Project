@@ -39,7 +39,7 @@ class User(BaseModel):
                 gender, timestamp FROM accounts WHERE id = %s'
             value = (current_user,)
             cursor.execute(stmt, value)
-            fetched = cursor.fetchone()[0]
+            fetched = cursor.fetchone()
             cursor.close()
             return {'status': 'success', 'user_data': {
                 'email': fetched[0],

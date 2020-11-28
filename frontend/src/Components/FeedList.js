@@ -62,7 +62,7 @@ const FeedList = () => {
                         modalVisible={false}
                         text={''}
                         photo={''}
-                        firstname={owner.first_name}
+                        firstname={owner.first_name+' '+owner.last_name}
                         setFeedList={setFeedList}
                         feedList={feedList}/>
         <List
