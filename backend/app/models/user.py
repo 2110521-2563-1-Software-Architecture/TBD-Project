@@ -172,17 +172,6 @@ class User(BaseModel):
                 ON friends.to_user_id=accounts.id WHERE friends.from_user_id = %s'
             value = (current_user,)
             cursor.execute(stmt, value)
-            # friends = [
-            #     {
-            #         'id': friend[0],
-            #         # 'email': friend[1],
-            #         'first_name': friend[2],
-            #         'last_name': friend[3],
-            #         # 'birth_date': friend[4],
-            #         # 'gender': friend[5]
-            #     }
-            #     for friend in cursor.fetchall()
-            # ]
             friends = [
                 {
                     'id': friend[0],
@@ -213,7 +202,8 @@ class User(BaseModel):
                 cursor.execute(stmt, value)
                 value = (target, current_user)
                 cursor.execute(stmt, value)
-                stmt = 'DELETE userfeed.* FROM userfeed INNER JOIN feed WHERE feed.owner_id = %s AND userfeed.user_id = %s'
+                stmt = 'DELETE FROM userfeed WHERE user_id = %s AND feed_id in \
+                    (SELECT id FROM feed WHERE owner_id = %s)'
                 value = (target, current_user)
                 cursor.execute(stmt, value)
                 value = (current_user, target)

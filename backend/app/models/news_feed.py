@@ -66,7 +66,7 @@ class NewsFeed(BaseModel):
                  WHERE userfeed.user_id = %s GROUP BY feed.id'
             value = (current_user,) 
             cursor.execute(stmt, value)
-            news_feed = [ generate_news_feed(feed) for feed in cursor.fetchall()[(page-1)*10:page*10] ]
+            news_feed = [ generate_news_feed(feed) for feed in cursor.fetchall() ]
             all_feed_id = [ nf['id'] for nf in news_feed ]
             format_strings = ','.join(['%s'] * len(all_feed_id))
             stmt = 'SELECT interact_to_feed_id, action FROM logs WHERE user_id = %s AND \
@@ -88,7 +88,7 @@ class NewsFeed(BaseModel):
             affinity.update({k:float('-inf') for k in \
                 [e['owner_id'] for e in news_feed] if k not in affinity.keys()})
             news_feed.sort(key=lambda param: affinity[param['owner_id']])
-            return {'news_feed':news_feed}
+            return {'news_feed':news_feed[(page-1)*10:page*10]}
         except:
             try:
                 cursor.close()
@@ -103,14 +103,22 @@ class NewsFeed(BaseModel):
             stmt = 'INSERT INTO feed (type, content, owner_id, timestamp) VALUES (%s, %s, %s, %s)'
             value = (content_type, content, current_user, timestamp)
             cursor.execute(stmt, value)
-            self.app.mysql_conn.commit()  
+            feed_id = cursor.lastrowid
+            stmt = 'INSERT INTO userfeed (user_id, feed_id) SELECT from_user_id, %s\
+                 FROM friends WHERE to_user_id = %s'
+            value = (feed_id, current_user)
+            cursor.execute(stmt, value)
+            stmt = 'INSERT INTO userfeed (user_id, feed_id) VALUES (%s, %s)'
+            value = (current_user, feed_id)
+            cursor.execute(stmt, value)
+            self.app.mysql_conn.commit()
             cursor.close()
             return {'status': 'success.'}
         except:
             try:
                 cursor.close()
             except:
-                pass            
+                pass
             return {'status':'Bad Request.', 'reason':'Unknown Error.'}
 
     async def update(self, current_user, target, content, content_type, **kwargs):
@@ -119,7 +127,7 @@ class NewsFeed(BaseModel):
             stmt = 'UPDATE feed SET type = %s, content = %s WHERE id = %s AND owner_id = %s'
             value = (content_type, content, target, current_user)
             cursor.execute(stmt, value)
-            self.app.mysql_conn.commit()  
+            self.app.mysql_conn.commit()
             cursor.close()
             return {'status': 'success.'}
         except:
