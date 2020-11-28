@@ -15,7 +15,8 @@ const FeedList = () => {
   const [isLoadFeed,setIsLoadFeed] = useState(true);
   const [isDelete, setIsDelete] = useState(false);
   const [page,setPage] = useState(1);
-  const [owner, setOwner] = useState({first_name: 'a', last_name: 'b'});
+  const [owner, setOwner] = useState({first_name: '', last_name: ''});
+  const user = JSON.parse(localStorage.getItem('user'));
 
   function fetchMoreListItems() {
     const newpage = page + 1;
@@ -41,7 +42,6 @@ const FeedList = () => {
   useEffect(() => {
         UserService.getOwnerUser().then(response => {
             setOwner(response['data']['user_data'])
-            console.log(response['data']['user_data'])
         }).catch((error) => {
             console.log('error ' + error);
         });
@@ -74,14 +74,14 @@ const FeedList = () => {
                                 content={item.content}
                                 type={item.content_type}
                                 owner_id={item.owner_id}
-                                user_id={owner.user_id}
+                                user_id={user.user_id}
                                 owner_name={item.owner_name}
                                 like={item.like}
                                 love={item.dislike}
                                 isLike={item.isLike}
                                 isLove={item.isLove}
                                 id={item.id}
-                                key={item.id}
+                                key={item.id}                                
                             />
                         </List.Item>
                     )}

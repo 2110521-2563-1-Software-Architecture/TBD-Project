@@ -11,8 +11,9 @@ import UploadImageService from '../APIs/image.service'
 const { TextArea } = Input;
 
 function CreatePost(props) {
+    const { setModalVisible, setNewText, setNewType } = props;
     const textBeforeEdit = props.text;
-    const { setModalVisible, setNewText, setNewType, setFeedList, feedList } = props;
+    const photoBeforeEdit = props.photo;
     const [ID, setID] = useState(props.id);
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [owner_name, setOwnerName] = useState(props.firstname);
@@ -34,6 +35,11 @@ function CreatePost(props) {
         setOwnerName(props.firstname);
     }, [props.modalVisible, props.firstname])
 
+    useEffect(() => {
+        setText(props.text);
+        setPhoto(props.photo);
+    }, [props.modalVisible])
+
     const uploadPhoto = () => {
         const uploadButton = document.getElementById('img_upload');
         if (uploadButton)
@@ -47,28 +53,13 @@ function CreatePost(props) {
             setText("")
         }
     }
-
-    const handleImageChange = (e) => {
-        // e.preventDefault();
-        let files = e.fileList;
-        files.forEach((index) => {
-            let file = index.originFileObj;
-            let reader = new FileReader();
-            reader.onloadend = () => {
-                setPhoto(reader.result);
-            };
-        });
-
-        setVisible(true);
-        setText('');
-    }
+    
     const onChangeText = (e) => {
         e.preventDefault();
         setText(e.target.value);
     }
     const deletePhoto = (index) => {
         setPhoto('');
-        setNewType('text');
     }
     const MyUploadButton = () => {
         return (
@@ -116,6 +107,7 @@ function CreatePost(props) {
                 if (response.data.status === 'success.') {
                     setPhoto('');
                     setVisible(false);
+                    setModalVisible(false);
                 } else {
                     console.log('status post new feed: ', response.data.status);
                 }
@@ -203,10 +195,10 @@ function CreatePost(props) {
                 </Row>
                 <Row justify="center" style={{ marginTop: '10px' }}>
                     {isEdit
-                        ? <Button type="primary" disabled={text == textBeforeEdit && photo == textBeforeEdit} block onClick={submit}>
+                        ? <Button type="primary" disabled={text == textBeforeEdit && photo == photoBeforeEdit || text == '' && photo == ''} block onClick={submit}>
                             Record
                         </Button>
-                        : <Button type="primary" disabled={text === '' && photo.length === 0} block onClick={submit}>
+                        : <Button type="primary" disabled={text === '' && photo === ''} block onClick={submit}>
                             Post
                         </Button>}
                 </Row>

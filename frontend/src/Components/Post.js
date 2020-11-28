@@ -13,7 +13,7 @@ import love_icon from '../picture/love.jpg';
 import CreatePost from './CreatePost';
 
 function Post(props) {
-    const {setIsDelete, setIsLoadFeed, user_id} = props;
+    const {user_id} = props;
     const [username, setUsername] = useState(props.owner_name);
     const [ownerID, setOwnerID] = useState(props.owner_id);
     const [text, setText] = useState(props.content);
@@ -50,17 +50,12 @@ function Post(props) {
             }
         })
         .then(response => {
-            console.log('feed: ',response.data);
             if(response.data.status ==='success.'){
-                history.push('/home');
+                window.location.replace("/home");
             };
-            setIsDelete(true);
-            setIsLoadFeed(true);
         })
         .catch((error) => {
-            console.log('error ' + error); 
-            setIsDelete(true);
-            setIsLoadFeed(true);
+            message.error(error);
         }); 
     }
     const likePost = () => {

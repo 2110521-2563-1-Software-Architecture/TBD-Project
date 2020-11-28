@@ -21,7 +21,6 @@ function Home() {
     useEffect(() => {
         UserService.getOwnerUser().then(response => {
             setOwner(response['data']['user_data'])
-            console.log(response['data']['user_data'])
         }).catch((error) => {
             console.log('error ' + error);
         });
