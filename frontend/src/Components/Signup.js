@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import axios from 'axios';
 import {Link, useHistory} from 'react-router-dom';
 import { Radio, Select, Row, Col, Input, Button, message, Form } from 'antd';
-import jwt from 'jsonwebtoken';
 const { Option } = Select;
 
 function validateEmail(email) {
@@ -77,9 +76,6 @@ function Signup() {
         }
     }
     const onSubmit = () =>{
-        const SECRET = 'secret'; // ให้เหมือนของ backend
-        const payload = {a:'a'}; // ยังไม่รู้จะใส่อะไร
-        const token = jwt.sign(payload, SECRET, { algorithm: 'HS256'});
         if(firstName && surName && password && date && month && year && (gender || pronoun)){
             if(validateEmail(account_id)){
                 const sendToBackend = {
@@ -90,11 +86,7 @@ function Signup() {
                     gender: gender,
                     birth_date: date+'/'+month+'/'+year
                 };
-                const header = {
-                    headers:{
-                        Authorization: token
-                }};
-                axios.post('http://localhost:8080/register', sendToBackend, header)
+                axios.post('http://localhost:8080/register', sendToBackend)
                     .then(res => {
                         const status = res.data.status;
                         // console.log(status);
