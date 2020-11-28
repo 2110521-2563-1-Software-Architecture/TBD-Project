@@ -5,6 +5,10 @@ const API_URL = 'http://localhost:8080/';
 
 class UserService {
 
+    getOwnerUser() {
+        return axios.get(API_URL + 'user_data', { headers: authHeader() });
+    }
+
     getAllUsers() {
         return axios.get(API_URL + 'all_users', { headers: authHeader() });
     }

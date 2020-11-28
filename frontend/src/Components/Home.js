@@ -11,6 +11,7 @@ const { Title } = Typography;
 
 
 function Home() {
+    const [owner, setOwner] = useState({first_name: '', last_name: ''});
     const [friendsList, setFriendsList] = useState([]);
     const [friendsListIDs, setFriendsListIDs] = useState([]);
     const [allUser, setAllUser] = useState([]);
@@ -18,6 +19,12 @@ function Home() {
     if(user === null) window.location.replace("/login");
     
     useEffect(() => {
+        UserService.getOwnerUser().then(response => {
+            setOwner(response['data']['user_data'])
+            console.log(response['data']['user_data'])
+        }).catch((error) => {
+            console.log('error ' + error);
+        });
         UserService.getFriends().then(response => {
             setFriendsList(response['data']['friends'])
             setFriendsListIDs(response['data']['friends'].map(list => { return list.id }))
@@ -61,10 +68,12 @@ function Home() {
         <Row justify="center" style={{ marginTop: '2.5em' }}>
             <Col span={6}>
                 <Row justify="center" align="middle">
-                    <Col span={24} style={{ textAlign: 'center' }}><Avatar size={128} src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff&size=128" /></Col>
+                    <Col span={24} style={{ textAlign: 'center' }}><Avatar size={128} src={"https://ui-avatars.com/api/?name="+owner.first_name+"+"+owner.last_name+"&background=0D8ABC&color=fff&size=128"} /></Col>
                 </Row>
                 <Row justify="center" align="middle">
-                    <Col span={24} style={{ textAlign: 'center' }}> <Title level={4}>John Doe</Title></Col>
+                    <Col span={24} style={{ textAlign: 'center' }}>
+                        <Title level={4}>{owner.first_name} { } {owner.last_name}</Title>
+                    </Col>
                 </Row>
                 <Row justify="center" align="middle" >
                     <Col span={16} >
