@@ -12,7 +12,7 @@ const { TextArea } = Input;
 
 function CreatePost(props) {
     const textBeforeEdit = props.text;
-    const { setModalVisible, setNewText, setFeedList, feedList } = props;
+    const { setModalVisible, setNewText, setNewType, setFeedList, feedList } = props;
     const [ID, setID] = useState(props.id);
     const [isEdit, setIsEdit] = useState(props.isEdit);
     const [owner_name, setOwnerName] = useState(props.firstname);
@@ -23,6 +23,11 @@ function CreatePost(props) {
     const [isLoading, setIsLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0)
     const history = useHistory();
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    useEffect(() => {
+        if(owner_name=='') setOwnerName(user.user_name);
+    }, [])
 
     useEffect(() => {
         setVisible(props.modalVisible);
@@ -38,14 +43,8 @@ function CreatePost(props) {
     const handleUploadOnchange = e => {
         const file = e.target.files[0];
         if (file) {
-            // const img = URL.createObjectURL(file, setIsLoading);
-            // setPhoto(img)
             UploadImageService(file, setPhoto, setIsLoading, setUploadProgress);
-            // if (img_url) {
-            //     console.log(img_url)
-            //     setPhoto(img_url)
-            //     setText("")
-            // }
+            setText("")
         }
     }
 
@@ -69,6 +68,7 @@ function CreatePost(props) {
     }
     const deletePhoto = (index) => {
         setPhoto('');
+        setNewType('text');
     }
     const MyUploadButton = () => {
         return (
@@ -99,7 +99,14 @@ function CreatePost(props) {
         let sendToBackend;
 
         if (isEdit) {
-            setNewText(text);
+            if(photo==''){
+                setNewText(text);
+                setNewType('text');
+            }
+            else {
+                setNewText(photo);
+                setNewType('photo');
+            }
             sendToBackend = {
                 'target': ID,
                 'content_type': content_type,
@@ -116,22 +123,22 @@ function CreatePost(props) {
                 console.log('error ' + error);
             });
         } else {
-            // add new post to first feed
-            setFeedList([{ owner_name: owner_name, content: text, content_type: 'text' }, ...feedList]);
+            // alert when create success
             sendToBackend = {
                 'content_type': content_type,
                 'content': content
             };
             PostService.createPost(sendToBackend).then(response => {
                 if (response.data.status === 'success.') {
-                    setPhoto('');
+                    setText('');
                     setPhoto('');
                     setVisible(false);
+                    message.success('Create post sucecss');
                 } else {
-                    console.log('status post new feed: ', response.data.status);
+                    message.error('status post new feed: ', response.data.status);
                 }
             }).catch((error) => {
-                console.log('error ' + error);
+                message.error('error ' + error);
             });
         }
     }
@@ -153,9 +160,6 @@ function CreatePost(props) {
                             </Button>
                         </Col>
                     </Row>
-                    {/* <Row style={{ marginTop: '10px' }} justify="center">
-                        <MyUploadButton />
-                    </Row> */}
                 </div>
                 : null}
             <Modal
@@ -199,7 +203,7 @@ function CreatePost(props) {
                 </Row>
                 <Row justify="center" style={{ marginTop: '10px' }}>
                     {isEdit
-                        ? <Button type="primary" disabled={text == textBeforeEdit || photo == textBeforeEdit} block onClick={submit}>
+                        ? <Button type="primary" disabled={text == textBeforeEdit && photo == textBeforeEdit} block onClick={submit}>
                             Record
                         </Button>
                         : <Button type="primary" disabled={text === '' && photo.length === 0} block onClick={submit}>

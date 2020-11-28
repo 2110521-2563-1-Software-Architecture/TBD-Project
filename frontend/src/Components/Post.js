@@ -159,7 +159,7 @@ function Post(props) {
             <Row style={{ marginTop: '10px' }} >
                 {type == 'text'
                     ? text
-                    : <img style={{ width: '100%' }} src={text} />}
+                    : <img style={{ width: '100%', marginBottom: '5px' }} src={text} />}
             </Row>
             <Row>
                 <img src={like_icon} style={likeIcon}/>
@@ -174,17 +174,21 @@ function Post(props) {
                     isEdit={true} 
                     modalVisible={modalVisible} 
                     setModalVisible={setModalVisble}
+                    firstname={username}
                     text={text}
                     photo={''}
-                    setNewText={setText}/>
+                    setNewText={setText}
+                    setNewType={setType}/>
                 :<CreatePost 
                     id={feedID}
                     isEdit={true} 
                     modalVisible={modalVisible} 
                     setModalVisible={setModalVisble}
+                    firstname={username}
                     text={''}
                     photo={text}
-                    setNewText={setText}/>}
+                    setNewText={setText}
+                    setNewType={setType}/>}
             </Row>
             <Row style={likeBox} gutter={5}>
                 <Col span={12}>

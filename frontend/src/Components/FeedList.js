@@ -79,7 +79,6 @@ const FeedList = () => {
                         </List.Item>
                     )}
                 />
-        {/* TODO css while fetching */}
         <Row justify='center'>
             {isFetching ?<Spin size='large' justify='center'/>:null}
         </Row>

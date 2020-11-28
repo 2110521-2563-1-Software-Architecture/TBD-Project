@@ -57,20 +57,6 @@ function Home() {
         });
     }
 
-    // const Friend = () => {
-    //     if (friendsList == undefined || friendsList == []) {
-    //         return;
-    //     }
-    //     return friendsList.map(function (currentlist, i) {
-    //         return <FriendList list={currentlist} key={i} />;
-    //     })
-    // }
-    // const User = () => {
-    //     return allUser.map(function (currentlist, i) {
-    //         return <AllUser list={currentlist} key={i} />;
-    //     })
-    // }
-
     return (
         <Row justify="center" style={{ marginTop: '2.5em' }}>
             <Col span={6}>
