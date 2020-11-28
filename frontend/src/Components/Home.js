@@ -75,7 +75,7 @@ function Home() {
                             dataSource={friendsList}
                             renderItem={item => (
                                 <List.Item actions={
-                                    [<Button type="primary" shape="round" size="small" danger onClick={() => removeFriend()}>
+                                    [<Button type="primary" shape="round" size="small" danger onClick={() => removeFriend(item.id)}>
                                         Remove
                               </Button>]}>
                                     <List.Item.Meta
