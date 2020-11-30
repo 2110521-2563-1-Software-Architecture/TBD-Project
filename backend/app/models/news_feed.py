@@ -201,24 +201,33 @@ class NewsFeed(BaseModel):
 #       score = 2
 #   if action == "love":
 #       score = 3
-#   u = max(old_score, t)
-#   v = min(old_score, t)
+#   u = max(old_score, t/1.3e6)
+#   v = min(old_score, t/1.3e6)
 #   return (u + math.log(math.exp(v-u))) * score
+
+#def calScore(old_score,action,t,feed_type):
+#   weight = 0
+#   if feed_type == "text":
+#       weight = 2
+#   if feed_type == "image":
+#       weight = 3
+#   return actionScore(old_score,action,t) * weight
+
 
 #def affinity(self):
 #    affinity = dict()
 #    getUser(self, affinityList)
 #    cursor = self.app.mysql_conn.cursor()
-#    stmt = 'SELECT friends.to_user_id, logs.user_id, logs.action, logs.timestamp FROM friends JOIN logs ON friends.from_user_id = logs.user_id'
+#    stmt = 'SELECT friends.to_user_id, logs.user_id, logs.action, logs.timestamp, feed.type FROM friends JOIN logs ON friends.from_user_id = logs.user_id JOIN feed ON friends.last_interact_id = feed.id'
 #    cursor.execute(stmt)
 #    userList = cursor.fetchall()
 #    for user in userList:
 #       if user[0] not in affinity.keys():
-#           affinity[user[0]] = {user[1]:actionScore(0,user[2],user[3])}
+#           affinity[user[0]] = {user[1]:calScore(0,user[2],user[3],user[4])}
 #       else:
 #           if user[1] not in affinity[user[0]].keys():
-#               affinity[user[0]][user[1]] = actionScore(0,user[2],user[3])
+#               affinity[user[0]][user[1]] = calScore(0,user[2],user[3],user[4])
 #           else:
 #               old_score = affinity[user[0]][user[1]]
-#               affinity[user[0]][user[1]] = actionScore(old_score,user[2],user[3])
+#               affinity[user[0]][user[1]] = calScore(old_score,user[2],user[3],user[4])
 #     cursor.close()
