@@ -14,17 +14,24 @@ const FeedList = () => {
   const [isLoadFriend,setIsLoadFriend] = useState(true);
   const [isLoadFeed,setIsLoadFeed] = useState(true);
   const [isDelete, setIsDelete] = useState(false);
-  const [page,setPage] = useState(1);
+  const [page,setPage] = useState([]);
   const [owner, setOwner] = useState({first_name: '', last_name: ''});
   const user = JSON.parse(localStorage.getItem('user'));
 
+  function getFeedId(){
+      const feedID = [];
+      for( var feed in feedList ){
+        feedID.push(feedList[feed].id)
+      }
+      return feedID
+  }
+
   function fetchMoreListItems() {
-    const newpage = page + 1;
-    setPage(newpage);
-    FeedService.getFeed(newpage).then(response => {
-        // console.log('Feed', response.data)
+    const new_page = getFeedId();
+    setPage(new_page);
+    FeedService.getFeed(new_page).then(response => {
+        // console.log('Feed', response)
         if(!response.data.news_feed.length){
-            setPage(newpage - 1);
             setIsFinish(true);
         }
         else{

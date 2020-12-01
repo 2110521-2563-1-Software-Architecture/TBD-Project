@@ -6,8 +6,10 @@ const API_URL = 'https://fookbace.herokuapp.com/';
 class FeedService {
   getFeed(page) {
     const headers = authHeader();
-    headers['page'] = page;
-    return axios.get(API_URL + 'feed', { headers: headers });
+    headers['page'] = '['+page.join(',')+']'
+    return axios.get(API_URL + 'feed', { 
+      headers: headers 
+    });
   }
 }
 

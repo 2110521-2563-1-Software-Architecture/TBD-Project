@@ -1,6 +1,7 @@
 from app.controllers.base import Controller
 from app.models.news_feed import NewsFeed
 from app.models.user import User
+import json
 
 class NewsFeedController(Controller):
 
@@ -8,7 +9,7 @@ class NewsFeedController(Controller):
         try:
             current_user = await User(request.app).get_user(request.headers.get('User'))
             response = await NewsFeed(request.app).get_news_feed(current_user,
-            int(request.headers.get('page')))
+            json.loads(request.headers.get('page')))
             await self.write(request, self.json_response(response))
         except:
             response = {'status':'Bad Request.', 'reason':'Controller rejected.'}
