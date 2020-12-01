@@ -107,7 +107,7 @@ class NewsFeed(BaseModel):
             affinity.update({k:float('-inf') for k in \
                 [e['owner_id'] for e in news_feed] if k not in affinity.keys()})
             post_scores = self.calculatePostScore(affinity, news_feed)
-            news_feed.sort(key=lambda param: post_scores[param['id']], reverse=True)
+            news_feed.sort(key=lambda param: (post_scores[param['id']], float(param['timestamp'])), reverse=True)
             news_feed = list(filter(lambda feed: feed['id'] not in page, news_feed))
             return {'news_feed':news_feed[:10]}
         except:
