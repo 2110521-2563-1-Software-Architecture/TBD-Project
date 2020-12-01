@@ -8,21 +8,21 @@ def generate_news_feed(news_feed):
                     'id': news_feed[0],
                     'content_type': news_feed[1],
                     'content': news_feed[2],
-                    'owner_id': news_feed[3],
-                    'owner_name': news_feed[4] + ' ' + news_feed[5],
+                    'owner_id': news_feed[4],
+                    'owner_name': news_feed[5] + ' ' + news_feed[6],
                     'like': news_feed[7].replace('dislike','').count('like'),
                     'dislike': news_feed[7].count('dislike'),
-                    'timestamp': news_feed[6]
+                    'timestamp': news_feed[3]
                 }
     return {
                 'id': news_feed[0],
                 'content_type': news_feed[1],
                 'content': news_feed[2],
-                'owner_id': news_feed[3],
-                'owner_name': news_feed[4] + ' ' + news_feed[5],
+                'owner_id': news_feed[4],
+                'owner_name': news_feed[5] + ' ' + news_feed[6],
                 'like': 0,
                 'dislike': 0,
-                'timestamp': news_feed[6]
+                'timestamp': news_feed[3]
             }
 
 def actionScore(old_score,action,t):
@@ -48,36 +48,38 @@ class NewsFeed(BaseModel):
 
     def affinity(self, current_user):
         affinity = {}
-        # current = int(datetime.now().timestamp())
+        current = datetime.now().timestamp()
         cursor = self.app.mysql_conn.cursor()
         stmt = 'SELECT feed.owner_id, logs.action, logs.timestamp FROM logs INNER JOIN feed ON \
             logs.interact_to_feed_id = feed.id WHERE logs.user_id = %s'
         value = (current_user, )
         cursor.execute(stmt, value)
         for user in cursor.fetchall():
-            # time = current - int(float(user[2]))
+            time = current - float(user[2])
             if current_user == user[0]:
                 continue
             if user[0] not in affinity.keys():
-                affinity[user[0]] = actionScore(0,user[1],float(user[2]))
+                affinity[user[0]] = actionScore(0,user[1],time)
             else:
                 old_score = affinity[user[0]]
-                affinity[user[0]] = actionScore(old_score,user[1],float(user[2]))
+                affinity[user[0]] = actionScore(old_score,user[1],time)
         cursor.close()
         return affinity
 
     def calculatePostScore(self, affinity_score, news_feed):
         postScores = dict()
+        current = datetime.now().timestamp()
         for nf in news_feed:
-            postScores[nf['id']] = calPostScore(affinity_score[nf['owner_id']], nf['type'], nf['timestamp'])
+            postScores[nf['id']] = calPostScore(affinity_score[nf['owner_id']], 
+            nf['content_type'], current-float(nf['timestamp']))
         return postScores
 
 
     async def get_news_feed(self, current_user, page, **kwargs):
         try:
             cursor = self.app.mysql_conn.cursor(buffered=True)
-            stmt = 'SELECT feed.id, feed.type, feed.content, feed.timestamp, feed.owner_id, accounts.id, accounts.first_name, accounts.last_name, \
-                feed.timestamp, GROUP_CONCAT(logs.action) FROM userfeed INNER JOIN feed ON feed.id=userfeed.feed_id \
+            stmt = 'SELECT feed.id, feed.type, feed.content, feed.timestamp, accounts.id, accounts.first_name, \
+                accounts.last_name, GROUP_CONCAT(logs.action) FROM userfeed INNER JOIN feed ON feed.id=userfeed.feed_id \
                 INNER JOIN accounts ON feed.owner_id=accounts.id LEFT JOIN logs ON feed.id=logs.interact_to_feed_id\
                  WHERE userfeed.user_id = %s GROUP BY feed.id'
             value = (current_user,) 
@@ -100,16 +102,13 @@ class NewsFeed(BaseModel):
                 else:
                     nf.update({'isLike':False, 'isLove':False})
             cursor.close()
-            # affinity = self.affinity()
             affinity = self.affinity(current_user)
-            post_scores = self.calculatePostScore(affinity, news_feed)
-            print("post_scores",post_scores)
-            affinity = {k:affinity[k][int(current_user)] for k in affinity.keys() \
-                if int(current_user) in affinity[k].keys()}
             affinity.update({k:float('-inf') for k in \
                 [e['owner_id'] for e in news_feed] if k not in affinity.keys()})
-            news_feed.sort(key=lambda param: affinity[param['owner_id']], reverse=True)
-            return {'news_feed':news_feed[(page-1)*10:page*10]}
+            post_scores = self.calculatePostScore(affinity, news_feed)
+            news_feed.sort(key=lambda param: post_scores[param['id']], reverse=True)
+            news_feed = list(filter(lambda feed: feed['id'] not in page, news_feed))
+            return {'news_feed':news_feed[:10]}
         except:
             try:
                 cursor.close()
