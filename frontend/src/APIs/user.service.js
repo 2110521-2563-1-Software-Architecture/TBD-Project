@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authHeader from './auth-header';
 
-const API_URL = 'http://localhost:8080/';
+const API_URL = 'https://fookbace.herokuapp.com/';
 
 class UserService {
   getOwnerUser() {
@@ -25,11 +25,15 @@ class UserService {
   }
 
   login(sendToBackend) {
-    return axios.post('http://localhost:8080/login', sendToBackend);
+    return axios.post(API_URL + 'login', sendToBackend);
+  }
+
+  register(sendToBackend) {
+    return axios.post(API_URL + 'register', sendToBackend);
   }
 
   logout() {
-    return axios.get('http://localhost:8080/logout', { headers: authHeader() });
+    return axios.get(API_URL + 'logout', { headers: authHeader() });
   }
 }
 
