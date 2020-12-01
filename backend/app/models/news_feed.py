@@ -31,9 +31,8 @@ def actionScore(old_score,action,t):
         score = 1
     if action == "dislike":
         score = 1.5
-    u = max(float(old_score), t/(3600*24*365))
-    v = min(float(old_score), t/(3600*24*365))
-    return (u + math.log(math.exp(v-u))) * score
+    timestamp = t/(3600*24*365)
+    return (math.log(math.exp(timestamp))) * score
 
 def calPostScore(affinity_score, feed_type, timestamp):
     weight = 0
@@ -70,8 +69,10 @@ class NewsFeed(BaseModel):
         postScores = dict()
         current = datetime.now().timestamp()
         for nf in news_feed:
-            postScores[nf['id']] = calPostScore(affinity_score[nf['owner_id']], 
-            nf['content_type'], current-float(nf['timestamp']))
+            if nf['owner_id'] in affinity_score:
+                postScores[nf['id']] = calPostScore(affinity_score[nf['owner_id']], nf['content_type'], current-float(nf['timestamp']))
+            else:
+                postScores[nf['id']] = 0
         return postScores
 
 
